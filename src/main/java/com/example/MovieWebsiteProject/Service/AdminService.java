@@ -1,16 +1,22 @@
-package com.example.IdentityService.Service;
+package com.example.MovieWebsiteProject.Service;
 
-import com.example.IdentityService.Entity.User;
-import com.example.IdentityService.Repository.UserRepository;
-import com.example.IdentityService.Repository.WatchingRepository;
+import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Entity.Film;
+import com.example.MovieWebsiteProject.Entity.Genre;
+import com.example.MovieWebsiteProject.Entity.SystemFilm;
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Repository.*;
+import com.example.MovieWebsiteProject.dto.request.SystemFilmRequest;
+import com.example.MovieWebsiteProject.dto.response.UserResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,18 +24,21 @@ import java.util.*;
 public class AdminService {
     UserRepository userRepository;
     WatchingRepository watchingRepository;
+    SystemFilmRepository systemFilmRepository;
+    CloudinaryService cloudinaryService;
+    GenreRepository genreRepository;
+    FilmRepository filmRepository;
 
 
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getUsers() {
+        System.out.println("get user");
+        return userRepository.getAllUser();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public List<Map<String, Object>> getMonthlyNewUsers() {
         List<Object[]> results = userRepository.countNewUsersPerMonth();
         List<Map<String, Object>> response = new ArrayList<>();
-
+        System.out.println("dang lay user dang ki moi");
         results.forEach(row -> {
             Map<String, Object> map = new HashMap<>();
             map.put("mounth", row[0]);
@@ -39,10 +48,8 @@ public class AdminService {
         return response;
     }
 
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<Map<String, Object>> getUsersWatchingPerHour(String dateTime) {
-        var results = watchingRepository.countUsersWatchingPerHour(dateTime);
+    public List<Map<String, Object>> getUsersWatchingPerHour(String watchDate) {
+        var results = watchingRepository.countUsersWatchingPerHour(watchDate);
         List<Map<String, Object>> response = new ArrayList<>();
         results.forEach(row -> {
             Map<String, Object> data = new HashMap<>();
@@ -51,5 +58,72 @@ public class AdminService {
             response.add(data);
         });
         return response;
+    }
+
+    public String uploadSystemFilm(SystemFilmRequest request) {
+        try {
+            String backdropUrl = cloudinaryService.uploadImage(request.getBackdrop());
+            String posterUrl = cloudinaryService.uploadImage(request.getPoster());
+            String videoUrl = cloudinaryService.uploadVideo(request.getVideo());
+
+            Film film = Film.builder()
+                    .belongTo("SYSTEM_FILM")
+                    .build();
+
+            SystemFilm systemFilm = SystemFilm.builder()
+                    .adult(request.isAdult())
+                    .title(request.getTitle())
+                    .overview(request.getOverview())
+                    .releaseDate(request.getReleaseDate())
+                    .backdropPath(backdropUrl)
+                    .posterPath(posterUrl)
+                    .videoPath(videoUrl)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            film.setSystemFilm(systemFilm);
+            Set<Genre> genres = request.getGenres().stream()
+                    .map(genreName -> genreRepository.findByGenreName(genreName)
+                            .orElseGet(() -> genreRepository.save(new Genre(genreName, systemFilm))))
+                    .collect(Collectors.toSet());
+            systemFilm.setGenres(genres);
+            filmRepository.save(film);
+            systemFilmRepository.save(systemFilm);
+            return SuccessCode.UPLOAD_FILM_SUCCESSFULLY.getMessage();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public String updateSystemFilm(String filmId, SystemFilmRequest request) {
+        try {
+            SystemFilm film = systemFilmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+
+            String backdropUrl = cloudinaryService.updateImage(getPublicId(film.getBackdropPath()), request.getBackdrop());
+            String posterUrl = cloudinaryService.updateImage(getPublicId(film.getPosterPath()), request.getPoster());
+            String videoUrl = cloudinaryService.updateVideo(getPublicId(film.getVideoPath()), request.getVideo());
+            film.setAdult(request.isAdult());
+            film.setTitle(request.getTitle());
+            film.setOverview(request.getOverview());
+            film.setBackdropPath(backdropUrl);
+            film.setPosterPath(posterUrl);
+            film.setVideoPath(videoUrl);
+            film.setReleaseDate(request.getReleaseDate());
+            film.setUpdatedAt(LocalDateTime.now());
+
+            Set<Genre> genres = request.getGenres().stream()
+                    .map(genreName -> genreRepository.findByGenreName(genreName)
+                            .orElseGet(() -> genreRepository.save(new Genre(genreName, film))))
+                    .collect(Collectors.toSet());
+            film.setGenres(genres);
+            systemFilmRepository.save(film);
+            return SuccessCode.UPDATE_FILM_SUCCESSFULLY.getMessage();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public String getPublicId(String url) {
+        String[] segments = url.split("/");
+        return segments[segments.length - 1].split("\\.")[0];
     }
 }

@@ -1,8 +1,8 @@
-package com.example.IdentityService.mapper;
+package com.example.MovieWebsiteProject.mapper;
 
-import com.example.IdentityService.Entity.User;
-import com.example.IdentityService.dto.request.UserCreationRequest;
-import com.example.IdentityService.dto.request.UserUpdateRequest;
+import com.example.MovieWebsiteProject.Entity.User;
+import com.example.MovieWebsiteProject.dto.request.UserCreationRequest;
+import com.example.MovieWebsiteProject.dto.request.UserUpdateRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 

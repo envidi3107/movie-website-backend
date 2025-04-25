@@ -1,14 +1,13 @@
-package com.example.IdentityService.Configuration;
+package com.example.MovieWebsiteProject.Configuration;
 
-import com.example.IdentityService.Entity.User;
-import com.example.IdentityService.Repository.UserRepository;
-import com.example.IdentityService.UserRoles.Roles;
+import com.example.MovieWebsiteProject.Common.Roles;
+import com.example.MovieWebsiteProject.Entity.Playlist;
+import com.example.MovieWebsiteProject.Entity.User;
+import com.example.MovieWebsiteProject.Repository.PlaylistRepository;
+import com.example.MovieWebsiteProject.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.Locale;
 
 @Configuration
@@ -26,7 +24,7 @@ public class ApplicationInitConfig {
     private PasswordEncoder passwordEncoder;
 
     @Bean
-    ApplicationRunner applicationRunner(UserRepository userRepository) {
+    ApplicationRunner applicationRunner(UserRepository userRepository, PlaylistRepository playlistRepository) {
 
         return args -> {
             if (userRepository.findByUsername("admin").isEmpty()) {
@@ -40,6 +38,18 @@ public class ApplicationInitConfig {
                         .role(Roles.ADMIN.name())
                         .build();
                 userRepository.save(user);
+            }
+            if (playlistRepository.findByPlaylistName("Yêu thích").isEmpty()) {
+                Playlist playlist = Playlist.builder()
+                        .playlistName("Yêu thích")
+                        .build();
+                playlistRepository.save(playlist);
+            }
+            if (playlistRepository.findByPlaylistName("Xem sau").isEmpty()) {
+                Playlist playlist = Playlist.builder()
+                        .playlistName("Xem sau")
+                        .build();
+                playlistRepository.save(playlist);
             }
         };
     }

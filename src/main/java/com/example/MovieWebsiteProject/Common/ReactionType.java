@@ -1,25 +1,22 @@
-package com.example.IdentityService.Common;
+package com.example.MovieWebsiteProject.Common;
 
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
 import lombok.Getter;
 
 public enum ReactionType {
-    LIKE("like"),
-    DISLIKE("dislike");
+    LIKE,
+    DISLIKE;
 
-    @Getter
-    private final String type;
-
-    ReactionType(String type) {
-        this.type = type;
-    }
-
-    public static String fromString(String value) {
-        for (ReactionType r : values()) {
-            if (r.getType().equalsIgnoreCase(value)) {
-                return r.getType();
+    public static void checkInvalidReaction(String reactionType) {
+        boolean isValid = false;
+        for (ReactionType type : ReactionType.values()) {
+            if (type.name().equals(reactionType)) {
+                isValid = true;
+                break;
             }
         }
-        throw new IllegalArgumentException("Unknown reaction type: " + value);
+        if (!isValid) throw new AppException(ErrorCode.INVALID_REACTION_TYPE);
     }
 }
 

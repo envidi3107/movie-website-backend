@@ -1,6 +1,6 @@
-package com.example.IdentityService.Repository;
+package com.example.MovieWebsiteProject.Repository;
 
-import com.example.IdentityService.Entity.InvalidatedToken;
+import com.example.MovieWebsiteProject.Entity.InvalidatedToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

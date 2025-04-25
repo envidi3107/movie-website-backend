@@ -1,10 +1,8 @@
-package com.example.IdentityService.Entity;
+package com.example.MovieWebsiteProject.Entity;
 
-import com.example.IdentityService.Entity.Belonging.UserFilmPlaylist;
-import com.example.IdentityService.Entity.Reaction.Reaction;
+import com.example.MovieWebsiteProject.Entity.Belonging.UserFilmPlaylist;
+import com.example.MovieWebsiteProject.Entity.Reaction.Reaction;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,12 +44,11 @@ public class User implements UserDetails {
     @Column(name = "avatar_name")
     private String avatarName;
 
-    @Column(name = "date_of_birth")
-    private LocalDate DOB;
+    @Column(name = "avatar_path")
+    private String avatarPath;
 
-    @Lob
-    @Column(name = "avatar_data", columnDefinition = "LONGBLOB")
-    private byte[] avatarData;
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<UserFilmPlaylist> userFilmPlaylist;

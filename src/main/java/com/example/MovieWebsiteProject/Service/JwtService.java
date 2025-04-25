@@ -1,13 +1,13 @@
-package com.example.IdentityService.Service;
+package com.example.MovieWebsiteProject.Service;
 
-import com.example.IdentityService.Entity.User;
-import com.example.IdentityService.Exception.AppException;
-import com.example.IdentityService.Exception.ErrorCode;
-import com.example.IdentityService.Repository.InvalidatedTokenRepository;
-import com.example.IdentityService.Repository.UserRepository;
-import com.example.IdentityService.dto.projection.UserAuthInfo;
-import com.example.IdentityService.dto.request.IntrospectRequest;
-import com.example.IdentityService.dto.response.IntrospectResponse;
+import com.example.MovieWebsiteProject.Entity.User;
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Repository.InvalidatedTokenRepository;
+import com.example.MovieWebsiteProject.Repository.UserRepository;
+import com.example.MovieWebsiteProject.dto.projection.UserAuthInfo;
+import com.example.MovieWebsiteProject.dto.request.IntrospectRequest;
+import com.example.MovieWebsiteProject.dto.response.IntrospectResponse;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -36,16 +36,6 @@ public class JwtService {
     @Value("${jwt.signerKey}")
     private String SIGNER_KEY;
 
-    // Tạo chuỗi scope (role)
-    private String buildScope(UserAuthInfo user) {
-        StringJoiner stringJoiner = new StringJoiner(" ");
-        if (user.getRole() != null) {
-            stringJoiner.add(user.getRole());
-        }
-
-        return stringJoiner.toString();
-    }
-
     // Tạo JWT
     public String generateToken(UserAuthInfo user) {
         try {
@@ -56,7 +46,7 @@ public class JwtService {
                     .issuer("phimhayyy.envidi.com")
                     .issueTime(new Date())
                     .expirationTime(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 1 day
-                    .claim("scope", buildScope(user))
+                    .claim("role", user.getRole())
                     .claim("userId", user.getId())
                     .jwtID(UUID.randomUUID().toString())
                     .build();

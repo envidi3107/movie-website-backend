@@ -1,5 +1,7 @@
-package com.example.IdentityService.dto.request;
+package com.example.MovieWebsiteProject.dto.request;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +15,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WatchingRequest {
+    @NotNull
+    @NotEmpty(message = "Film Id cannot be empty!")
     private String filmId;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime timeStamp;
-
-    private int wacthHour;
+    @NotNull
+    @NotEmpty(message = "Watching time Id cannot be empty!")
+    private LocalDateTime watchingTime;
 }

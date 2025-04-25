@@ -1,4 +1,4 @@
-package com.example.IdentityService.dto.request;
+package com.example.MovieWebsiteProject.dto.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

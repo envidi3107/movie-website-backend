@@ -1,32 +1,29 @@
-package com.example.IdentityService.Service;
+package com.example.MovieWebsiteProject.Service;
 
-import com.example.IdentityService.Entity.User;
-import com.example.IdentityService.Exception.AppException;
-import com.example.IdentityService.Exception.ErrorCode;
-import com.example.IdentityService.Repository.UserRepository;
-import com.example.IdentityService.UserRoles.Roles;
-import com.example.IdentityService.dto.request.UserCreationRequest;
-import com.example.IdentityService.dto.request.UserUpdateRequest;
-import com.example.IdentityService.mapper.UserMapper;
+import com.example.MovieWebsiteProject.Common.Roles;
+import com.example.MovieWebsiteProject.Entity.User;
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Repository.UserRepository;
+import com.example.MovieWebsiteProject.dto.request.UserCreationRequest;
+import com.example.MovieWebsiteProject.dto.request.UserUpdateRequest;
+import com.example.MovieWebsiteProject.mapper.UserMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +32,10 @@ public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    AuthenticationService authenticationService;
 
-    public User createUser(UserCreationRequest request, HttpServletRequest httpServletRequest) {
-        if(userRepository.existsByUsername(request.getUsername())) {
+    public void createUser(UserCreationRequest request, HttpServletRequest httpServletRequest) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -50,13 +48,13 @@ public class UserService {
         user.setCreatedAt(accessTime);
         user.setIpAddress(getClientIp(httpServletRequest));
         user.setCountry(httpServletRequest.getLocale().getCountry());
+        user.setDateOfBirth(request.getDateOfBirth());
         user.setRole(Roles.USER.name());
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     public User getUser(String id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
-        return user;
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
     }
 
     @PostAuthorize("returnObject != null && returnObject.getUsername() == authentication.getName()")
@@ -67,19 +65,49 @@ public class UserService {
         return userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException("User info not found!"));
     }
 
-    public void updateUser(String userId, UserUpdateRequest request) {
-        User user = getUser(userId);
-        if (user.getPassword().equals(request.getPassword())) {
+    public void updateUser(UserUpdateRequest request) {
+        User user = getUser(authenticationService.getAuthenticatedUser().getId());
+
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+
+        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.PASSWORD_MUST_BE_DIFFERENCE);
+        } else {
+            request.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        request.setPassword(passwordEncoder.encode(request.getPassword()));
-        userMapper.updateUser(user, request);
-        userRepository.save(user);
+
+        user.setDateOfBirth(request.getDateOfBirth());
+
+        if (request.getAvatarFile() != null && !request.getAvatarFile().isEmpty()) {
+            try {
+                // Đặt tên file (có thể thêm timestamp hoặc UUID để tránh trùng)
+                String fileName = UUID.randomUUID() + "_" + request.getAvatarFile().getOriginalFilename();
+                Path uploadDir = Paths.get("uploads/avatars");
+
+                // Tạo thư mục nếu chưa tồn tại
+                Files.createDirectories(uploadDir);
+
+                // Ghi file vào thư mục
+                Path filePath = uploadDir.resolve(fileName);
+                Files.write(filePath, request.getAvatarFile().getBytes());
+
+                // Set đường dẫn file vào avatar (có thể là URL tương đối hoặc tuyệt đối)
+                user.setAvatarPath("/uploads/avatars/" + fileName);
+
+                userRepository.save(user);
+            } catch (IOException e) {
+                throw new RuntimeException("Không thể lưu avatar", e);
+            }
+        } else {
+            throw new AppException(ErrorCode.FILE_IS_INVALID);
+        }
     }
 
-    public void updateUserPassword(String userId, String newPassword) {
-        User user = getUser(userId);
-        if(passwordEncoder.matches(newPassword, user.getPassword())) {
+
+    public void updateUserPassword(String newPassword) {
+        User user = getUser(authenticationService.getAuthenticatedUser().getId());
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new AppException(ErrorCode.PASSWORD_MUST_BE_DIFFERENCE);
         }
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -88,15 +116,6 @@ public class UserService {
 
     public void deleteUser(String id) {
         userRepository.deleteById(id);
-    }
-
-    public String uploadUserAvatar(String userId, MultipartFile file) throws IOException {
-        var user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTES));
-
-        user.setAvatarName(file.getOriginalFilename());
-        user.setAvatarData(file.getBytes());
-        userRepository.save(user);
-        return "Updated avatar successfully!";
     }
 
     public String getClientIp(HttpServletRequest request) {

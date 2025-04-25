@@ -1,4 +1,4 @@
-package com.example.IdentityService.Entity;
+package com.example.MovieWebsiteProject.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,13 +18,14 @@ public class Genre {
     @Column(name = "genre_id")
     private int genreId;
 
-    @Column(unique = true)
-    private String name;
+    @Column(name = "genre_name", unique = true)
+    private String genreName;
 
     @ManyToMany(mappedBy = "genres")
-    private Set<SystemFilm> films = new HashSet<>();
+    private Set<SystemFilm> systemFilms = new HashSet<>();
 
-    public Genre(String name) {
-        this.name = name;
+    public Genre(String name, SystemFilm systemFilm) {
+        this.genreName = name.substring(0, 1).toUpperCase() + name.substring(1);
+        this.systemFilms.add(systemFilm);
     }
 }

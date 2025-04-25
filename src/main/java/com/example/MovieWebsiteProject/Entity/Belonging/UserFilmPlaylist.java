@@ -1,10 +1,12 @@
-package com.example.IdentityService.Entity.Belonging;
+package com.example.MovieWebsiteProject.Entity.Belonging;
 
-import com.example.IdentityService.Entity.Film;
-import com.example.IdentityService.Entity.Playlist;
-import com.example.IdentityService.Entity.User;
+import com.example.MovieWebsiteProject.Entity.Film;
+import com.example.MovieWebsiteProject.Entity.Playlist;
+import com.example.MovieWebsiteProject.Entity.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -13,7 +15,7 @@ import lombok.*;
 @Table(name = "user_film_playlist")
 public class UserFilmPlaylist {
     @EmbeddedId
-    private UserFilmPlaylistID id;
+    private UserFilmPlaylistId id;
 
     @ManyToOne
     @MapsId("userId")
@@ -31,7 +33,7 @@ public class UserFilmPlaylist {
     private Playlist playlist;
 
     public UserFilmPlaylist(User user, Film film, Playlist playlist) {
-        this.id = new UserFilmPlaylistID(user.getId(), film.getFilmId(), playlist.getPlaylistId());
+        this.id = new UserFilmPlaylistId(user.getId(), film.getFilmId(), playlist.getPlaylistId());
         this.user = user;
         this.film = film;
         this.playlist = playlist;

@@ -1,4 +1,4 @@
-package com.example.IdentityService.dto.request;
+package com.example.MovieWebsiteProject.dto.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,5 +15,4 @@ import java.time.LocalDateTime;
 public class CommentRequest {
     String filmId;
     String content;
-    LocalDateTime commentTime;
 }

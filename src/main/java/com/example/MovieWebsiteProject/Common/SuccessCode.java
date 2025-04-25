@@ -1,4 +1,4 @@
-package com.example.IdentityService.Common;
+package com.example.MovieWebsiteProject.Common;
 
 public enum SuccessCode {
     SUCCESS(2000, "success!"),
@@ -9,7 +9,15 @@ public enum SuccessCode {
     DELETED_SUCCESSFULLY(2005, "Your account has been deleted succesfully!"),
     UPDATED_AVATAR_SUCCESSFULLY(2006, "Updated avatar successfully!"),
     UPDATED_PASSWORD_SUCCESSFULLY(2007, "Updated password successfully!"),
-    UPLOAD_FILM_SUCCESSFULLY(2008, "System film uploaded successfully.");
+    UPLOAD_FILM_SUCCESSFULLY(2008, "System film uploaded successfully."),
+    TOKEN_IS_VALID(2009, "Token is valid!"),
+    UPDATE_FILM_SUCCESSFULLY(2010, "Film has been updated successfully!"),
+    CREATE_PLAYLIST_SUCCESSFULLY(2011, "Playlist has been created successfully!"),
+    DELETE_PLAYLIST_SUCCESSFULLY(2012, "Playlist has been deleted successfully!"),
+    DELETE_FILM_SUCCESSFULLY(2013, "Film has been deleted successfully!"),
+    UPDATE_PLAYLIST_SUCCESSFULLY(2014, "Playlist has been updated successfully!"),
+    DELETE_PLAYLIST_FILM_SUCCESSFULLY(2015, "Playlist film has been deleted successfully!");
+
 
     SuccessCode(int code, String message) {
         this.code = code;

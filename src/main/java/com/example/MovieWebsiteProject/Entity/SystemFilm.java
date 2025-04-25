@@ -1,13 +1,10 @@
-package com.example.IdentityService.Entity;
+package com.example.MovieWebsiteProject.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -32,7 +29,6 @@ public class SystemFilm {
     private String overview;
 
     @Column(name = "release_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private LocalDateTime releaseDate;
 
     @Column(name = "backdrop_path")
@@ -47,6 +43,9 @@ public class SystemFilm {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @ManyToMany
     @JoinTable(
             name = "system_film_genres",
@@ -57,6 +56,6 @@ public class SystemFilm {
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "system_film_id", referencedColumnName = "film_id")
+    @JoinColumn(name = "system_film_id")
     private Film film;
 }

@@ -1,10 +1,14 @@
-package com.example.IdentityService.dto.request;
+package com.example.MovieWebsiteProject.dto.request;
 
-import jakarta.persistence.Column;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -12,14 +16,17 @@ import lombok.*;
 @AllArgsConstructor
 public class UserCreationRequest {
     @Size(min = 3, max = 10, message = "Username must be between 3 and 10 characters!")
-    @NonNull
+    @NotNull
     private String username;
 
     @Email(message = "Email is invalid!")
-    @NonNull
+    @NotNull
     private String email;
 
     @Size(min = 6, max = 15, message = "Password must be between 6 and 15 characters!")
-    @NonNull
+    @NotNull
     private String password;
+
+    @NotNull
+    private LocalDate dateOfBirth;
 }

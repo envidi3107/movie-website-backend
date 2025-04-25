@@ -1,16 +1,16 @@
-package com.example.IdentityService.Controller;
+package com.example.MovieWebsiteProject.Controller;
 
-import com.example.IdentityService.Common.SuccessCode;
-import com.example.IdentityService.Exception.AppException;
-import com.example.IdentityService.Exception.ErrorCode;
-import com.example.IdentityService.Service.AuthenticationService;
-import com.example.IdentityService.Service.JwtService;
-import com.example.IdentityService.dto.request.IntrospectRequest;
-import com.example.IdentityService.dto.request.LogoutRequest;
-import com.example.IdentityService.dto.response.ApiResponse;
-import com.example.IdentityService.dto.request.AuthenticationRequest;
-import com.example.IdentityService.dto.response.AuthenticationResponse;
-import com.example.IdentityService.dto.response.IntrospectResponse;
+import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Service.AuthenticationService;
+import com.example.MovieWebsiteProject.Service.JwtService;
+import com.example.MovieWebsiteProject.dto.request.IntrospectRequest;
+import com.example.MovieWebsiteProject.dto.request.LogoutRequest;
+import com.example.MovieWebsiteProject.dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.dto.request.AuthenticationRequest;
+import com.example.MovieWebsiteProject.dto.response.AuthenticationResponse;
+import com.example.MovieWebsiteProject.dto.response.IntrospectResponse;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -82,6 +82,8 @@ public class AuthenticationController {
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         var result = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
+                .code(SuccessCode.TOKEN_IS_VALID.getCode())
+                .message(SuccessCode.TOKEN_IS_VALID.getMessage())
                 .result(result)
                 .build();
     }

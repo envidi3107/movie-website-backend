@@ -1,4 +1,4 @@
-package com.example.IdentityService.Entity.Reaction;
+package com.example.MovieWebsiteProject.Entity.Reaction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

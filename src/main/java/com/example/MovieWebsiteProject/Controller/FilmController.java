@@ -1,14 +1,13 @@
-package com.example.IdentityService.Controller;
+package com.example.MovieWebsiteProject.Controller;
 
-import com.example.IdentityService.Repository.FilmRepository;
-import com.example.IdentityService.dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Repository.FilmRepository;
+import com.example.MovieWebsiteProject.dto.response.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/films")
@@ -18,37 +17,23 @@ public class FilmController {
     FilmRepository filmRepository;
 
     @PostMapping("/{filmId}/increase-view")
-    public void increaseView(@PathVariable("filmId") String filmId) {
-        filmRepository.increaseView(filmId);
+    public ApiResponse<Void> increaseView(@PathVariable("filmId") String filmId, @RequestParam("watchedDuration") long duration) {
+        if (duration >= 45) {
+            filmRepository.increaseView(filmId);
+            return ApiResponse.<Void>builder()
+                    .code(SuccessCode.SUCCESS.getCode())
+                    .message(SuccessCode.SUCCESS.getMessage())
+                    .build();
+        } else {
+            return ApiResponse.<Void>builder()
+                    .code(ErrorCode.FAILED.getCode())
+                    .message(ErrorCode.FAILED.getMessage())
+                    .build();
+        }
     }
 
-    @PostMapping("/{filmId}/increase-like")
-    public void increaseLike(@PathVariable("filmId") String filmId) {
-        filmRepository.increaseLike(filmId);
-    }
-
-    @PostMapping("/{filmId}/decrease-like")
-    public void decreaseLike(@PathVariable("filmId") String filmId) {
-        filmRepository.decreaseLike(filmId);
-    }
-
-    @PostMapping("/{filmId}/increase-dislike")
-    public void increaseDislike(@PathVariable("filmId") String filmId) {
-        filmRepository.increaseDislike(filmId);
-    }
-
-    @PostMapping("/{filmId}/decrease-dislike")
-    public void decreaseDislike(@PathVariable("filmId") String filmId) {
-        filmRepository.decreaseDislike(filmId);
-    }
-
-    @PostMapping("/{filmId}/increase-comment")
-    public void increaseComment(@PathVariable("filmId") String filmId) {
-        filmRepository.increaseComment(filmId);
-    }
-
-    @PostMapping("/{filmId}/decrease-comment")
-    public void decreaseComment(@PathVariable("filmId") String filmId) {
-        filmRepository.decreaseComment(filmId);
-    }
+//    @GetMapping("/get-all-comments")
+//    public getAllComments(@RequestParam("filmId") String filmId) {
+//
+//    }
 }

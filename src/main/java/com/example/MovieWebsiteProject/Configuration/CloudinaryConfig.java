@@ -1,4 +1,4 @@
-package com.example.IdentityService.Configuration;
+package com.example.MovieWebsiteProject.Configuration;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

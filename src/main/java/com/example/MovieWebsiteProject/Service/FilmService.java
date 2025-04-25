@@ -1,9 +1,9 @@
-package com.example.IdentityService.Service;
+package com.example.MovieWebsiteProject.Service;
 
-import com.example.IdentityService.Entity.Film;
-import com.example.IdentityService.Exception.AppException;
-import com.example.IdentityService.Exception.ErrorCode;
-import com.example.IdentityService.Repository.FilmRepository;
+import com.example.MovieWebsiteProject.Entity.Film;
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

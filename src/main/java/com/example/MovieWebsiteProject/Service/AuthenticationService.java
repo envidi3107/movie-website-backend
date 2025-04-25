@@ -1,16 +1,16 @@
-package com.example.IdentityService.Service;
+package com.example.MovieWebsiteProject.Service;
 
-import com.example.IdentityService.Entity.InvalidatedToken;
-import com.example.IdentityService.Entity.User;
-import com.example.IdentityService.Exception.AppException;
-import com.example.IdentityService.Exception.ErrorCode;
-import com.example.IdentityService.Repository.InvalidatedTokenRepository;
-import com.example.IdentityService.Repository.UserRepository;
-import com.example.IdentityService.dto.projection.UserAuthInfo;
-import com.example.IdentityService.dto.request.AuthenticationRequest;
-import com.example.IdentityService.dto.request.IntrospectRequest;
-import com.example.IdentityService.dto.response.AuthenticationResponse;
-import com.example.IdentityService.dto.response.IntrospectResponse;
+import com.example.MovieWebsiteProject.Entity.InvalidatedToken;
+import com.example.MovieWebsiteProject.Entity.User;
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Repository.InvalidatedTokenRepository;
+import com.example.MovieWebsiteProject.Repository.UserRepository;
+import com.example.MovieWebsiteProject.dto.projection.UserAuthInfo;
+import com.example.MovieWebsiteProject.dto.request.AuthenticationRequest;
+import com.example.MovieWebsiteProject.dto.request.IntrospectRequest;
+import com.example.MovieWebsiteProject.dto.response.AuthenticationResponse;
+import com.example.MovieWebsiteProject.dto.response.IntrospectResponse;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -35,7 +35,6 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -107,6 +106,6 @@ public class AuthenticationService {
             return user;
         }
         System.out.println("principal: " + authentication.getPrincipal());
-        throw new RuntimeException("User cannot authenticated");
+        throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
     }
 }

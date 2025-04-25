@@ -1,4 +1,4 @@
-package com.example.IdentityService.Exception;
+package com.example.MovieWebsiteProject.Exception;
 
 public class AppException extends RuntimeException {
     private ErrorCode errorCode;

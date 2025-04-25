@@ -1,6 +1,7 @@
-package com.example.IdentityService.dto.request;
+package com.example.MovieWebsiteProject.dto.request;
 
-import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,13 +17,32 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SystemFilmUploadRequest {
+public class SystemFilmRequest {
+    @NotNull
     private boolean adult;
-    private String title, overview;
+
+    @NotNull
+    @NotEmpty(message = "Title cannot be empty!")
+    private String title;
+
+    @NotNull
+    @NotEmpty(message = "Overview cannot be empty!")
+    private String overview;
+
+    @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private LocalDateTime releaseDate;
+
+    @NotNull
     private MultipartFile backdrop;
+
+    @NotNull
     private MultipartFile poster;
+
+    @NotNull
     private MultipartFile video;
+
+    @NotNull
+    @NotEmpty(message = "Genres cannot be empty!")
     private Set<String> genres;
 }

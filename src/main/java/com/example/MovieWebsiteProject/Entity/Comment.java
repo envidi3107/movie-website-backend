@@ -1,4 +1,4 @@
-package com.example.IdentityService.Entity;
+package com.example.MovieWebsiteProject.Entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -33,4 +34,11 @@ public class Comment {
     @Column(name = "comment_time")
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private LocalDateTime commentTime;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
+    private Set<Comment> childComments;
 }

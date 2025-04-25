@@ -1,6 +1,6 @@
-package com.example.IdentityService.Exception;
+package com.example.MovieWebsiteProject.Exception;
 
-import com.example.IdentityService.dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.dto.response.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.example.IdentityService.Entity;
+package com.example.MovieWebsiteProject.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,8 +26,8 @@ public class Watching {
     @JoinColumn(name = "film_id", nullable = false)
     private Film film;
 
-    @Column(name = "time_stamp")
-    private LocalDateTime timeStamp;
+    @Column(name = "watch_time")
+    private LocalDateTime watchTime;
 
     @Column(name = "watch_hour")
     private int watchHour;

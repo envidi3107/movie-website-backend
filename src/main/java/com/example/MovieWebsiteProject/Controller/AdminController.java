@@ -1,30 +1,23 @@
-package com.example.IdentityService.Controller;
+package com.example.MovieWebsiteProject.Controller;
 
-import com.example.IdentityService.Common.SuccessCode;
-import com.example.IdentityService.Entity.Film;
-import com.example.IdentityService.Entity.Genre;
-import com.example.IdentityService.Entity.SystemFilm;
-import com.example.IdentityService.Entity.User;
-import com.example.IdentityService.Exception.ErrorCode;
-import com.example.IdentityService.Repository.FilmRepository;
-import com.example.IdentityService.Repository.GenreRepository;
-import com.example.IdentityService.Repository.SystemFilmRepository;
-import com.example.IdentityService.Repository.UserRepository;
-import com.example.IdentityService.Service.AdminService;
-import com.example.IdentityService.Service.CloudinaryService;
-import com.example.IdentityService.Service.UserService;
-import com.example.IdentityService.dto.request.SystemFilmUploadRequest;
-import com.example.IdentityService.dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Repository.FilmRepository;
+import com.example.MovieWebsiteProject.Repository.GenreRepository;
+import com.example.MovieWebsiteProject.Repository.SystemFilmRepository;
+import com.example.MovieWebsiteProject.Service.AdminService;
+import com.example.MovieWebsiteProject.Service.CloudinaryService;
+import com.example.MovieWebsiteProject.dto.request.SystemFilmRequest;
+import com.example.MovieWebsiteProject.dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.dto.response.UserResponse;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -39,8 +32,8 @@ public class AdminController {
     FilmRepository filmRepository;
 
     @GetMapping("/get-users")
-    public ApiResponse<List<User>> getUsers() {
-        return ApiResponse.<List<User>>builder()
+    public ApiResponse<List<UserResponse>> getUsers() {
+        return ApiResponse.<List<UserResponse>>builder()
                 .result(adminService.getUsers())
                 .build();
     }
@@ -55,62 +48,39 @@ public class AdminController {
     }
 
     @GetMapping("/users/watching/hourly")
-    public ApiResponse<List<Map<String, Object>>> getHourlyWatchingUsers(@RequestParam String dateTime) {
+    public ApiResponse<List<Map<String, Object>>> getHourlyWatchingUsers(@RequestParam("watchDate") String watchDate) {
         return ApiResponse.<List<Map<String, Object>>>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(adminService.getUsersWatchingPerHour(dateTime))
+                .result(adminService.getUsersWatchingPerHour(watchDate))
                 .build();
     }
 
     @PostMapping(value = "/upload/system-film", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> uploadSystemFilm(@ModelAttribute SystemFilmUploadRequest request) {
-        try {
-//            String backdropUrl = cloudinaryService.uploadImage(request.getBackdrop());
-//            String posterUrl = cloudinaryService.uploadImage(request.getPoster());
-//            String videoUrl = cloudinaryService.uploadVideo(request.getVideo());
-
-            Set<Genre> genres = request.getGenres().stream()
-                    .map(genreName -> genreRepository.findByName(genreName)
-                            .orElseGet(() -> genreRepository.save(new Genre(genreName))))
-                    .collect(Collectors.toSet());
-
-            Film film = Film.builder()
-                    .belongTo("SYSTEM_FILM")
-                    .build();
-
-            LocalDateTime createdAt = LocalDateTime.now();
-            SystemFilm systemFilm = SystemFilm.builder()
-                    .film(film)
-                    .systemFilmId(film.getFilmId())
-                    .adult(request.isAdult())
-                    .title(request.getTitle())
-                    .overview(request.getOverview())
-                    .releaseDate(request.getReleaseDate())
-//                    .backdropPath(backdropUrl)
-//                    .posterPath(posterUrl)
-//                    .videoPath(videoUrl)
-                    .createdAt(createdAt)
-                    .build();
-            System.out.println("systemfilm id: " + systemFilm.getSystemFilmId());
-            System.out.println("film id: " + film.getFilmId());
-            systemFilmRepository.save(systemFilm);
-            systemFilm.setGenres(genres);
-            systemFilmRepository.save(systemFilm);
-
-
-            return ApiResponse.<String>builder()
-                    .code(SuccessCode.SUCCESS.getCode())
-                    .message(SuccessCode.SUCCESS.getMessage())
-                    .result(SuccessCode.UPLOAD_FILM_SUCCESSFULLY.getMessage())
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.<String>builder()
-                    .code(ErrorCode.INVALID_FILE.getCode())
-                    .message(ErrorCode.INVALID_FILE.getMessage())
-                    .result(e.getMessage())
-                    .build();
-        }
+    public ApiResponse<String> uploadSystemFilm(@Valid @ModelAttribute SystemFilmRequest request) {
+        return ApiResponse.<String>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .result(adminService.uploadSystemFilm(request))
+                .build();
     }
 
+    @PatchMapping(value = "/update/system-film/{filmId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> updateSystemFilm(@PathVariable("filmId") String filmId, @Valid @ModelAttribute SystemFilmRequest request) {
+        return ApiResponse.<String>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .result(adminService.updateSystemFilm(filmId, request))
+                .build();
+    }
+
+    @DeleteMapping("/delete/system-film/{filmId}")
+    public ApiResponse<String> deleteSystemFilm(@PathVariable("filmId") String filmId) {
+        filmRepository.deleteById(filmId);
+        return ApiResponse.<String>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .result(SuccessCode.DELETE_FILM_SUCCESSFULLY.getMessage())
+                .build();
+    }
 }

@@ -1,10 +1,10 @@
-package com.example.IdentityService.Configuration;
+package com.example.MovieWebsiteProject.Configuration;
 
-import com.example.IdentityService.Entity.User;
-import com.example.IdentityService.Exception.AppException;
-import com.example.IdentityService.Exception.ErrorCode;
-import com.example.IdentityService.Repository.UserRepository;
-import com.example.IdentityService.Service.JwtService;
+import com.example.MovieWebsiteProject.Entity.User;
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Repository.UserRepository;
+import com.example.MovieWebsiteProject.Service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -52,11 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (jwt != null) {
             try {
                 SignedJWT signedJWT = jwtService.verifyToken(jwt);
-                String username = signedJWT.getJWTClaimsSet().getSubject();
+                String userId = signedJWT.getJWTClaimsSet().getClaims().get("userId").toString();
                 signedJWT.getJWTClaimsSet().getClaims().forEach((k, v) -> {
                     System.out.println("key = " + k + ", value = " + v);
                 });
-                User user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTES));
+                User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTES));
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 user, null, user.getAuthorities());
@@ -67,8 +67,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // Gán vào SecurityContext để xác thực các request sau
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } catch (Exception e) {
+                // Token invalid or expired
                 System.out.println("Token verification failed: " + e.getMessage());
-                throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
+
+                // Xóa context để đảm bảo không có xác thực cũ
+                SecurityContextHolder.clearContext();
+
+                // Trả về lỗi (bạn có thể dùng response.sendError hoặc custom JSON response)
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("""
+                    {
+                      "code": "401",
+                      "message": "Phiên đăng nhập đã hết hạn hoặc token không hợp lệ."
+                    }
+                """);
+                return;
             }
         }
 

@@ -1,4 +1,4 @@
-package com.example.IdentityService.Entity.Belonging;
+package com.example.MovieWebsiteProject.Entity.Belonging;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -15,7 +15,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserFilmPlaylistID implements Serializable {
+public class UserFilmPlaylistId implements Serializable {
     @Column(name = "user_id")
     private String userId;
 
@@ -31,7 +31,7 @@ public class UserFilmPlaylistID implements Serializable {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        UserFilmPlaylistID that = (UserFilmPlaylistID) o;
+        UserFilmPlaylistId that = (UserFilmPlaylistId) o;
         return Objects.equals(userId, that.userId)
                 && Objects.equals(filmId, that.filmId)
                 && Objects.equals(playlistId, that.playlistId);

@@ -1,10 +1,9 @@
-package com.example.IdentityService.Entity;
+package com.example.MovieWebsiteProject.Entity;
 
-import com.example.IdentityService.Entity.Belonging.UserFilmPlaylist;
-import com.example.IdentityService.Entity.Reaction.Reaction;
+import com.example.MovieWebsiteProject.Entity.Belonging.UserFilmPlaylist;
+import com.example.MovieWebsiteProject.Entity.Reaction.Reaction;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,10 +35,15 @@ public class Film {
     @Column(name = "belong_to")
     private String belongTo;
 
-    @OneToOne(mappedBy = "film", cascade = CascadeType.ALL)
-    private FilmTrailers filmTrailers;
+    @Column(name = "watched_duration")
+    private long watchedDuration;
 
     @OneToOne(mappedBy = "film", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private TmdbFilm tmdbFilm;
+
+    @OneToOne(mappedBy = "film", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
     private SystemFilm systemFilm;
 
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
@@ -53,4 +57,14 @@ public class Film {
 
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
     private Set<Comment> comments = new HashSet<>();
+
+    public void setSystemFilm(SystemFilm systemFilm) {
+        this.systemFilm = systemFilm;
+        systemFilm.setFilm(this);
+    }
+
+    public void setTmdbFilm(TmdbFilm tmdbFilm) {
+        this.tmdbFilm = tmdbFilm;
+        tmdbFilm.setFilm(this);
+    }
 }

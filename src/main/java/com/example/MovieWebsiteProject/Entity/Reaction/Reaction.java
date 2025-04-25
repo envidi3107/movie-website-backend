@@ -1,9 +1,11 @@
-package com.example.IdentityService.Entity.Reaction;
+package com.example.MovieWebsiteProject.Entity.Reaction;
 
-import com.example.IdentityService.Entity.Film;
-import com.example.IdentityService.Entity.User;
+import com.example.MovieWebsiteProject.Entity.Film;
+import com.example.MovieWebsiteProject.Entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -27,10 +29,14 @@ public class Reaction {
     @Column(name = "reaction_type", nullable = false)
     private String reactionType;
 
-    public Reaction (User user, Film film, String reactionType) {
+    @Column(name = "reaction_time")
+    private LocalDateTime reactionTime;
+
+    public Reaction (User user, Film film, String reactionType, LocalDateTime reactionTime) {
         this.id = new ReactionID(user.getId(), film.getFilmId());
         this.user = user;
         this.film = film;
         this.reactionType = reactionType;
+        this.reactionTime = reactionTime;
     }
 }

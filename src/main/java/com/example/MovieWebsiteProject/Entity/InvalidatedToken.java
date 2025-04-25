@@ -1,4 +1,4 @@
-package com.example.IdentityService.Entity;
+package com.example.MovieWebsiteProject.Entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

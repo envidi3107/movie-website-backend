@@ -1,4 +1,4 @@
-package com.example.IdentityService.Entity;
+package com.example.MovieWebsiteProject.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,11 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "film_trailers")
-public class FilmTrailers {
+@Table(name = "tmdb_film")
+public class TmdbFilm {
     @Id
-    @Column(name = "film_trailers_id")
-    private String filmTrailersId;
+    @Column(name = "id")
+    private String id;
 
     @Column(name = "video_key")
     private String videoKey;
@@ -23,6 +23,6 @@ public class FilmTrailers {
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "film_trailers_id", referencedColumnName = "film_id")
+    @JoinColumn(name = "id")
     private Film film;
 }
