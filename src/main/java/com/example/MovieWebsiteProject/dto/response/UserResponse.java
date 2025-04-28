@@ -1,5 +1,6 @@
 package com.example.MovieWebsiteProject.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,8 @@ public class UserResponse {
     private String username, email, role;
     private LocalDateTime createAt;
     private String avatarPath;
-    private String avatarName, ipAddress, country;
+    private String ipAddress, country;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 }

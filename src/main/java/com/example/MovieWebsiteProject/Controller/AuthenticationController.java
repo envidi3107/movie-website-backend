@@ -1,18 +1,14 @@
 package com.example.MovieWebsiteProject.Controller;
 
 import com.example.MovieWebsiteProject.Common.SuccessCode;
-import com.example.MovieWebsiteProject.Exception.AppException;
-import com.example.MovieWebsiteProject.Exception.ErrorCode;
 import com.example.MovieWebsiteProject.Service.AuthenticationService;
 import com.example.MovieWebsiteProject.Service.JwtService;
-import com.example.MovieWebsiteProject.dto.request.IntrospectRequest;
-import com.example.MovieWebsiteProject.dto.request.LogoutRequest;
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
 import com.example.MovieWebsiteProject.dto.request.AuthenticationRequest;
+import com.example.MovieWebsiteProject.dto.request.IntrospectRequest;
+import com.example.MovieWebsiteProject.dto.response.ApiResponse;
 import com.example.MovieWebsiteProject.dto.response.AuthenticationResponse;
 import com.example.MovieWebsiteProject.dto.response.IntrospectResponse;
 import com.nimbusds.jose.JOSEException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -22,10 +18,12 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
-import java.util.Arrays;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,9 +35,9 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     ResponseEntity<ApiResponse<AuthenticationResponse>> authenticate(@RequestBody AuthenticationRequest request, HttpServletResponse response) {
-        var result = authenticationService.authenticate(request);
+        var results = authenticationService.authenticate(request);
 
-        ResponseCookie cookie = ResponseCookie.from("accessToken", result.getToken())
+        ResponseCookie cookie = ResponseCookie.from("accessToken", results.getToken())
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
@@ -47,63 +45,66 @@ public class AuthenticationController {
                 .sameSite("Lax")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        result.setToken(null);
+        results.setToken(null);
         return ResponseEntity.ok(
-            ApiResponse.<AuthenticationResponse>builder()
-                .code(SuccessCode.LOG_IN_SUCCESSFULLY.getCode())
-                .message(SuccessCode.LOG_IN_SUCCESSFULLY.getMessage())
-                .result(result)
-                .build()
+                ApiResponse.<AuthenticationResponse>builder()
+                        .code(SuccessCode.LOG_IN_SUCCESSFULLY.getCode())
+                        .message(SuccessCode.LOG_IN_SUCCESSFULLY.getMessage())
+                        .results(results)
+                        .build()
         );
     }
 
     @PostMapping("/logout")
-    ApiResponse<Void> logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws ParseException, JOSEException {
-        String token = "";
-        
-        authenticationService.logout(token);
+    ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws ParseException, JOSEException {
 
-        // Xóa cookie session
+        authenticationService.logout(authenticationService.extractAccessToken(request));
+        System.out.println("da logout");
+        // Xóa session
         session.invalidate();
 
-        Cookie cookie = new Cookie("JSESSIONID", null);
-        cookie.setPath("/"); // Đặt phạm vi cookie
-        cookie.setHttpOnly(true); // Đảm bảo cookie không thể truy cập từ JavaScript
-        cookie.setMaxAge(0); // Xóa cookie bằng cách đặt thời gian tồn tại bằng 0
-        response.addCookie(cookie);
-
-        return ApiResponse.<Void>builder()
-                .code(SuccessCode.LOG_OUT_SUCCESSFULLY.getCode())
-                .message(SuccessCode.LOG_OUT_SUCCESSFULLY.getMessage())
+        // Xóa cookie accessToken và JSESSIONID
+        ResponseCookie clearAccessTokenCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
                 .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, clearAccessTokenCookie.toString());
+
+        ResponseCookie clearSessionCookie = ResponseCookie.from("JSESSIONID", "")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, clearSessionCookie.toString());
+
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .code(SuccessCode.LOG_OUT_SUCCESSFULLY.getCode())
+                        .message(SuccessCode.LOG_OUT_SUCCESSFULLY.getMessage())
+                        .build()
+        );
     }
 
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
-        var result = authenticationService.introspect(request);
+        var results = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .code(SuccessCode.TOKEN_IS_VALID.getCode())
                 .message(SuccessCode.TOKEN_IS_VALID.getMessage())
-                .result(result)
+                .results(results)
                 .build();
     }
 
     @PostMapping("/authenticate-password")
-    ApiResponse<IntrospectResponse> authenticatePassword(@RequestHeader("Authorization") String token, @RequestBody AuthenticationRequest request) throws ParseException, JOSEException {
-        IntrospectRequest introspectRequest = new IntrospectRequest(token.substring(7));
-        IntrospectResponse introspectResponse = authenticationService.introspect(introspectRequest);
-        boolean isCorrect = false;
-        if (introspectResponse.getValid()) {
-            authenticationService.authenticateUserAccount(request);
-            isCorrect = true;
-        } else {
-            throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
-        }
+    ApiResponse<IntrospectResponse> authenticatePassword(@RequestBody AuthenticationRequest request) throws ParseException, JOSEException {
+        authenticationService.authenticateUserAccount(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(IntrospectResponse.builder()
-                        .valid(isCorrect)
+                .results(IntrospectResponse.builder()
+                        .valid(true)
                         .build())
                 .build();
     }

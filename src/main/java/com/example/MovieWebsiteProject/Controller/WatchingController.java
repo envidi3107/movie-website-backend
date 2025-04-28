@@ -33,12 +33,30 @@ public class WatchingController {
                 .build();
     }
 
-    @GetMapping("/get-watching-history")
-    public ApiResponse<List<FilmWatchingHistoryResponse>> getFilmWatchingHistory() {
+    @GetMapping("/get-watching-history/system-film")
+    public ApiResponse<List<FilmWatchingHistoryResponse>> getSystemFilmWatchingHistory() {
         return ApiResponse.<List<FilmWatchingHistoryResponse>>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(watchingService.getFilmWatchingHistory())
+                .results(watchingService.getSystemFilmWatchingHistory())
+                .build();
+    }
+
+    @GetMapping("/get-watching-history/tmdb-film")
+    public ApiResponse<List<FilmWatchingHistoryResponse>> getTmdbFilmWatchingHistory() {
+        return ApiResponse.<List<FilmWatchingHistoryResponse>>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .results(watchingService.getTmdbFilmWatchingHistory())
+                .build();
+    }
+
+    @GetMapping("/save-watched-duration/{filmId}")
+    public ApiResponse<Void> saveWatchedDuration(@PathVariable("filmId") String filmId, @RequestParam("watchedDuration") long duration) {
+        watchingService.saveWacthedDuration(filmId, duration);
+        return ApiResponse.<Void>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
                 .build();
     }
 }

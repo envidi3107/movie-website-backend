@@ -17,9 +17,10 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserFilmPlaylistService {
     UserFilmPlaylistRepository userFilmPlaylistRepository;
+    AuthenticationService authenticationService;
 
-    public List<UserFilmPlaylistResponse> getUserSystemFilmPlaylist(String userId) {
-        List<Map<String, Object>> results = userFilmPlaylistRepository.getUserSystemFilmPlaylist(userId);
+    public List<UserFilmPlaylistResponse> getUserSystemFilmPlaylist() {
+        List<Map<String, Object>> results = userFilmPlaylistRepository.getUserSystemFilmPlaylist(authenticationService.getAuthenticatedUser().getId());
 
         Map<String, UserFilmPlaylistResponse> playlistMap = new LinkedHashMap<>();
 
@@ -43,7 +44,6 @@ public class UserFilmPlaylistService {
                         .backdropPath((String) row.get("backdrop_path"))
                         .posterPath((String) row.get("poster_path"))
                         .videoPath((String) row.get("video_path"))
-                        .watchedDuration((Long) row.get("watched_duration"))
                         .genres(new HashSet<>())
                         .build();
                 playlist.getSystemFilms().add(newFilm);
@@ -57,8 +57,8 @@ public class UserFilmPlaylistService {
         return new ArrayList<>(playlistMap.values());
     }
 
-    public List<UserFilmPlaylistResponse> getUserTmdbFilmPlaylist(String userId) {
-        List<Map<String, Object>> results = userFilmPlaylistRepository.getUserTmdbFilmPlaylist(userId);
+    public List<UserFilmPlaylistResponse> getUserTmdbFilmPlaylist() {
+        List<Map<String, Object>> results = userFilmPlaylistRepository.getUserTmdbFilmPlaylist(authenticationService.getAuthenticatedUser().getId());
         Map<String, UserFilmPlaylistResponse> tmdbPlaylistMap = new LinkedHashMap<>();
 
         for (Map<String, Object> row : results) {

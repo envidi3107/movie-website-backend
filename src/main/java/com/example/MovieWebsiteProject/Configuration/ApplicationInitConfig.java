@@ -33,7 +33,7 @@ public class ApplicationInitConfig {
                 User user = User.builder()
                         .username("admin")
                         .email("admin@gmail.com")
-                        .password(passwordEncoder.encode("admin"))
+                        .password(passwordEncoder.encode("123456"))
                         .createdAt(accessTime)
                         .role(Roles.ADMIN.name())
                         .build();

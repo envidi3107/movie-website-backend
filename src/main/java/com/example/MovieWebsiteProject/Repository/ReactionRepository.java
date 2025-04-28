@@ -12,9 +12,9 @@ import java.util.Optional;
 
 @Repository
 public interface ReactionRepository extends JpaRepository<Reaction, ReactionID> {
-    @Query(value = "SELECT r.film_id, r.reaction_type, r.created_at FROM reaction AS r WHERE user_id = :userId", nativeQuery = true)
+    @Query(value = "SELECT r.film_id, r.reaction_type, r.reaction_time FROM reaction AS r WHERE user_id = :userId", nativeQuery = true)
     List<String[]> getUserReaction(@Param("userId") String userId);
 
     @Query(value = "SELECT * FROM reaction WHERE user_id = :userId AND film_id = :filmId", nativeQuery = true)
-    Optional<Reaction> getReactionByUserIdAndFilmId(String userId, String filmId);
+    Optional<Reaction> getReactionByUserIdAndFilmId(@Param("userId") String userId, @Param("filmId") String filmId);
 }

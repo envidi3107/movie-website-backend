@@ -1,6 +1,5 @@
 package com.example.MovieWebsiteProject.Configuration;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,15 +46,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated());
         httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        httpSecurity.logout(logout -> logout
-                .logoutUrl("/auth/logout")
-                .invalidateHttpSession(true) // Hủy session
-                .deleteCookies("JSESSIONID") // Xóa cookie JSESSIONID
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    response.setStatus(HttpServletResponse.SC_OK);
-                })
-        );
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer ->
                 jwtConfigurer.decoder(customJwtDecoder)

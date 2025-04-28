@@ -11,29 +11,20 @@ import com.example.MovieWebsiteProject.dto.request.AuthenticationRequest;
 import com.example.MovieWebsiteProject.dto.request.IntrospectRequest;
 import com.example.MovieWebsiteProject.dto.response.AuthenticationResponse;
 import com.example.MovieWebsiteProject.dto.response.IntrospectResponse;
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jose.JOSEException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Optional;
-import java.util.StringJoiner;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +40,7 @@ public class AuthenticationService {
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
-        if(!authenticated) {
+        if (!authenticated) {
             throw new AppException(ErrorCode.INCORRECT_PASSWORD);
         } else {
             return user;
@@ -70,6 +61,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(authenticated)
+                .role(user.getRole())
                 .build();
     }
 
@@ -107,5 +99,16 @@ public class AuthenticationService {
         }
         System.out.println("principal: " + authentication.getPrincipal());
         throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
+    }
+
+    public String extractAccessToken(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+        for (Cookie cookie : request.getCookies()) {
+            if ("accessToken".equals(cookie.getName())) {
+                System.out.println("token logout = " + cookie.getValue());
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

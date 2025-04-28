@@ -8,7 +8,6 @@ import com.example.MovieWebsiteProject.Service.AdminService;
 import com.example.MovieWebsiteProject.Service.CloudinaryService;
 import com.example.MovieWebsiteProject.dto.request.SystemFilmRequest;
 import com.example.MovieWebsiteProject.dto.response.ApiResponse;
-import com.example.MovieWebsiteProject.dto.response.UserResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,19 +30,19 @@ public class AdminController {
     GenreRepository genreRepository;
     FilmRepository filmRepository;
 
-    @GetMapping("/get-users")
-    public ApiResponse<List<UserResponse>> getUsers() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(adminService.getUsers())
-                .build();
-    }
+//    @GetMapping("/get-users")
+//    public ApiResponse<List<UserResponse>> getUsers(@NotNull @RequestParam("page") int page) {
+//        return ApiResponse.<List<UserResponse>>builder()
+//                .results(adminService.getUsers(int page))
+//                .build();
+//    }
 
     @GetMapping("/users/registrations/monthly")
     public ApiResponse<List<Map<String, Object>>> getMonthlyNewUsers() {
         return ApiResponse.<List<Map<String, Object>>>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(adminService.getMonthlyNewUsers())
+                .results(adminService.getMonthlyNewUsers())
                 .build();
     }
 
@@ -52,7 +51,7 @@ public class AdminController {
         return ApiResponse.<List<Map<String, Object>>>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(adminService.getUsersWatchingPerHour(watchDate))
+                .results(adminService.getUsersWatchingPerHour(watchDate))
                 .build();
     }
 
@@ -61,7 +60,7 @@ public class AdminController {
         return ApiResponse.<String>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(adminService.uploadSystemFilm(request))
+                .results(adminService.uploadSystemFilm(request))
                 .build();
     }
 
@@ -70,7 +69,7 @@ public class AdminController {
         return ApiResponse.<String>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(adminService.updateSystemFilm(filmId, request))
+                .results(adminService.updateSystemFilm(filmId, request))
                 .build();
     }
 
@@ -80,7 +79,7 @@ public class AdminController {
         return ApiResponse.<String>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(SuccessCode.DELETE_FILM_SUCCESSFULLY.getMessage())
+                .results(SuccessCode.DELETE_FILM_SUCCESSFULLY.getMessage())
                 .build();
     }
 }

@@ -24,6 +24,7 @@ public class SystemFilmDetailResponse extends SystemFilmSummaryResponse {
     private boolean adult;
     private String videoPath;
     private String overview;
+    private String belongTo;
     private long watchedDuration;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

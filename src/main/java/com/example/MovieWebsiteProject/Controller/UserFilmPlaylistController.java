@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,24 +20,23 @@ import java.util.List;
 public class UserFilmPlaylistController {
     UserFilmPlaylistService userFilmPlaylistService;
 
-    @GetMapping("/{userId}/get-user-playlist/system-film")
-    public ApiResponse<List<UserFilmPlaylistResponse>> getUserSystemFilmPlaylist(@PathVariable("userId") String userId) {
-
+    @GetMapping("/get-user-playlist/system-film")
+    public ApiResponse<List<UserFilmPlaylistResponse>> getUserSystemFilmPlaylist() {
 
         return ApiResponse.<List<UserFilmPlaylistResponse>>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(userFilmPlaylistService.getUserSystemFilmPlaylist(userId))
+                .results(userFilmPlaylistService.getUserSystemFilmPlaylist())
                 .build();
     }
 
-    @GetMapping("/{userId}/get-user-playlist/tmdb-film")
-    public ApiResponse<List<UserFilmPlaylistResponse>> getUserTmdbFilmPlaylist(@PathVariable("userId") String userId) {
+    @GetMapping("/get-user-playlist/tmdb-film")
+    public ApiResponse<List<UserFilmPlaylistResponse>> getUserTmdbFilmPlaylist() {
 
         return ApiResponse.<List<UserFilmPlaylistResponse>>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(userFilmPlaylistService.getUserTmdbFilmPlaylist(userId))
+                .results(userFilmPlaylistService.getUserTmdbFilmPlaylist())
                 .build();
     }
 

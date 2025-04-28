@@ -12,6 +12,8 @@ import com.example.MovieWebsiteProject.dto.response.UserResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,19 +31,28 @@ public class AdminService {
     GenreRepository genreRepository;
     FilmRepository filmRepository;
 
+    @Value("${app.base_url}")
+    @NonFinal
+    String baseUrl;
 
-    public List<UserResponse> getUsers() {
-        System.out.println("get user");
-        return userRepository.getAllUser();
+    public List<UserResponse> getUsers(int page) {
+        List<UserResponse> responses = userRepository.getAllUser();
+
+        responses.forEach(response -> {
+            if (response.getAvatarPath() != null && !response.getAvatarPath().isEmpty()) {
+                response.setAvatarPath(baseUrl + response.getAvatarPath());
+            }
+        });
+        return responses;
     }
 
     public List<Map<String, Object>> getMonthlyNewUsers() {
         List<Object[]> results = userRepository.countNewUsersPerMonth();
         List<Map<String, Object>> response = new ArrayList<>();
-        System.out.println("dang lay user dang ki moi");
+
         results.forEach(row -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("mounth", row[0]);
+            map.put("month", row[0]);
             map.put("total_users", row[1]);
             response.add(map);
         });
@@ -53,7 +64,7 @@ public class AdminService {
         List<Map<String, Object>> response = new ArrayList<>();
         results.forEach(row -> {
             Map<String, Object> data = new HashMap<>();
-            data.put("watch_hour", row[1]);
+            data.put("watching_hour", row[1]);
             data.put("total_users", row[0]);
             response.add(data);
         });

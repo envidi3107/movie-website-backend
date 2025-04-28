@@ -53,13 +53,14 @@ public class UserController {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .createAt(user.getCreatedAt())
-                .avatarName(user.getAvatarName())
                 .avatarPath(user.getAvatarPath())
+                .role(user.getRole())
+                .dateOfBirth(user.getDateOfBirth())
                 .build();
         return ApiResponse.<UserResponse>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(userResponse)
+                .results(userResponse)
                 .build();
     }
 

@@ -19,6 +19,7 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SystemFilmService {
     SystemFilmRepository systemFilmRepository;
+    AuthenticationService authenticationService;
 
     public List<SystemFilmSummaryResponse> getAllSystemFilmSummary(int page) {
         if (page < 0)
@@ -56,26 +57,28 @@ public class SystemFilmService {
     }
 
     public SystemFilmDetailResponse getSystemFilmDetail(String filmId) {
-        List<Map<String, Object>> results = systemFilmRepository.getSystemFilmDetail(filmId);
+        String userId = authenticationService.getAuthenticatedUser().getId();
+        List<Map<String, Object>> results = systemFilmRepository.getSystemFilmDetail(filmId, userId);
         Map<String, Object> firstRow = results.getFirst();
         SystemFilmDetailResponse film = SystemFilmDetailResponse.builder()
                 .systemFilmId(filmId)
-                .title((String) firstRow.get("title"))
+                .adult(Boolean.TRUE.equals(firstRow.get("adult")))
                 .releaseDate(((Timestamp) firstRow.get("release_date")).toLocalDateTime())
                 .backdropPath((String) firstRow.get("backdrop_path"))
                 .posterPath((String) firstRow.get("poster_path"))
-                .genres(new HashSet<>())
-
-                .adult(Boolean.TRUE.equals(firstRow.get("adult")))
                 .videoPath((String) firstRow.get("video_path"))
+                .title((String) firstRow.get("title"))
                 .overview((String) firstRow.get("overview"))
                 .createdAt((Timestamp) firstRow.get("created_at"))
                 .updatedAt((Timestamp) firstRow.get("updated_at"))
-                .watchedDuration((Long) firstRow.get("watched_duration"))
+
                 .numberOfViews((Long) firstRow.get("number_of_views"))
                 .numberOfLikes((Long) firstRow.get("number_of_likes"))
                 .numberOfDislikes((Long) firstRow.get("number_of_dislikes"))
                 .numberOfComments((Long) firstRow.get("number_of_comments"))
+                .belongTo((String) firstRow.get("belong_to"))
+                .watchedDuration(firstRow.get("watched_duration") == null ? 0 : (Long) firstRow.get("watched_duration"))
+                .genres(new HashSet<>())
                 .build();
         for (Map<String, Object> row : results) {
             String genreName = (String) row.get("genre_name");

@@ -26,9 +26,12 @@ public class Watching {
     @JoinColumn(name = "film_id", nullable = false)
     private Film film;
 
-    @Column(name = "watch_time")
+    @Column(name = "watching_time")
     private LocalDateTime watchTime;
 
-    @Column(name = "watch_hour")
+    @Column(name = "watching_hour")
     private int watchHour;
+
+    @Column(name = "watched_duration")
+    private long watchedDuration;
 }

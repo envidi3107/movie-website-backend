@@ -21,4 +21,5 @@ public interface CommentRepository extends JpaRepository<Comment, String> {
             "WHERE c.film_id = :filmId ORDER BY c.comment_time DESC", nativeQuery = true)
     List<FilmComments> getFilmComments(@Param("filmId") String filmId);
 
+    List<Comment> findByFilm_FilmIdAndParentCommentIsNullOrderByCommentTimeDesc(String filmId);
 }

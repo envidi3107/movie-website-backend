@@ -26,7 +26,7 @@ public class SystemFilmController {
         return ApiResponse.<List<SystemFilmSummaryResponse>>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(systemFilmService.getAllSystemFilmSummary(page - 1))
+                .results(systemFilmService.getAllSystemFilmSummary(page - 1))
                 .build();
     }
 
@@ -35,12 +35,12 @@ public class SystemFilmController {
         return ApiResponse.<SystemFilmDetailResponse>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .result(systemFilmService.getSystemFilmDetail(filmId))
+                .results(systemFilmService.getSystemFilmDetail(filmId))
                 .build();
     }
 
 //    @GetMapping("/find")
-//    public SystemFilmSummaryResponse findSystemfilmByTitle() {
+//    public SystemFilmSummaryResponse findSystemfilmByTitle(@RequestParam("title") String title, @RequestParam("page") int page) {
 //
 //    }
 }

@@ -94,7 +94,7 @@ public class UserService {
 
                 // Set đường dẫn file vào avatar (có thể là URL tương đối hoặc tuyệt đối)
                 user.setAvatarPath("/uploads/avatars/" + fileName);
-
+                
                 userRepository.save(user);
             } catch (IOException e) {
                 throw new RuntimeException("Không thể lưu avatar", e);

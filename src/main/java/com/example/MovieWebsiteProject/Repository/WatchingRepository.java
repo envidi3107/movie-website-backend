@@ -12,28 +12,39 @@ import java.util.Map;
 @Repository
 public interface WatchingRepository extends JpaRepository<Watching, String> {
 
-    @Query(value = "SELECT COUNT(DISTINCT user_id) AS total_users, watch_hour, date(watch_time) as watch_date\n" +
+    @Query(value = "SELECT COUNT(DISTINCT user_id) AS total_users, watching_hour, date(watching_time) as watching_date\n" +
             "FROM watching\n" +
-            "GROUP BY watch_hour, watch_time\n" +
-            "HAVING watch_date = :watchDate\n" +
-            "ORDER BY watch_hour DESC", nativeQuery = true)
-    List<Object[]> countUsersWatchingPerHour(@Param("watchDate") String dateTime);
+            "GROUP BY watching_hour, watching_time\n" +
+            "HAVING watching_date = :watchingDate\n" +
+            "ORDER BY watching_hour", nativeQuery = true)
+    List<Object[]> countUsersWatchingPerHour(@Param("watchingDate") String watchingDate);
+
+    @Query(value = "SELECT DISTINCT\n" +
+            "    w.film_id, \n" +
+            "    sf.title, \n" +
+            "    sf.backdrop_path,\n" +
+            "    sf.poster_path,\n" +
+            "    sf.video_path, \n" +
+            "    DATE(w.watching_time) AS watching_date,\n" +
+            "    w.watched_duration\n" +
+            "FROM watching AS w\n" +
+            "JOIN system_film AS sf ON w.film_id = sf.system_film_id\n" +
+            "WHERE w.user_id = 'u1'\n" +
+            "ORDER BY DATE(w.watching_time) DESC\n" +
+            "LIMIT 20;", nativeQuery = true)
+    List<Map<String, Object>> getSystemFilmWatchingHistory(@Param("userId") String userId);
 
     @Query(value = "SELECT DISTINCT \n" +
             "    w.film_id, \n" +
-            "    film.belong_to, \n" +
-            "    sf.title, \n" +
-            "    sf.video_path, \n" +
             "    DATE(w.watching_time) AS watching_date, \n" +
-            "    ft.video_key, \n" +
-            "    ft.tmdb_id, \n" +
-            "    film.watched_duration\n" +
+            "    tf.video_key,\n" +
+            "    tf.tmdb_id,\n" +
+            "    w.watched_duration\n" +
             "FROM watching AS w\n" +
-            "JOIN film ON w.film_id = film.film_id\n" +
-            "JOIN system_film AS sf ON film.film_id = sf.system_film_id\n" +
-            "JOIN film_trailers as ft ON film.film_id = ft.film_trailers_id" +
-            "WHERE w.user_id = :userId\n" +
-            "ORDER BY DATE(w.watching_time) DESC LIMIT 20;\n", nativeQuery = true)
-    List<Map<String, Object>> getFilmWatchingHistory(@Param("userId") String userId);
+            "JOIN tmdb_film AS tf ON w.film_id = tf.id\n" +
+            "ORDER BY DATE(w.watching_time) DESC\n" +
+            "LIMIT 20;", nativeQuery = true)
+    List<Map<String, Object>> getTmdbFilmWatchingHistory(@Param("userId") String userId);
 
+    List<Watching> findByUser_IdAndFilm_FilmId(String userId, String filmId);
 }

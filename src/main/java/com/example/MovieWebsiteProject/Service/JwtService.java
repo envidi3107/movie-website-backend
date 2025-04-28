@@ -1,14 +1,14 @@
 package com.example.MovieWebsiteProject.Service;
 
-import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Exception.AppException;
 import com.example.MovieWebsiteProject.Exception.ErrorCode;
 import com.example.MovieWebsiteProject.Repository.InvalidatedTokenRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
 import com.example.MovieWebsiteProject.dto.projection.UserAuthInfo;
-import com.example.MovieWebsiteProject.dto.request.IntrospectRequest;
-import com.example.MovieWebsiteProject.dto.response.IntrospectResponse;
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.Date;
-import java.util.StringJoiner;
 import java.util.UUID;
 
 @Service
@@ -81,10 +80,12 @@ public class JwtService {
             throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
         }
 
+        // nếu token tồn tại trong bảng lưu những token đã logout thì báo lỗi
         if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
-        }
 
+        }
+        System.out.println("JWT LOGOUT: " + signedJWT.getJWTClaimsSet().getJWTID());
         return signedJWT;
     }
 }
