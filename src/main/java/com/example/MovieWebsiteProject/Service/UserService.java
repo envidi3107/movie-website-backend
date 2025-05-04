@@ -1,13 +1,14 @@
 package com.example.MovieWebsiteProject.Service;
 
 import com.example.MovieWebsiteProject.Common.Roles;
+import com.example.MovieWebsiteProject.Entity.Playlist;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Exception.AppException;
 import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Repository.PlaylistRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
 import com.example.MovieWebsiteProject.dto.request.UserCreationRequest;
 import com.example.MovieWebsiteProject.dto.request.UserUpdateRequest;
-import com.example.MovieWebsiteProject.mapper.UserMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,9 +32,9 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
     UserRepository userRepository;
-    UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     AuthenticationService authenticationService;
+    private final PlaylistRepository playlistRepository;
 
     public void createUser(UserCreationRequest request, HttpServletRequest httpServletRequest) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -41,17 +43,37 @@ public class UserService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
-        User user = userMapper.toUser(request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .createdAt(LocalDateTime.now())
+                .country(httpServletRequest.getLocale().getCountry())
+                .role(Roles.USER.name())
+                .ipAddress(getClientIp(httpServletRequest))
+                .dateOfBirth(request.getDateOfBirth())
+                .build();
 
-        LocalDateTime accessTime = LocalDateTime.now();
-        user.setCreatedAt(accessTime);
-        user.setIpAddress(getClientIp(httpServletRequest));
-        user.setCountry(httpServletRequest.getLocale().getCountry());
-        user.setDateOfBirth(request.getDateOfBirth());
-        user.setRole(Roles.USER.name());
-        userRepository.save(user);
+        user = userRepository.save(user);
+
+        // Tạo playlist mặc định
+        List<Playlist> defaultPlaylists = List.of(
+                Playlist.builder()
+                        .playlistName("Yêu thích")
+                        .createdBy(user)
+                        .createdAt(LocalDateTime.now())
+                        .build(),
+                Playlist.builder()
+                        .playlistName("Xem sau")
+                        .createdBy(user)
+                        .createdAt(LocalDateTime.now())
+                        .build()
+        );
+
+        // Lưu playlist
+        playlistRepository.saveAll(defaultPlaylists);
     }
+
 
     public User getUser(String id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
@@ -68,33 +90,25 @@ public class UserService {
     public void updateUser(UserUpdateRequest request) {
         User user = getUser(authenticationService.getAuthenticatedUser().getId());
 
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-
-        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.PASSWORD_MUST_BE_DIFFERENCE);
-        } else {
-            request.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
-
-        user.setDateOfBirth(request.getDateOfBirth());
-
         if (request.getAvatarFile() != null && !request.getAvatarFile().isEmpty()) {
             try {
-                // Đặt tên file (có thể thêm timestamp hoặc UUID để tránh trùng)
                 String fileName = UUID.randomUUID() + "_" + request.getAvatarFile().getOriginalFilename();
                 Path uploadDir = Paths.get("uploads/avatars");
-
-                // Tạo thư mục nếu chưa tồn tại
                 Files.createDirectories(uploadDir);
-
-                // Ghi file vào thư mục
                 Path filePath = uploadDir.resolve(fileName);
-                Files.write(filePath, request.getAvatarFile().getBytes());
 
-                // Set đường dẫn file vào avatar (có thể là URL tương đối hoặc tuyệt đối)
+                // Xóa avatar cũ nếu tồn tại
+                if (user.getAvatarPath() != null) {
+                    Path oldAvatarPath = Paths.get("uploads", user.getAvatarPath().replaceFirst("^/uploads/", ""));
+                    if (Files.exists(oldAvatarPath)) {
+                        Files.delete(oldAvatarPath);
+                    }
+                }
+
+                // Ghi file mới
+                Files.write(filePath, request.getAvatarFile().getBytes());
                 user.setAvatarPath("/uploads/avatars/" + fileName);
-                
+
                 userRepository.save(user);
             } catch (IOException e) {
                 throw new RuntimeException("Không thể lưu avatar", e);

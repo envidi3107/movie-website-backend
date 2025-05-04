@@ -2,7 +2,6 @@ package com.example.MovieWebsiteProject.Controller;
 
 import com.example.MovieWebsiteProject.Common.SuccessCode;
 import com.example.MovieWebsiteProject.Entity.User;
-import com.example.MovieWebsiteProject.Service.AuthenticationService;
 import com.example.MovieWebsiteProject.Service.UserService;
 import com.example.MovieWebsiteProject.dto.request.PasswordUpdateRequest;
 import com.example.MovieWebsiteProject.dto.request.UserCreationRequest;
@@ -14,6 +13,8 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,10 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     UserService userService;
-    AuthenticationService authenticationService;
+
+    @Value("${app.base_url}")
+    @NonFinal
+    private String base_url;
 
     @PostMapping("/signup")
     ApiResponse<Void> creteUser(@Valid @RequestBody UserCreationRequest request, HttpServletRequest httpServletRequest) {
@@ -52,8 +56,8 @@ public class UserController {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .createAt(user.getCreatedAt())
-                .avatarPath(user.getAvatarPath())
+                .createdAt(user.getCreatedAt())
+                .avatarPath(base_url + user.getAvatarPath())
                 .role(user.getRole())
                 .dateOfBirth(user.getDateOfBirth())
                 .build();
@@ -64,7 +68,7 @@ public class UserController {
                 .build();
     }
 
-    @PatchMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<User> updateUser(
             @Valid @ModelAttribute UserUpdateRequest request
     ) {
@@ -74,17 +78,6 @@ public class UserController {
                 .code(SuccessCode.UPDATED_SUCCESSFULLY.getCode())
                 .message(SuccessCode.UPDATED_SUCCESSFULLY.getMessage())
                 .build();
-    }
-
-
-    @DeleteMapping("/delete/{userId}")
-    ApiResponse<User> deleteUser(@PathVariable String userId) {
-        userService.deleteUser(userId);
-
-        ApiResponse<User> apiResponse = new ApiResponse<>();
-        apiResponse.setCode(SuccessCode.DELETED_SUCCESSFULLY.getCode());
-        apiResponse.setMessage(SuccessCode.DELETED_SUCCESSFULLY.getMessage());
-        return apiResponse;
     }
 
 }

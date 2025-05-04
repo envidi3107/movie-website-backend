@@ -33,12 +33,11 @@ spring:
 debug: true
 logging:
   level:
-    org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     root: INFO
 jwt:
-  signerKey: 'GmGwKbfqhMRK/UWaE9koBGa5?GGh/v?/1DBxSonI-0B2XVBMI6t5y4qvTEeMYtB4SDmAcyT!f-?G6OwD=EiF!cYoGeVXxB4KiI/UrrXGE?VDJNlp1XfAvCIC!3cfyA65pjt6AC4BYmsUUTHYqOkazKyb20agKQyf?aX8YN3sLdzxJuKMUAhfkKlakkRj7M9HpSZ4mHxFk24Hl7m9pX14lzuuP7Jk5OO?dsBBbcyuf2djlDh4BmEbc2XRSVMV91NF'
+  signerKey: ${signerKey}
 cloudinary:
   cloud_name: ${cloud_name}
   api_key: ${api_key}

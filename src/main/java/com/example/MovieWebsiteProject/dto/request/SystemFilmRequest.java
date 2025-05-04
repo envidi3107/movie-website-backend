@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Set;
 
 @Data
@@ -30,8 +30,8 @@ public class SystemFilmRequest {
     private String overview;
 
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
-    private LocalDateTime releaseDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate releaseDate;
 
     @NotNull
     private MultipartFile backdrop;
@@ -41,6 +41,10 @@ public class SystemFilmRequest {
 
     @NotNull
     private MultipartFile video;
+
+    @NotNull
+    @NotEmpty(message = "Total of durations cannot be empty!")
+    private double totalDurations;
 
     @NotNull
     @NotEmpty(message = "Genres cannot be empty!")

@@ -3,6 +3,7 @@ package com.example.MovieWebsiteProject.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +30,7 @@ public class SystemFilm {
     private String overview;
 
     @Column(name = "release_date")
-    private LocalDateTime releaseDate;
+    private LocalDate releaseDate;
 
     @Column(name = "backdrop_path")
     private String backdropPath;

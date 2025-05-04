@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class PlaylistResponse {
     private String playlistId;
     private String playlistName;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 }

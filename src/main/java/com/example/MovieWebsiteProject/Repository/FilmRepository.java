@@ -10,12 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Repository
 public interface FilmRepository extends JpaRepository<Film, String> {
-
-    Optional<Film> findById(String filmId);
 
     @Modifying
     @Transactional
@@ -38,7 +35,7 @@ public interface FilmRepository extends JpaRepository<Film, String> {
             "WHERE film_id = :filmId AND number_of_comments > 0", nativeQuery = true)
     void decreaseComment(@Param("filmId") String filmId);
 
-    @Query(value = "SELECT film_id, belong_to, number_of_views, sf.title, sf.backdrop_path, sf.poster_path, sf.release_date, tf.video_key, tf.tmdb_id\n" +
+    @Query(value = "SELECT film_id, belong_to, number_of_views, sf.title, sf.backdrop_path, sf.poster_path, sf.release_date,  tf.tmdb_id\n" +
             "\tFROM film\n" +
             "    LEFT JOIN system_film AS sf ON film.film_id = sf.system_film_id\n" +
             "    LEFT JOIN tmdb_film AS tf ON film.film_id = tf.id\n" +
@@ -46,7 +43,7 @@ public interface FilmRepository extends JpaRepository<Film, String> {
             "\tLIMIT :size", nativeQuery = true)
     List<Map<String, Object>> getTopViewFilms(@Param("size") int size);
 
-    @Query(value = "SELECT film_id, belong_to, number_of_likes, sf.title, sf.backdrop_path, sf.poster_path, sf.release_date, tf.video_key, tf.tmdb_id\n" +
+    @Query(value = "SELECT film_id, belong_to, number_of_likes, sf.title, sf.backdrop_path, sf.poster_path, sf.release_date,  tf.tmdb_id\n" +
             "\tFROM film\n" +
             "    LEFT JOIN system_film AS sf ON film.film_id = sf.system_film_id\n" +
             "    LEFT JOIN tmdb_film AS tf ON film.film_id = tf.id\n" +

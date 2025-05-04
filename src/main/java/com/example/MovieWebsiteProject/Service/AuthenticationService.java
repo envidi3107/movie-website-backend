@@ -8,10 +8,8 @@ import com.example.MovieWebsiteProject.Repository.InvalidatedTokenRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
 import com.example.MovieWebsiteProject.dto.projection.UserAuthInfo;
 import com.example.MovieWebsiteProject.dto.request.AuthenticationRequest;
-import com.example.MovieWebsiteProject.dto.request.IntrospectRequest;
 import com.example.MovieWebsiteProject.dto.response.AuthenticationResponse;
-import com.example.MovieWebsiteProject.dto.response.IntrospectResponse;
-import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
@@ -65,24 +63,10 @@ public class AuthenticationService {
                 .build();
     }
 
-    public IntrospectResponse introspect(IntrospectRequest request) {
-        boolean isValid = true;
-        try {
-            jwtService.verifyToken(request.getToken());
-        } catch (Exception e) {
-            System.out.println("Lỗi khi verify token: " + e.getMessage());
-            isValid = false;
-        }
-
-        return IntrospectResponse.builder()
-                .valid(isValid)
-                .build();
-    }
-
-    public void logout(String token) throws ParseException, JOSEException {
-        var signedToken = jwtService.verifyToken(token);
-        String jwtID = signedToken.getJWTClaimsSet().getJWTID();
-        Date expirationTime = signedToken.getJWTClaimsSet().getExpirationTime();
+    public void logout(HttpServletRequest request) throws ParseException {
+        SignedJWT signedJWT = (SignedJWT) request.getAttribute("signedJWT");
+        String jwtID = signedJWT.getJWTClaimsSet().getJWTID();
+        Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
         InvalidatedToken invalidatedToken = InvalidatedToken.builder()
                 .id(jwtID)
                 .expiryTime(expirationTime)
@@ -99,6 +83,15 @@ public class AuthenticationService {
         }
         System.out.println("principal: " + authentication.getPrincipal());
         throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
+    }
+
+    public boolean introspect(String token) {
+        try {
+            jwtService.verifyToken(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public String extractAccessToken(HttpServletRequest request) {

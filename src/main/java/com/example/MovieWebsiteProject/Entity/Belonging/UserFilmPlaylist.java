@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -32,10 +34,14 @@ public class UserFilmPlaylist {
     @JoinColumn(name = "playlist_id", nullable = false)
     private Playlist playlist;
 
-    public UserFilmPlaylist(User user, Film film, Playlist playlist) {
+    @Column(name = "added_time")
+    private LocalDateTime addedTime;
+
+    public UserFilmPlaylist(User user, Film film, Playlist playlist, LocalDateTime addedTime) {
         this.id = new UserFilmPlaylistId(user.getId(), film.getFilmId(), playlist.getPlaylistId());
         this.user = user;
         this.film = film;
         this.playlist = playlist;
+        this.addedTime = addedTime;
     }
 }

@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,9 +18,8 @@ public class TopFilmResponse {
     private String belongTo;
     private String title;
     private String backdropPath, posterPath;
-    private LocalDateTime releaseDate;
-    private String videoKey;
-    private long tmdbId;
+    private LocalDate releaseDate;
+    private String tmdbId;
     private long numberOfViews;
     private long numberOfLikes;
 }

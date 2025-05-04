@@ -18,7 +18,9 @@ import java.time.LocalDateTime;
 public class UserResponse {
     private String id;
     private String username, email, role;
-    private LocalDateTime createAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
     private String avatarPath;
     private String ipAddress, country;
 

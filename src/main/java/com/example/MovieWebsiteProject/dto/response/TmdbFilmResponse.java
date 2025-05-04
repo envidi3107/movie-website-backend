@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TmdbFilmResponse {
+    private long numberOfViews;
+    private long numberOfLikes;
+    private long numberOfDislikes;
     private String id;
-    private long tmdbId;
-    private String videoKey;
+    private String tmdbId;
 }

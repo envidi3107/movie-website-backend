@@ -15,11 +15,8 @@ public class TmdbFilm {
     @Column(name = "id")
     private String id;
 
-    @Column(name = "video_key")
-    private String videoKey;
-
     @Column(name = "tmdb_id")
-    private long tmdbId;
+    private String tmdbId;
 
     @OneToOne
     @MapsId

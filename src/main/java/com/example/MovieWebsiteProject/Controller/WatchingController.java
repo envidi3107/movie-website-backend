@@ -5,6 +5,7 @@ import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import com.example.MovieWebsiteProject.Repository.WatchingRepository;
 import com.example.MovieWebsiteProject.Service.AuthenticationService;
 import com.example.MovieWebsiteProject.Service.WatchingService;
+import com.example.MovieWebsiteProject.dto.request.WatchingRequest;
 import com.example.MovieWebsiteProject.dto.response.ApiResponse;
 import com.example.MovieWebsiteProject.dto.response.FilmWatchingHistoryResponse;
 import lombok.AccessLevel;
@@ -25,8 +26,8 @@ public class WatchingController {
     private final FilmRepository filmRepository;
 
     @PostMapping("/save-watching-history")
-    public ApiResponse<Void> saveFilmWatchingHistory(@RequestParam("filmId") String filmId) {
-        watchingService.saveFilmWatchingHistory(filmId);
+    public ApiResponse<Void> saveFilmWatchingHistory(@RequestBody WatchingRequest request) {
+        watchingService.saveFilmWatchingHistory(request);
         return ApiResponse.<Void>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
@@ -53,7 +54,7 @@ public class WatchingController {
 
     @GetMapping("/save-watched-duration/{filmId}")
     public ApiResponse<Void> saveWatchedDuration(@PathVariable("filmId") String filmId, @RequestParam("watchedDuration") long duration) {
-        watchingService.saveWacthedDuration(filmId, duration);
+        watchingService.saveWatchedDuration(filmId, duration);
         return ApiResponse.<Void>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())

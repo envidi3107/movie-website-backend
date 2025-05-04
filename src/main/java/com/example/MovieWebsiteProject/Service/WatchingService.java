@@ -1,13 +1,16 @@
 package com.example.MovieWebsiteProject.Service;
 
 import com.example.MovieWebsiteProject.Entity.Film;
+import com.example.MovieWebsiteProject.Entity.TmdbFilm;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Entity.Watching;
 import com.example.MovieWebsiteProject.Exception.AppException;
 import com.example.MovieWebsiteProject.Exception.ErrorCode;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
+import com.example.MovieWebsiteProject.Repository.TmdbFilmRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
 import com.example.MovieWebsiteProject.Repository.WatchingRepository;
+import com.example.MovieWebsiteProject.dto.request.WatchingRequest;
 import com.example.MovieWebsiteProject.dto.response.FilmWatchingHistoryResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ public class WatchingService {
     FilmRepository filmRepository;
     UserRepository userRepository;
     AuthenticationService authenticationService;
+    TmdbFilmRepository tmdbFilmRepository;
 
     private String getUserAuthId() {
         return authenticationService.getAuthenticatedUser().getId();
@@ -35,7 +39,7 @@ public class WatchingService {
 
     public List<FilmWatchingHistoryResponse> getSystemFilmWatchingHistory() {
         List<Map<String, Object>> systemFilmResults = watchingRepository.getSystemFilmWatchingHistory(getUserAuthId());
-        List<Map<String, Object>> tmdbFilmResults = watchingRepository.getTmdbFilmWatchingHistory(getUserAuthId());
+
         List<FilmWatchingHistoryResponse> response = new ArrayList<>();
 
         systemFilmResults.forEach(row -> {
@@ -51,14 +55,6 @@ public class WatchingService {
             response.add(film);
         });
 
-        tmdbFilmResults.forEach(row -> {
-            FilmWatchingHistoryResponse film = FilmWatchingHistoryResponse.builder()
-                    .filmId(row.get("film_id").toString())
-                    .watchingDate(((Date) row.get("watching_date")).toLocalDate())
-                    .watchedDuration(((Long) row.get("watched_duration")))
-                    .build();
-            response.add(film);
-        });
         return response;
     }
 
@@ -69,6 +65,8 @@ public class WatchingService {
         tmdbFilmResults.forEach(row -> {
             FilmWatchingHistoryResponse film = FilmWatchingHistoryResponse.builder()
                     .filmId(row.get("film_id").toString())
+                    .tmdbId(row.get("tmdb_id").toString())
+                    .videoKey(row.get("video_key").toString())
                     .watchingDate(((Date) row.get("watching_date")).toLocalDate())
                     .watchedDuration(((Long) row.get("watched_duration")))
                     .build();
@@ -77,19 +75,38 @@ public class WatchingService {
         return response;
     }
 
-    public void saveFilmWatchingHistory(String filmId) {
-        Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+    public void saveFilmWatchingHistory(WatchingRequest request) {
         User user = authenticationService.getAuthenticatedUser();
-        Watching watching = Watching.builder()
-                .film(film)
-                .user(user)
-                .watchTime(LocalDateTime.now())
-                .watchHour(LocalDateTime.now().getHour())
-                .build();
-        watchingRepository.save(watching);
+        if (request.getOwnerFilm().equals("SYSTEM_FILM")) {
+            Film film = filmRepository.findById(request.getFilmId()).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+
+            Watching watching = Watching.builder()
+                    .film(film)
+                    .user(user)
+                    .watchTime(LocalDateTime.now())
+                    .watchHour(LocalDateTime.now().getHour())
+                    .build();
+            watchingRepository.save(watching);
+        } else {
+            TmdbFilm tmdbFilm = tmdbFilmRepository.findById(request.getTmdbId()).orElseGet(() -> TmdbFilm.builder()
+                    .tmdbId(request.getTmdbId())
+                    .build());
+            Film film = Film.builder()
+                    .belongTo("TMDB_FILM")
+                    .tmdbFilm(tmdbFilm)
+                    .build();
+
+            Watching watching = Watching.builder()
+                    .film(film)
+                    .user(user)
+                    .watchTime(LocalDateTime.now())
+                    .watchHour(LocalDateTime.now().getHour())
+                    .build();
+            watchingRepository.save(watching);
+        }
     }
 
-    public void saveWacthedDuration(String filmId, long duration) {
+    public void saveWatchedDuration(String filmId, long duration) {
         String userId = authenticationService.getAuthenticatedUser().getId();
 
         List<Watching> results = watchingRepository.findByUser_IdAndFilm_FilmId(userId, filmId);

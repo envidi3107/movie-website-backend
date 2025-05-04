@@ -12,12 +12,38 @@ import java.util.Map;
 @Repository
 public interface WatchingRepository extends JpaRepository<Watching, String> {
 
-    @Query(value = "SELECT COUNT(DISTINCT user_id) AS total_users, watching_hour, date(watching_time) as watching_date\n" +
-            "FROM watching\n" +
-            "GROUP BY watching_hour, watching_time\n" +
-            "HAVING watching_date = :watchingDate\n" +
-            "ORDER BY watching_hour", nativeQuery = true)
-    List<Object[]> countUsersWatchingPerHour(@Param("watchingDate") String watchingDate);
+    @Query(value = """
+            WITH recent_days AS (
+                SELECT DISTINCT DATE(watching_time) AS day
+                FROM watching
+                WHERE watching_time < NOW()
+                ORDER BY day DESC
+                LIMIT 20
+            ),
+            grouped_watch AS (
+                SELECT 
+                    DATE(watching_time) AS day,
+                    HOUR(watching_time) AS hour,
+                    COUNT(DISTINCT user_id) AS user_count
+                FROM watching
+                WHERE DATE(watching_time) IN (SELECT day FROM recent_days)
+                GROUP BY day, hour
+            ),
+            ranked_watch AS (
+                SELECT *,
+                       RANK() OVER (PARTITION BY day ORDER BY user_count DESC) AS rnk
+                FROM grouped_watch
+            )
+            SELECT 
+                day,
+                hour AS start_hour,
+                hour + 1 AS end_hour,
+                user_count
+            FROM ranked_watch
+            WHERE rnk = 1
+            ORDER BY day DESC, start_hour;
+            """, nativeQuery = true)
+    List<Object[]> findMostPopularHoursPerDay();
 
     @Query(value = "SELECT DISTINCT\n" +
             "    w.film_id, \n" +
@@ -29,7 +55,7 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
             "    w.watched_duration\n" +
             "FROM watching AS w\n" +
             "JOIN system_film AS sf ON w.film_id = sf.system_film_id\n" +
-            "WHERE w.user_id = 'u1'\n" +
+            "WHERE w.user_id = :userId\n" +
             "ORDER BY DATE(w.watching_time) DESC\n" +
             "LIMIT 20;", nativeQuery = true)
     List<Map<String, Object>> getSystemFilmWatchingHistory(@Param("userId") String userId);
@@ -37,11 +63,11 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
     @Query(value = "SELECT DISTINCT \n" +
             "    w.film_id, \n" +
             "    DATE(w.watching_time) AS watching_date, \n" +
-            "    tf.video_key,\n" +
             "    tf.tmdb_id,\n" +
             "    w.watched_duration\n" +
             "FROM watching AS w\n" +
             "JOIN tmdb_film AS tf ON w.film_id = tf.id\n" +
+            "WHERE w.user_id = :userId\n" +
             "ORDER BY DATE(w.watching_time) DESC\n" +
             "LIMIT 20;", nativeQuery = true)
     List<Map<String, Object>> getTmdbFilmWatchingHistory(@Param("userId") String userId);

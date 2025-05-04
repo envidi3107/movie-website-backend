@@ -1,6 +1,11 @@
 package com.example.MovieWebsiteProject.Service;
 
-import com.example.MovieWebsiteProject.Repository.UserFilmPlaylistRepository;
+import com.example.MovieWebsiteProject.Entity.Belonging.UserFilmPlaylist;
+import com.example.MovieWebsiteProject.Entity.Film;
+import com.example.MovieWebsiteProject.Entity.Playlist;
+import com.example.MovieWebsiteProject.Entity.TmdbFilm;
+import com.example.MovieWebsiteProject.Entity.User;
+import com.example.MovieWebsiteProject.Repository.*;
 import com.example.MovieWebsiteProject.dto.response.SystemFilmDetailResponse;
 import com.example.MovieWebsiteProject.dto.response.TmdbFilmResponse;
 import com.example.MovieWebsiteProject.dto.response.UserFilmPlaylistResponse;
@@ -8,8 +13,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -18,6 +25,33 @@ import java.util.*;
 public class UserFilmPlaylistService {
     UserFilmPlaylistRepository userFilmPlaylistRepository;
     AuthenticationService authenticationService;
+    private final UserRepository userRepository;
+    private final FilmRepository filmRepository;
+    private final PlaylistRepository playlistRepository;
+    private final TmdbFilmRepository tmdbFilmRepository;
+
+    @Transactional
+    public void addFilmToUserPlaylist(String playlistId, String filmId, String ownerFilm) {
+        User user = authenticationService.getAuthenticatedUser();
+        Film film;
+        if (ownerFilm.equals("SYSTEM_FILM")) {
+            film = filmRepository.findById(filmId).orElseThrow(() -> new RuntimeException("Film not found"));
+        } else {
+            TmdbFilm tmdbFilm = tmdbFilmRepository.findByTmdbId(filmId).orElseThrow(() -> new RuntimeException("Tmdb film not found"));
+            film = filmRepository.findById(tmdbFilm.getId()).orElseThrow(() -> new RuntimeException("Film not found"));
+        }
+
+        Playlist playlist = playlistRepository.findById(playlistId).orElseThrow(() -> new RuntimeException("Playlist not found"));
+
+        UserFilmPlaylist userFilmPlaylist = new UserFilmPlaylist(
+                user,
+                film,
+                playlist,
+                LocalDateTime.now()
+        );
+
+        userFilmPlaylistRepository.save(userFilmPlaylist);
+    }
 
     public List<UserFilmPlaylistResponse> getUserSystemFilmPlaylist() {
         List<Map<String, Object>> results = userFilmPlaylistRepository.getUserSystemFilmPlaylist(authenticationService.getAuthenticatedUser().getId());
@@ -73,7 +107,7 @@ public class UserFilmPlaylistService {
                     .build());
             TmdbFilmResponse tmdbFilmResponse = null;
             for (TmdbFilmResponse tmdbFilm : playlist.getTmdbFilms()) {
-                if (tmdbFilm.getId().equals(tmdbFilmId)) {
+                if (tmdbFilm.getTmdbId().equals(tmdbFilmId)) {
                     tmdbFilmResponse = tmdbFilm;
                     break;
                 }
@@ -81,8 +115,7 @@ public class UserFilmPlaylistService {
             if (tmdbFilmResponse == null) {
                 tmdbFilmResponse = TmdbFilmResponse.builder()
                         .id(tmdbFilmId)
-                        .videoKey((String) row.get("video_key"))
-                        .tmdbId((Long) row.get("tmdb_id"))
+                        .tmdbId((String) row.get("tmdb_id"))
                         .build();
                 playlist.getTmdbFilms().add(tmdbFilmResponse);
             }

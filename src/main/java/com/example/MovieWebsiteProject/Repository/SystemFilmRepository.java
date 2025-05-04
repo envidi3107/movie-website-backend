@@ -1,7 +1,12 @@
 package com.example.MovieWebsiteProject.Repository;
 
 import com.example.MovieWebsiteProject.Entity.SystemFilm;
+import lombok.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -10,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface SystemFilmRepository extends JpaRepository<SystemFilm, String> {
+public interface SystemFilmRepository extends JpaRepository<SystemFilm, String>, JpaSpecificationExecutor<SystemFilm> {
 
     @Query(value = "SELECT sf.system_film_id, sf.title, sf.release_date, sf.backdrop_path, sf.poster_path, genre.genre_name FROM system_film AS sf JOIN system_film_genres AS sfg ON sf.system_film_id = sfg.system_film_id JOIN genre ON sfg.genre_id = genre.genre_id ORDER BY sf.release_date DESC", nativeQuery = true)
     List<Map<String, Object>> getAllSystemFilmSummary();
@@ -34,7 +39,7 @@ public interface SystemFilmRepository extends JpaRepository<SystemFilm, String> 
             "WHERE sf.system_film_id = :filmId;", nativeQuery = true)
     List<Map<String, Object>> getSystemFilmDetail(@Param("filmId") String filmId, @Param("userId") String userId);
 
-    @Query(value = "SELECT * FROM system_film AS sf\n" +
-            "WHERE sf.title LIKE '%a%'", nativeQuery = true)
-    List<SystemFilm> findByTitleContainingIgnoreCase(String title);
+    @Override
+    @EntityGraph(attributePaths = {"genres"})
+    Page<SystemFilm> findAll(@NonNull Pageable pageable);
 }

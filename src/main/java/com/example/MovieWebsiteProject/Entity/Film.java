@@ -35,6 +35,9 @@ public class Film {
     @Column(name = "belong_to")
     private String belongTo;
 
+    @Column(name = "total_durations")
+    private double totalDurations;
+
     @OneToOne(mappedBy = "film", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private TmdbFilm tmdbFilm;

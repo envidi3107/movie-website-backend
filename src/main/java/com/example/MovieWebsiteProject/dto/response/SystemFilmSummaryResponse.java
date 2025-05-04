@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,9 +18,9 @@ import java.util.Set;
 public class SystemFilmSummaryResponse {
     private String systemFilmId;
     private String title;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime releaseDate;
+    private boolean adult;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate releaseDate;
     private String backdropPath;
     private String posterPath;
     private long watchedDuration;

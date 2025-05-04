@@ -1,6 +1,8 @@
 package com.example.MovieWebsiteProject.Controller;
 
 import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Entity.Film;
+import com.example.MovieWebsiteProject.Exception.AppException;
 import com.example.MovieWebsiteProject.Exception.ErrorCode;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import com.example.MovieWebsiteProject.Service.FilmService;
@@ -22,8 +24,9 @@ public class FilmController {
     FilmService filmService;
 
     @PostMapping("/{filmId}/increase-view")
-    public ApiResponse<Void> increaseView(@PathVariable("filmId") String filmId, @RequestParam("watchedDuration") long duration) {
-        if (duration >= 45) {
+    public ApiResponse<Void> increaseView(@PathVariable("filmId") String filmId, @RequestParam("watchedDuration") double duration) {
+        Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+        if (duration >= (0.5 * film.getTotalDurations())) {
             filmRepository.increaseView(filmId);
             return ApiResponse.<Void>builder()
                     .code(SuccessCode.SUCCESS.getCode())

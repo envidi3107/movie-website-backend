@@ -1,7 +1,6 @@
 package com.example.MovieWebsiteProject.Configuration;
 
 import com.example.MovieWebsiteProject.Common.Roles;
-import com.example.MovieWebsiteProject.Entity.Playlist;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Repository.PlaylistRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
@@ -38,18 +37,6 @@ public class ApplicationInitConfig {
                         .role(Roles.ADMIN.name())
                         .build();
                 userRepository.save(user);
-            }
-            if (playlistRepository.findByPlaylistName("Yêu thích").isEmpty()) {
-                Playlist playlist = Playlist.builder()
-                        .playlistName("Yêu thích")
-                        .build();
-                playlistRepository.save(playlist);
-            }
-            if (playlistRepository.findByPlaylistName("Xem sau").isEmpty()) {
-                Playlist playlist = Playlist.builder()
-                        .playlistName("Xem sau")
-                        .build();
-                playlistRepository.save(playlist);
             }
         };
     }

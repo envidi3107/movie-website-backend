@@ -33,7 +33,7 @@ public interface UserFilmPlaylistRepository extends JpaRepository<UserFilmPlayli
             "WHERE ufp.user_id = :userId;", nativeQuery = true)
     List<Map<String, Object>> getUserSystemFilmPlaylist(@Param("userId") String userId);
 
-    @Query(value = "SELECT ufp.playlist_id, p.playlist_name, p.created_at, ufp.film_id as tmdb_film_id, film.belong_to, tf.video_key, tf.tmdb_id\n" +
+    @Query(value = "SELECT ufp.playlist_id, p.playlist_name, p.created_at, ufp.film_id as tmdb_film_id, film.belong_to,  tf.tmdb_id\n" +
             "FROM user_film_playlist AS ufp\n" +
             "JOIN tmdb_film AS tf ON ufp.film_id = tf.id\n" +
             "JOIN film ON film.film_id = tf.id\n" +

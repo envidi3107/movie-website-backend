@@ -50,6 +50,9 @@ public class User implements UserDetails {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    private List<Playlist> playlists;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<UserFilmPlaylist> userFilmPlaylist;
 

@@ -5,6 +5,7 @@ import com.example.MovieWebsiteProject.Entity.Film;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Repository.CommentRepository;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
+import com.example.MovieWebsiteProject.dto.request.CommentRequest;
 import com.example.MovieWebsiteProject.dto.response.CommentResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,24 +26,45 @@ public class CommentService {
     UserService userService;
     FilmService filmService;
     CommentRepository commentRepository;
+    AuthenticationService authenticationService;
 
     @Value("${app.base_url}")
     @NonFinal
     String baseUrl;
 
-    public void saveComment(String filmId, String userId, String content) {
-        User user = userService.getUser(userId);
-        Film film = filmService.getFilmById(filmId);
-        int count = commentRepository.countUserCommentFilm(userId, filmId);
+    public CommentResponse saveComment(CommentRequest commentRequest) {
+        User user = authenticationService.getAuthenticatedUser();
+
+        int count = commentRepository.countUserCommentFilm(user.getId(), commentRequest.getFilmId());
+
         if (count <= 2) {
+            Film film = filmRepository.findById(commentRequest.getFilmId()).orElseThrow(() -> new RuntimeException("Film not found"));
+
+            Comment parentComment = null;
+
+            if (commentRequest.getParentCommentId() != null && !commentRequest.getParentCommentId().isEmpty()) {
+                parentComment = commentRepository.findById(commentRequest.getParentCommentId()).orElseThrow(() -> new RuntimeException("Parent comment not found"));
+            }
+
             Comment comment = Comment.builder()
                     .user(user)
                     .film(film)
-                    .content(content)
+                    .content(commentRequest.getContent())
                     .commentTime(LocalDateTime.now())
+                    .parentComment(parentComment)
                     .build();
-            commentRepository.save(comment);
+            comment = commentRepository.save(comment);
             filmRepository.increaseComment(film.getFilmId());
+            return CommentResponse.builder()
+                    .commentId(comment.getCommentId())
+                    .userId(comment.getUser().getId())
+                    .username(comment.getUser().getUsername())
+                    .avatarPath(baseUrl + comment.getUser().getAvatarPath())
+                    .commentTime(comment.getCommentTime())
+                    .content(comment.getContent())
+                    .build();
+        } else {
+            throw new RuntimeException("You can only comment three times.");
         }
     }
 
@@ -58,14 +80,19 @@ public class CommentService {
     private CommentResponse convertToDTO(Comment comment) {
         return CommentResponse.builder()
                 .commentId(comment.getCommentId())
+                .userId(comment.getUser().getId())
                 .username(comment.getUser().getUsername())
                 .avatarPath(baseUrl + comment.getUser().getAvatarPath())
                 .content(comment.getContent())
                 .commentTime(comment.getCommentTime())
-                .childComments(comment.getChildComments()
-                        .stream()
-                        .map(this::convertToDTO)
-                        .collect(Collectors.toList()))
+                .childComments(
+                        comment.getChildComments() == null
+                                ? List.of()
+                                : comment.getChildComments()
+                                .stream()
+                                .map(this::convertToDTO)
+                                .collect(Collectors.toList())
+                )
                 .build();
     }
 }

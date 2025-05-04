@@ -20,17 +20,16 @@ public class Playlist {
     @Column(name = "playlist_id")
     private String playlistId;
 
-    @Column(name = "playlist_name", unique = true)
+    @Column(name = "playlist_name")
     private String playlistName;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "playlist", cascade = CascadeType.ALL)
     private Set<UserFilmPlaylist> userFilmPlaylists;
-
-    public Playlist(String playlistName, LocalDateTime createdAt) {
-        this.playlistName = playlistName;
-        this.createdAt = createdAt;
-    }
 }

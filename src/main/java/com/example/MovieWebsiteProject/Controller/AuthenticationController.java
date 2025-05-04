@@ -4,7 +4,6 @@ import com.example.MovieWebsiteProject.Common.SuccessCode;
 import com.example.MovieWebsiteProject.Service.AuthenticationService;
 import com.example.MovieWebsiteProject.Service.JwtService;
 import com.example.MovieWebsiteProject.dto.request.AuthenticationRequest;
-import com.example.MovieWebsiteProject.dto.request.IntrospectRequest;
 import com.example.MovieWebsiteProject.dto.response.ApiResponse;
 import com.example.MovieWebsiteProject.dto.response.AuthenticationResponse;
 import com.example.MovieWebsiteProject.dto.response.IntrospectResponse;
@@ -56,10 +55,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
-    ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws ParseException, JOSEException {
+    ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws ParseException {
 
-        authenticationService.logout(authenticationService.extractAccessToken(request));
-        System.out.println("da logout");
+        authenticationService.logout(request);
         // Xóa session
         session.invalidate();
 
@@ -69,7 +67,7 @@ public class AuthenticationController {
                 .secure(false)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("Strict")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, clearAccessTokenCookie.toString());
 
@@ -85,16 +83,6 @@ public class AuthenticationController {
                         .message(SuccessCode.LOG_OUT_SUCCESSFULLY.getMessage())
                         .build()
         );
-    }
-
-    @PostMapping("/introspect")
-    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
-        var results = authenticationService.introspect(request);
-        return ApiResponse.<IntrospectResponse>builder()
-                .code(SuccessCode.TOKEN_IS_VALID.getCode())
-                .message(SuccessCode.TOKEN_IS_VALID.getMessage())
-                .results(results)
-                .build();
     }
 
     @PostMapping("/authenticate-password")
