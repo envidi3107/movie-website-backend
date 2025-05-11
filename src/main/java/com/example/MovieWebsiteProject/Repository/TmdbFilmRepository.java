@@ -19,4 +19,6 @@ public interface TmdbFilmRepository extends JpaRepository<TmdbFilm, String> {
             "JOIN film ON tf.id = film.film_id\n" +
             "WHERE tmdb_id = :tmdbId", nativeQuery = true)
     Map<String, Object> getTmdbFilmByTmdbId(@Param("tmdbId") String tmdbId);
+
+    boolean existsByTmdbId(String tmdbId);
 }

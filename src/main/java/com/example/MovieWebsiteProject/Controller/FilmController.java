@@ -24,19 +24,28 @@ public class FilmController {
     FilmService filmService;
 
     @PostMapping("/{filmId}/increase-view")
-    public ApiResponse<Void> increaseView(@PathVariable("filmId") String filmId, @RequestParam("watchedDuration") double duration) {
-        Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
-        if (duration >= (0.5 * film.getTotalDurations())) {
-            filmRepository.increaseView(filmId);
+    public ApiResponse<Void> increaseView(@PathVariable("filmId") String filmId, @RequestParam("watchedDuration") double duration, @RequestParam("belongTo") String belongTo) {
+        if (belongTo.equals("TMDB_FILM")) {
+            Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+            filmRepository.increaseView(film.getFilmId());
             return ApiResponse.<Void>builder()
                     .code(SuccessCode.SUCCESS.getCode())
                     .message(SuccessCode.SUCCESS.getMessage())
                     .build();
         } else {
-            return ApiResponse.<Void>builder()
-                    .code(ErrorCode.FAILED.getCode())
-                    .message(ErrorCode.FAILED.getMessage())
-                    .build();
+            Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+            if (duration >= (0.5 * film.getSystemFilm().getTotalDurations())) {
+                filmRepository.increaseView(filmId);
+                return ApiResponse.<Void>builder()
+                        .code(SuccessCode.SUCCESS.getCode())
+                        .message(SuccessCode.SUCCESS.getMessage())
+                        .build();
+            } else {
+                return ApiResponse.<Void>builder()
+                        .code(ErrorCode.FAILED.getCode())
+                        .message(ErrorCode.FAILED.getMessage())
+                        .build();
+            }
         }
     }
 

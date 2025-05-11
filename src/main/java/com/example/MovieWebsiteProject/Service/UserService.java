@@ -9,10 +9,13 @@ import com.example.MovieWebsiteProject.Repository.PlaylistRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
 import com.example.MovieWebsiteProject.dto.request.UserCreationRequest;
 import com.example.MovieWebsiteProject.dto.request.UserUpdateRequest;
+import com.example.MovieWebsiteProject.dto.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -35,6 +39,10 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     AuthenticationService authenticationService;
     private final PlaylistRepository playlistRepository;
+
+    @Value("${app.base_url}")
+    @NonFinal
+    private String baseUrl;
 
     public void createUser(UserCreationRequest request, HttpServletRequest httpServletRequest) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -87,12 +95,12 @@ public class UserService {
         return userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new RuntimeException("User info not found!"));
     }
 
-    public void updateUser(UserUpdateRequest request) {
+    public UserResponse updateUser(UserUpdateRequest request) {
         User user = getUser(authenticationService.getAuthenticatedUser().getId());
 
         if (request.getAvatarFile() != null && !request.getAvatarFile().isEmpty()) {
             try {
-                String fileName = UUID.randomUUID() + "_" + request.getAvatarFile().getOriginalFilename();
+                String fileName = UUID.randomUUID().toString() + "." + Objects.requireNonNull(request.getAvatarFile().getContentType()).split("/")[1];
                 Path uploadDir = Paths.get("uploads/avatars");
                 Files.createDirectories(uploadDir);
                 Path filePath = uploadDir.resolve(fileName);
@@ -109,7 +117,17 @@ public class UserService {
                 Files.write(filePath, request.getAvatarFile().getBytes());
                 user.setAvatarPath("/uploads/avatars/" + fileName);
 
-                userRepository.save(user);
+                user = userRepository.save(user);
+
+                return UserResponse.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .role(user.getRole())
+                        .createdAt(user.getCreatedAt())
+                        .avatarPath(baseUrl + user.getAvatarPath())
+                        .dateOfBirth(user.getDateOfBirth())
+                        .build();
             } catch (IOException e) {
                 throw new RuntimeException("Không thể lưu avatar", e);
             }

@@ -51,14 +51,15 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
             "    sf.backdrop_path,\n" +
             "    sf.poster_path,\n" +
             "    sf.video_path, \n" +
+            "    sf.total_durations,\n" +
             "    DATE(w.watching_time) AS watching_date,\n" +
             "    w.watched_duration\n" +
             "FROM watching AS w\n" +
             "JOIN system_film AS sf ON w.film_id = sf.system_film_id\n" +
             "WHERE w.user_id = :userId\n" +
             "ORDER BY DATE(w.watching_time) DESC\n" +
-            "LIMIT 20;", nativeQuery = true)
-    List<Map<String, Object>> getSystemFilmWatchingHistory(@Param("userId") String userId);
+            "LIMIT :limit", nativeQuery = true)
+    List<Map<String, Object>> getSystemFilmWatchingHistory(@Param("userId") String userId, @Param("limit") int limit);
 
     @Query(value = "SELECT DISTINCT \n" +
             "    w.film_id, \n" +
@@ -69,8 +70,8 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
             "JOIN tmdb_film AS tf ON w.film_id = tf.id\n" +
             "WHERE w.user_id = :userId\n" +
             "ORDER BY DATE(w.watching_time) DESC\n" +
-            "LIMIT 20;", nativeQuery = true)
-    List<Map<String, Object>> getTmdbFilmWatchingHistory(@Param("userId") String userId);
+            "LIMIT :limit", nativeQuery = true)
+    List<Map<String, Object>> getTmdbFilmWatchingHistory(@Param("userId") String userId, @Param("limit") int limit);
 
     List<Watching> findByUser_IdAndFilm_FilmId(String userId, String filmId);
 }

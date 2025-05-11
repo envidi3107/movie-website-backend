@@ -70,15 +70,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();
 
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write("""
-                            {
-                              "code": "401",
-                              "message": "Log in session has expired!"
-                            }
-                        """);
-                return;
             }
         }
 

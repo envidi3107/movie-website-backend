@@ -74,7 +74,7 @@ public class AdminController {
                 .build();
     }
 
-    @PatchMapping(value = "/update/system-film/{filmId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/update/system-film/{filmId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> updateSystemFilm(@PathVariable("filmId") String filmId, @Valid @ModelAttribute SystemFilmRequest request) {
         return ApiResponse.<String>builder()
                 .code(SuccessCode.SUCCESS.getCode())

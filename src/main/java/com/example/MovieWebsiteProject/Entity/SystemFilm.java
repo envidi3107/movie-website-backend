@@ -47,6 +47,9 @@ public class SystemFilm {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "total_durations")
+    private double totalDurations;
+
     @ManyToMany
     @JoinTable(
             name = "system_film_genres",

@@ -2,6 +2,8 @@ package com.example.MovieWebsiteProject.Service;
 
 import com.example.MovieWebsiteProject.Entity.Film;
 import com.example.MovieWebsiteProject.Entity.TmdbFilm;
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Exception.ErrorCode;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import com.example.MovieWebsiteProject.Repository.TmdbFilmRepository;
 import com.example.MovieWebsiteProject.dto.response.TmdbFilmResponse;
@@ -20,6 +22,10 @@ public class TmdbFilmService {
     private final FilmRepository filmRepository;
 
     public void addFilm(String tmdbId) {
+        if (tmdbFilmRepository.existsByTmdbId(tmdbId)) {
+            throw new AppException(ErrorCode.TMDB_FILM_HAS_BEEN_ADDED);
+        };
+
         TmdbFilm tmdbFilm = TmdbFilm.builder().tmdbId(tmdbId).build();
         Film film = Film.builder()
                 .tmdbFilm(tmdbFilm)

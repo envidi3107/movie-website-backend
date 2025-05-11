@@ -58,6 +58,7 @@ public class SystemFilmService {
         String userId = authenticationService.getAuthenticatedUser().getId();
         List<Map<String, Object>> results = systemFilmRepository.getSystemFilmDetail(filmId, userId);
         Map<String, Object> firstRow = results.getFirst();
+        System.out.println("total_durations: " + firstRow.get("total_durations"));
         SystemFilmDetailResponse film = SystemFilmDetailResponse.builder()
                 .systemFilmId(filmId)
                 .adult(Boolean.TRUE.equals(firstRow.get("adult")))
@@ -76,6 +77,7 @@ public class SystemFilmService {
                 .numberOfComments((Long) firstRow.get("number_of_comments"))
                 .belongTo((String) firstRow.get("belong_to"))
                 .watchedDuration(firstRow.get("watched_duration") == null ? 0 : (Long) firstRow.get("watched_duration"))
+                .totalDurations((Double) firstRow.get("total_durations"))
                 .genres(new HashSet<>())
                 .build();
         for (Map<String, Object> row : results) {

@@ -69,14 +69,14 @@ public class UserController {
     }
 
     @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<User> updateUser(
+    public ApiResponse<UserResponse> updateUser(
             @Valid @ModelAttribute UserUpdateRequest request
     ) {
-        userService.updateUser(request);
 
-        return ApiResponse.<User>builder()
+        return ApiResponse.<UserResponse>builder()
                 .code(SuccessCode.UPDATED_SUCCESSFULLY.getCode())
                 .message(SuccessCode.UPDATED_SUCCESSFULLY.getMessage())
+                .results(userService.updateUser(request))
                 .build();
     }
 

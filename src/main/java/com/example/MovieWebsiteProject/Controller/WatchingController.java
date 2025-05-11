@@ -26,8 +26,8 @@ public class WatchingController {
     private final FilmRepository filmRepository;
 
     @PostMapping("/save-watching-history")
-    public ApiResponse<Void> saveFilmWatchingHistory(@RequestBody WatchingRequest request) {
-        watchingService.saveFilmWatchingHistory(request);
+    public ApiResponse<Void> saveFilmWatchingHistory(@RequestParam("filmId") String filmId) {
+        watchingService.saveFilmWatchingHistory(filmId);
         return ApiResponse.<Void>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())

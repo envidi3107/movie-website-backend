@@ -19,7 +19,7 @@ public class FilmWatchingHistoryResponse {
     private String title;
     private String backdropPath, posterPath, videoPath;
     private LocalDate watchingDate;
-    private String videoKey;
     private String tmdbId;
     private long watchedDuration;
+    private double totalDurations;
 }

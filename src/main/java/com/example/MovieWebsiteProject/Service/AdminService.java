@@ -126,7 +126,6 @@ public class AdminService {
             try {
                 videoUrl = cloudinaryService.uploadVideo(request.getVideo());
             } catch (Exception cloudEx) {
-                // Fallback: lưu local
                 videoUrl = saveVideoToLocal(request.getVideo());
             }
 
@@ -143,6 +142,7 @@ public class AdminService {
                     .posterPath(posterUrl)
                     .videoPath(videoUrl)
                     .createdAt(LocalDateTime.now())
+                    .totalDurations(request.getTotalDurations())
                     .build();
 
             film.setSystemFilm(systemFilm);

@@ -1,5 +1,6 @@
 package com.example.MovieWebsiteProject.dto.request;
 
+import com.example.MovieWebsiteProject.Validation.ValidFile;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -34,16 +35,18 @@ public class SystemFilmRequest {
     private LocalDate releaseDate;
 
     @NotNull
+    @ValidFile
     private MultipartFile backdrop;
 
     @NotNull
+    @ValidFile
     private MultipartFile poster;
 
     @NotNull
+    @ValidFile
     private MultipartFile video;
 
     @NotNull
-    @NotEmpty(message = "Total of durations cannot be empty!")
     private double totalDurations;
 
     @NotNull
