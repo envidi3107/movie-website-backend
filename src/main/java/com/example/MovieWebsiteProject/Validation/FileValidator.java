@@ -20,16 +20,18 @@ public class FileValidator implements ConstraintValidator<ValidFile, MultipartFi
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
         if (file == null || file.isEmpty()) {
-            return false;
+            return true;
         }
 
         if (file.getSize() > maxSize) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("File's size exceeds the allowed limit!").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("File's size exceeds the allowed limit!")
+                    .addConstraintViolation();
             return false;
         }
 
-        if (allowedTypes.length > 0 && Arrays.stream(allowedTypes).noneMatch(type -> type.equals(file.getContentType()))) {
+        if (allowedTypes.length > 0
+                && Arrays.stream(allowedTypes).noneMatch(type -> type.equals(file.getContentType()))) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("File's type is invalid!").addConstraintViolation();
             return false;

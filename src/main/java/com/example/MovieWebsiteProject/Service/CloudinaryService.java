@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -40,12 +41,24 @@ public class CloudinaryService {
         return uploadResult.get("secure_url").toString();
     }
 
-    public String deleteImage(String publicId) throws IOException {
-        Map options = ObjectUtils.asMap("invalidate", true);
-        return cloudinary.uploader().destroy(publicId, options).get("result").toString();
+    public void deleteImages(List<String> publicIds)  {
+        try {
+            Map options = ObjectUtils.asMap("invalidate", true);
+            for (String publicId : publicIds) {
+                System.out.println("image public id: " + publicId);
+                cloudinary.uploader().destroy(publicId, options);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
-    public String deleteVideo(String publicId) throws IOException {
-        return cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "video")).get("result").toString();
+    public void deleteVideo(String publicId)  {
+        System.out.println("video public id: " + publicId);
+        try {
+            cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "video", "invalidate", true));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

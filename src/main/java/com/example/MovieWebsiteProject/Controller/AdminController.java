@@ -56,6 +56,15 @@ public class AdminController {
                 .build();
     }
 
+    @GetMapping("/top-user-like")
+    public ApiResponse<List<Map<String, Object>>> getTopUserLike(@RequestParam("limit") int limit) {
+        return ApiResponse.<List<Map<String, Object>>>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .results(adminService.getTopUserLike(limit))
+                .build();
+    }
+
     @GetMapping("/popular-hours")
     public ApiResponse<List<PopularHourResponse>> getPopularHours() {
         return ApiResponse.<List<PopularHourResponse>>builder()
@@ -85,7 +94,7 @@ public class AdminController {
 
     @DeleteMapping("/delete/system-film/{filmId}")
     public ApiResponse<String> deleteSystemFilm(@PathVariable("filmId") String filmId) {
-        filmRepository.deleteById(filmId);
+        adminService.deleteSystemFilm(filmId);
         return ApiResponse.<String>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())

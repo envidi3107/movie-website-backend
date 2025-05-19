@@ -20,10 +20,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +57,7 @@ public class WatchingService {
                     .backdropPath(row.get("backdrop_path").toString())
                     .posterPath(row.get("poster_path").toString())
                     .videoPath(row.get("video_path").toString())
-                    .watchingDate(((Date) row.get("watching_date")).toLocalDate())
+                    .watchingDate(((Timestamp) row.get("watching_time")).toLocalDateTime())
                     .watchedDuration(((Long) row.get("watched_duration")))
                     .totalDurations((Double) row.get("total_durations"))
                     .build();
@@ -73,8 +75,7 @@ public class WatchingService {
             FilmWatchingHistoryResponse film = FilmWatchingHistoryResponse.builder()
                     .filmId((String) row.get("film_id"))
                     .tmdbId((String) row.get("tmdb_id"))
-                    .watchingDate(((Date) row.get("watching_date")).toLocalDate())
-                    .watchedDuration(((Long) row.get("watched_duration")))
+                    .watchingDate(((Timestamp) row.get("watching_time")).toLocalDateTime())
                     .build();
             response.add(film);
         });
@@ -97,10 +98,10 @@ public class WatchingService {
     public void saveWatchedDuration(String filmId, long duration) {
         String userId = authenticationService.getAuthenticatedUser().getId();
 
-        List<Watching> results = watchingRepository.findByUser_IdAndFilm_FilmId(userId, filmId);
+        Optional<Watching> results = watchingRepository.findNewWatchingByUserIdAndFilmId(userId, filmId);
 
-        if (!results.isEmpty()) {
-            Watching watching = results.getLast();
+        if (results.isPresent()) {
+            Watching watching = results.get();
             watching.setWatchedDuration(duration);
             watchingRepository.save(watching);
         } else {

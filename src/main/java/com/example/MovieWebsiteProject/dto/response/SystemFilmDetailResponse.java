@@ -27,6 +27,7 @@ public class SystemFilmDetailResponse extends SystemFilmSummaryResponse {
     private String belongTo;
     private long watchedDuration;
     private double totalDurations;
+    private Boolean isUseSrc;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp createdAt;

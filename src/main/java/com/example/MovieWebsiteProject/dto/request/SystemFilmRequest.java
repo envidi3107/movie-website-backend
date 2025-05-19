@@ -34,17 +34,20 @@ public class SystemFilmRequest {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
 
-    @NotNull
+    private boolean isUseSrc = false;
+
     @ValidFile
     private MultipartFile backdrop;
 
-    @NotNull
     @ValidFile
     private MultipartFile poster;
 
-    @NotNull
     @ValidFile
     private MultipartFile video;
+
+    private String backdropSrc;
+    private String posterSrc;
+    private String videoSrc;
 
     @NotNull
     private double totalDurations;

@@ -2,6 +2,7 @@ package com.example.MovieWebsiteProject.Entity;
 
 import com.example.MovieWebsiteProject.Entity.Belonging.UserFilmPlaylist;
 import com.example.MovieWebsiteProject.Entity.Reaction.Reaction;
+import com.example.MovieWebsiteProject.Entity.UserNotification.UserNotification;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -64,6 +65,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Watching> watchings = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserNotification> userNotification;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

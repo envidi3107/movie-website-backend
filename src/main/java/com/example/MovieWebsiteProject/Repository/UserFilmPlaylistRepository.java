@@ -23,6 +23,7 @@ public interface UserFilmPlaylistRepository extends JpaRepository<UserFilmPlayli
             "    sf.backdrop_path, \n" +
             "    sf.poster_path, \n" +
             "    sf.video_path,\n" +
+            "    sf.is_use_src,\n" +
             "    g.genre_name\n" +
             "FROM user_film_playlist AS ufp\n" +
             "JOIN system_film AS sf ON ufp.film_id = sf.system_film_id\n" +

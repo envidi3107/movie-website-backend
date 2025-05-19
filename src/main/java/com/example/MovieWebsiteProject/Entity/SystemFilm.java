@@ -26,6 +26,7 @@ public class SystemFilm {
     @Column(name = "title")
     private String title;
 
+    @Lob
     @Column(name = "overview")
     private String overview;
 
@@ -49,6 +50,9 @@ public class SystemFilm {
 
     @Column(name = "total_durations")
     private double totalDurations;
+
+    @Column(name = "is_use_src", columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean isUseSrc;
 
     @ManyToMany
     @JoinTable(

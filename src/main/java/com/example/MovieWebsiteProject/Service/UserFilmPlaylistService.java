@@ -78,6 +78,7 @@ public class UserFilmPlaylistService {
                         .backdropPath((String) row.get("backdrop_path"))
                         .posterPath((String) row.get("poster_path"))
                         .videoPath((String) row.get("video_path"))
+                        .isUseSrc((Boolean) row.get("is_use_src"))
                         .genres(new HashSet<>())
                         .build();
                 playlist.getSystemFilms().add(newFilm);

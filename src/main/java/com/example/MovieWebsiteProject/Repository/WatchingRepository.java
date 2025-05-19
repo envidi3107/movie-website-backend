@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public interface WatchingRepository extends JpaRepository<Watching, String> {
@@ -21,7 +22,7 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
                 LIMIT 20
             ),
             grouped_watch AS (
-                SELECT 
+                SELECT
                     DATE(watching_time) AS day,
                     HOUR(watching_time) AS hour,
                     COUNT(DISTINCT user_id) AS user_count
@@ -34,7 +35,7 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
                        RANK() OVER (PARTITION BY day ORDER BY user_count DESC) AS rnk
                 FROM grouped_watch
             )
-            SELECT 
+            SELECT
                 day,
                 hour AS start_hour,
                 hour + 1 AS end_hour,
@@ -45,33 +46,49 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
             """, nativeQuery = true)
     List<Object[]> findMostPopularHoursPerDay();
 
-    @Query(value = "SELECT DISTINCT\n" +
-            "    w.film_id, \n" +
-            "    sf.title, \n" +
-            "    sf.backdrop_path,\n" +
-            "    sf.poster_path,\n" +
-            "    sf.video_path, \n" +
-            "    sf.total_durations,\n" +
-            "    DATE(w.watching_time) AS watching_date,\n" +
-            "    w.watched_duration\n" +
-            "FROM watching AS w\n" +
-            "JOIN system_film AS sf ON w.film_id = sf.system_film_id\n" +
-            "WHERE w.user_id = :userId\n" +
-            "ORDER BY DATE(w.watching_time) DESC\n" +
-            "LIMIT :limit", nativeQuery = true)
+    @Query(value = """
+            SELECT
+                w.film_id,
+                sf.title,
+                sf.backdrop_path,
+                sf.poster_path,
+                sf.video_path,
+                sf.total_durations,
+                w.watching_time,
+                w.watched_duration
+            FROM watching w
+            JOIN (
+                SELECT film_id, MAX(watching_time) AS latest_time
+                FROM watching
+                WHERE user_id = :userId
+                GROUP BY film_id
+            ) latest_watching ON w.film_id = latest_watching.film_id AND w.watching_time = latest_watching.latest_time
+            JOIN system_film AS sf ON w.film_id = sf.system_film_id
+            WHERE w.user_id = :userId
+            ORDER BY w.watching_time DESC
+            LIMIT :limit;
+            """, nativeQuery = true)
     List<Map<String, Object>> getSystemFilmWatchingHistory(@Param("userId") String userId, @Param("limit") int limit);
 
-    @Query(value = "SELECT DISTINCT \n" +
-            "    w.film_id, \n" +
-            "    DATE(w.watching_time) AS watching_date, \n" +
-            "    tf.tmdb_id,\n" +
-            "    w.watched_duration\n" +
-            "FROM watching AS w\n" +
-            "JOIN tmdb_film AS tf ON w.film_id = tf.id\n" +
-            "WHERE w.user_id = :userId\n" +
-            "ORDER BY DATE(w.watching_time) DESC\n" +
-            "LIMIT :limit", nativeQuery = true)
+    @Query(value = """
+            SELECT
+                w.film_id,
+                tf.tmdb_id,
+                w.watching_time
+            FROM watching w
+            JOIN (
+                SELECT film_id, MAX(watching_time) AS latest_time
+                FROM watching
+                WHERE user_id = :userId
+                GROUP BY film_id
+            ) latest_watching ON w.film_id = latest_watching.film_id AND w.watching_time = latest_watching.latest_time
+            JOIN tmdb_film AS tf ON w.film_id = tf.id
+            WHERE w.user_id = :userId
+            ORDER BY w.watching_time DESC
+            LIMIT :limit;
+            """, nativeQuery = true)
     List<Map<String, Object>> getTmdbFilmWatchingHistory(@Param("userId") String userId, @Param("limit") int limit);
 
-    List<Watching> findByUser_IdAndFilm_FilmId(String userId, String filmId);
+    @Query(value = "SELECT * FROM watching WHERE film_id = :filmId AND user_id = :userId ORDER BY watching_time DESC LIMIT 1", nativeQuery = true)
+    Optional<Watching> findNewWatchingByUserIdAndFilmId(@Param("userId") String userId, @Param("filmId") String filmId);
 }

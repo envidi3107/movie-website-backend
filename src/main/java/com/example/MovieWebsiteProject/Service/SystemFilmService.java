@@ -78,6 +78,7 @@ public class SystemFilmService {
                 .belongTo((String) firstRow.get("belong_to"))
                 .watchedDuration(firstRow.get("watched_duration") == null ? 0 : (Long) firstRow.get("watched_duration"))
                 .totalDurations((Double) firstRow.get("total_durations"))
+                .isUseSrc((Boolean) firstRow.get("is_use_src"))
                 .genres(new HashSet<>())
                 .build();
         for (Map<String, Object> row : results) {
