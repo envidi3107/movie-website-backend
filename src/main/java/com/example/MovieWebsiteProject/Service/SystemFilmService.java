@@ -57,7 +57,7 @@ public class SystemFilmService {
     public SystemFilmDetailResponse getSystemFilmDetail(String filmId) {
         String userId = authenticationService.getAuthenticatedUser().getId();
         List<Map<String, Object>> results = systemFilmRepository.getSystemFilmDetail(filmId, userId);
-        Map<String, Object> firstRow = results.getFirst();
+        Map<String, Object> firstRow = results.get(0);
         System.out.println("total_durations: " + firstRow.get("total_durations"));
         SystemFilmDetailResponse film = SystemFilmDetailResponse.builder()
                 .systemFilmId(filmId)
