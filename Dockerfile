@@ -1,12 +1,15 @@
-# Stage 1: build project
-FROM eclipse-temurin:17-jdk AS build
+FROM maven:3-openjdk-17 AS build
 WORKDIR /app
-COPY . .
-RUN chmod +x mvnw && ./mvnw clean install -DskipTests
 
-# Stage 2: chạy runtime
-FROM eclipse-temurin:17-jre
+COPY . .
+RUN mvn clean package -DskipTests
+
+# Run stage
+
+FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+COPY --from=build /app/target/DrComputer-0.0.1-SNAPSHOT.war drcomputer.war
+EXPOSE 8000
+
+ENTRYPOINT ["java","-jar","drcomputer.war"]
