@@ -1,5 +1,5 @@
 server:
-  port: 8000
+  port: ${PORT:8000}
 app:
   base_url: http://localhost:8000
   limit_size: 20
