@@ -1,7 +1,7 @@
 server:
-  port: ${PORT:8000}
+  port: ${PORT:8080}
 app:
-  base_url: http://localhost:8000
+  base_url: https://phimhayyy.up.railway.app
   limit_size: 20
 spring:
   spring:
