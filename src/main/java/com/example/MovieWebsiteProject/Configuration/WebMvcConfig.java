@@ -16,9 +16,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOriginPatterns(List.of(
+            "http://localhost:*", 
+            "https://localhost:*",
+            "http://127.0.0.1:*", 
+            "https://127.0.0.1:*",
+            "http://*.vercel.app", 
+            "https://*.vercel.app",
+            "http://localhost:4173",
+            "http://localhost:3000"
+        ));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000", "http://localhost:4173"));
         corsConfiguration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
