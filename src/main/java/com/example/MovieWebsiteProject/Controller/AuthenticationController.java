@@ -38,7 +38,7 @@ public class AuthenticationController {
 
         ResponseCookie cookie = ResponseCookie.from("accessToken", results.getToken())
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(60 * 60 * 24)
                 .sameSite("None")
