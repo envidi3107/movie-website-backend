@@ -24,7 +24,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
             "http://*.vercel.app", 
             "https://*.vercel.app",
             "http://localhost:4173",
-            "http://localhost:3000"
+            "http://localhost:3000",
+            "http://localhost:5173"
         ));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
