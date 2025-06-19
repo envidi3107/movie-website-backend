@@ -34,7 +34,7 @@ spring:
     cookie:
       http-only: true
       secure: false
-      same-site: lax
+      same-site: none
 debug: true
 logging:
   level:

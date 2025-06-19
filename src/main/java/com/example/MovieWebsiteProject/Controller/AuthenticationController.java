@@ -41,7 +41,7 @@ public class AuthenticationController {
                 .secure(false)
                 .path("/")
                 .maxAge(60 * 60 * 24)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         results.setToken(null);
