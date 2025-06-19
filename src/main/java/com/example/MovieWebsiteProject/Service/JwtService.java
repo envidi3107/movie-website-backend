@@ -80,12 +80,11 @@ public class JwtService {
             throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
         }
 
-        // nếu token tồn tại trong bảng lưu những token đã logout thì báo lỗi
         if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
 
         }
-        System.out.println("JWT LOGOUT: " + signedJWT.getJWTClaimsSet().getJWTID());
+
         return signedJWT;
     }
 }

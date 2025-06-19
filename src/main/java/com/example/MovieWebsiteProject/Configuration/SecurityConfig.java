@@ -27,7 +27,7 @@ public class SecurityConfig implements WebMvcConfigurer {
             "/users/signup",
             "/auth/login",
             "/auth/logout",
-            "/auth/introspect",
+            "/auth/introspect"
     };
 
     @Autowired
