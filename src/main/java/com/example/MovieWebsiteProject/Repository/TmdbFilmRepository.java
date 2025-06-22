@@ -14,10 +14,12 @@ public interface TmdbFilmRepository extends JpaRepository<TmdbFilm, String> {
 
     Optional<TmdbFilm> findByTmdbId(String tmdbId);
 
-    @Query(value = "SELECT film.film_id, film.number_of_views, film.number_of_likes, film.number_of_dislikes, film.belong_to, tf.tmdb_id\n" +
-            "FROM tmdb_film AS tf\n" +
-            "JOIN film ON tf.id = film.film_id\n" +
-            "WHERE tmdb_id = :tmdbId", nativeQuery = true)
+    @Query(value = """
+            SELECT film.film_id, film.number_of_views, film.number_of_likes, film.number_of_dislikes, film.belong_to, tf.tmdb_id
+            FROM tmdb_film AS tf
+            JOIN film ON tf.id = film.film_id
+            WHERE tmdb_id = :tmdbId
+            """, nativeQuery = true)
     Map<String, Object> getTmdbFilmByTmdbId(@Param("tmdbId") String tmdbId);
 
     boolean existsByTmdbId(String tmdbId);

@@ -22,9 +22,11 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findById(String userId);
 
-    @Query(value = "SELECT DATE_FORMAT(u.created_at, '%Y-%m') AS month, COUNT(id) AS totalUsers " +
-            "FROM user u " +
-            "GROUP BY month ORDER BY month", nativeQuery = true)
+    @Query(value = """
+            SELECT DATE_FORMAT(u.created_at, '%Y-%m') AS month, COUNT(id) AS totalUsers
+            FROM user u
+            GROUP BY month ORDER BY month
+            """, nativeQuery = true)
     List<Object[]> countNewUsersPerMonth();
 
     @Query(value = "SELECT u.id, u.username, u.password, u.email, u.role FROM user u WHERE u.email = :email", nativeQuery = true)

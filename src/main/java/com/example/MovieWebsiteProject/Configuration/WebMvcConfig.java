@@ -29,6 +29,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/avatars/**")
-                .addResourceLocations("file:uploads/avatars/"); // Đường dẫn thực tế trên server
+                .addResourceLocations("file:uploads/avatars/");
     }
 }
