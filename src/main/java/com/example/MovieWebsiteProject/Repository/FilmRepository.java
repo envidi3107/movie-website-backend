@@ -60,4 +60,13 @@ public interface FilmRepository extends JpaRepository<Film, String> {
             LIMIT :size
             """, nativeQuery = true)
     List<Map<String, Object>> getTopLikeFilms(@Param("size") int size);
+
+    @Query(value = """
+            SELECT film_id, belong_to, number_of_likes, number_of_views, sf.title, sf.backdrop_path, sf.poster_path, sf.release_date
+            FROM film
+            LEFT JOIN system_film AS sf ON film.film_id = sf.system_film_id
+            ORDER BY number_of_views DESC
+            LIMIT :size
+            """, nativeQuery = true)
+    List<Map<String, Object>> getTopViewLikeSystemFilm(@Param("size") int size);
 }

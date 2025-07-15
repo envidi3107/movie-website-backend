@@ -62,7 +62,6 @@ public class UserFilmPlaylistService {
             String playlistId = (String) row.get("playlist_id");
             String systemFilmId = (String) row.get("system_film_id");
 
-            // Lấy nếu đã tồn tại có hoặc tạo mới
             UserFilmPlaylistResponse playlist = playlistMap.computeIfAbsent(playlistId, id ->
                     UserFilmPlaylistResponse.builder()
                             .playlistId(playlistId)

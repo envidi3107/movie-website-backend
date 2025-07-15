@@ -96,4 +96,27 @@ public class FilmService {
         return response;
     }
 
+    public List<TopFilmResponse> getTopViewLikeSystemFilm(int size) {
+        if (size < 1 || size > limit_size) {
+            throw new AppException(ErrorCode.FAILED);
+        }
+
+        List<Map<String, Object>> results = filmRepository.getTopViewLikeSystemFilm(size);
+        List<TopFilmResponse> response = new ArrayList<>();
+        for (Map<String, Object> result : results) {
+            TopFilmResponse topFilmResponse = TopFilmResponse.builder()
+                    .filmId((String) result.get("film_id"))
+                    .title((String) result.get("title"))
+                    .numberOfLikes((Long) result.get("number_of_likes"))
+                    .numberOfViews((Long) result.get("number_of_views"))
+                    .backdropPath((String) result.get("backdrop_path"))
+                    .posterPath((String) result.get("poster_path"))
+                    .releaseDate(((Date) result.get("release_date")).toLocalDate())
+                    .build();
+
+            response.add(topFilmResponse);
+        }
+
+        return response;
+    }
 }

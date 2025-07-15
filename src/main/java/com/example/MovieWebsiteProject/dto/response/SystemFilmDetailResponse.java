@@ -1,5 +1,6 @@
 package com.example.MovieWebsiteProject.dto.response;
 
+import com.example.MovieWebsiteProject.Entity.Episode;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,7 +24,7 @@ public class SystemFilmDetailResponse extends SystemFilmSummaryResponse {
     private long numberOfDislikes;
     private long numberOfComments;
     private boolean adult;
-    private String videoPath;
+    private Set<Episode> episodes;
     private String overview;
     private String belongTo;
     private long watchedDuration;

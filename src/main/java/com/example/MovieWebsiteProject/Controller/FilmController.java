@@ -69,4 +69,13 @@ public class FilmController {
                 .build();
     }
 
+    @GetMapping("/system-film/top-view-like")
+    public ApiResponse<List<TopFilmResponse>> getTopViewLikeSystemFilm (@RequestParam(value = "size", defaultValue = "1") int size) {
+
+        return ApiResponse.<List<TopFilmResponse>>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .results(filmService.getTopViewLikeSystemFilm(size))
+                .build();
+    }
 }

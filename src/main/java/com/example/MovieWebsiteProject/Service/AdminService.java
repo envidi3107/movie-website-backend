@@ -152,11 +152,12 @@ public class AdminService {
             throw new RuntimeException("Media url aren't empty!");
 
         try {
-            String backdropUrl, posterUrl, videoUrl;
+            String backdropUrl, posterUrl;
+            Set<String> videoSrcs = new HashSet<>();
             if(request.isUseSrc()) {
                 backdropUrl = request.getBackdropSrc();
                 posterUrl = request.getPosterSrc();
-                videoUrl = request.getVideoSrc();
+                videoSrcs = request.getVideoSrc();
             } else {
                 backdropUrl = cloudinaryService.uploadImage(request.getBackdrop());
                 posterUrl = cloudinaryService.uploadImage(request.getPoster());

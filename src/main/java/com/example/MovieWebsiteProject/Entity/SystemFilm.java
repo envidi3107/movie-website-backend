@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -27,7 +28,7 @@ public class SystemFilm {
     private String title;
 
     @Lob
-    @Column(name = "overview")
+    @Column(name = "overview", columnDefinition = "TEXT")
     private String overview;
 
     @Column(name = "release_date")
@@ -38,9 +39,6 @@ public class SystemFilm {
 
     @Column(name = "poster_path")
     private String posterPath;
-
-    @Column(name = "video_path")
-    private String videoPath;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -53,6 +51,9 @@ public class SystemFilm {
 
     @Column(name = "is_use_src", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isUseSrc;
+
+    @OneToMany(mappedBy = "systemFilm", cascade = CascadeType.ALL)
+    private Set<Episode> episodes = new HashSet<>();
 
     @ManyToMany
     @JoinTable(

@@ -12,12 +12,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class SystemFilmRequest {
     @NotNull
     private boolean adult;
@@ -42,12 +42,10 @@ public class SystemFilmRequest {
     @ValidFile
     private MultipartFile poster;
 
-    @ValidFile
-    private MultipartFile video;
-
     private String backdropSrc;
     private String posterSrc;
-    private String videoSrc;
+
+    private Set<EpisodeRequest> episodeRequest = new HashSet<>();
 
     @NotNull
     private double totalDurations;

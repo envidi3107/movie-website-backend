@@ -59,9 +59,4 @@ public class Film {
         this.systemFilm = systemFilm;
         systemFilm.setFilm(this);
     }
-
-    public void setTmdbFilm(TmdbFilm tmdbFilm) {
-        this.tmdbFilm = tmdbFilm;
-        tmdbFilm.setFilm(this);
-    }
 }
