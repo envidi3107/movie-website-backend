@@ -23,6 +23,9 @@ spring:
           batch_size: 1000
         order_inserts: true
         order_updates: true
+  mvc:
+    servlet:
+      path: /api
   servlet:
     multipart:
       enabled: true
