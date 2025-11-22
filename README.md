@@ -24,7 +24,9 @@ Mô tả: Một ứng dụng web quản lý phim (catalogue, phản hồi ngư�
 - Java 17+ (hoặc tương thích)
 - Spring Boot
 - Spring Data JPA
+- Spring Security
 - Maven
+- Cloudinary: quản lý media (hình ảnh, video, avatar người dùng)
 - Cơ sở dữ liệu: MySQL / PostgreSQL (cấu hình trong `application.properties` hoặc `application.yml`)
 - Lombok (để giảm boilerplate)
 
