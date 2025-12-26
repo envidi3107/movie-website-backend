@@ -1,12 +1,12 @@
 package com.example.MovieWebsiteProject.Service;
 
-import com.example.MovieWebsiteProject.Entity.Comment;
+import com.example.MovieWebsiteProject.Entity.Comment.Comment;
 import com.example.MovieWebsiteProject.Entity.Film;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Repository.CommentRepository;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
-import com.example.MovieWebsiteProject.dto.request.CommentRequest;
-import com.example.MovieWebsiteProject.dto.response.CommentResponse;
+import com.example.MovieWebsiteProject.Dto.request.CommentRequest;
+import com.example.MovieWebsiteProject.Dto.response.CommentResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

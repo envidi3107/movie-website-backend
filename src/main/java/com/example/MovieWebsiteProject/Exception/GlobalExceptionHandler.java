@@ -1,6 +1,7 @@
 package com.example.MovieWebsiteProject.Exception;
 
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Enum.ErrorCode;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;

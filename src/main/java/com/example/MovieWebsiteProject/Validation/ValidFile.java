@@ -1,6 +1,5 @@
 package com.example.MovieWebsiteProject.Validation;
 
-import com.example.MovieWebsiteProject.Exception.ErrorCode;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

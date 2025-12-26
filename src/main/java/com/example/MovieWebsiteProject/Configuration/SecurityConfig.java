@@ -1,5 +1,6 @@
 package com.example.MovieWebsiteProject.Configuration;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
     private final String[] PUBLIC_ENDPOINTS = {
             "/users/signup",
@@ -30,11 +32,7 @@ public class SecurityConfig implements WebMvcConfigurer {
             "/auth/introspect"
     };
 
-    @Autowired
-    private CustomJwtDecoder customJwtDecoder;
-
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -45,7 +43,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated());
-        httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer ->
                 jwtConfigurer.decoder(customJwtDecoder)

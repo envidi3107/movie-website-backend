@@ -1,4 +1,4 @@
-package com.example.MovieWebsiteProject.dto.request;
+package com.example.MovieWebsiteProject.Dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

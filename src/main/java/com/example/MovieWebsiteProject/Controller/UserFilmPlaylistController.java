@@ -1,10 +1,10 @@
 package com.example.MovieWebsiteProject.Controller;
 
-import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Enum.SuccessCode;
 import com.example.MovieWebsiteProject.Service.UserFilmPlaylistService;
-import com.example.MovieWebsiteProject.dto.request.PlaylistAdditionRequest;
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
-import com.example.MovieWebsiteProject.dto.response.UserFilmPlaylistResponse;
+import com.example.MovieWebsiteProject.Dto.request.PlaylistAdditionRequest;
+import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Dto.response.PlaylistResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,24 +29,22 @@ public class UserFilmPlaylistController {
                 .build();
     }
 
-    @GetMapping("/get-user-playlist/system-film")
-    public ApiResponse<List<UserFilmPlaylistResponse>> getUserSystemFilmPlaylist() {
-
-        return ApiResponse.<List<UserFilmPlaylistResponse>>builder()
+    @GetMapping("/playlists")
+    public ApiResponse<List<PlaylistResponse>> getUserPlaylists() {
+        List<PlaylistResponse> res = userFilmPlaylistService.getUserPlaylists();
+        return ApiResponse.<List<PlaylistResponse>>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .results(userFilmPlaylistService.getUserSystemFilmPlaylist())
+                .results(res)
                 .build();
     }
 
-    @GetMapping("/get-user-playlist/tmdb-film")
-    public ApiResponse<List<UserFilmPlaylistResponse>> getUserTmdbFilmPlaylist() {
-
-        return ApiResponse.<List<UserFilmPlaylistResponse>>builder()
+    @DeleteMapping("/playlists/{playlistId}")
+    public ApiResponse<Void> deletePlaylist(@PathVariable("playlistId") String playlistId) {
+        userFilmPlaylistService.deletePlaylist(playlistId);
+        return ApiResponse.<Void>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .results(userFilmPlaylistService.getUserTmdbFilmPlaylist())
                 .build();
     }
-
 }

@@ -1,4 +1,4 @@
-package com.example.MovieWebsiteProject.dto.projection;
+package com.example.MovieWebsiteProject.Dto.projection;
 
 public interface UserAuthInfo {
     String getId();

@@ -1,16 +1,16 @@
 package com.example.MovieWebsiteProject.Controller;
 
-import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Enum.SuccessCode;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import com.example.MovieWebsiteProject.Service.AdminService;
 import com.example.MovieWebsiteProject.Service.UserService;
 import com.example.MovieWebsiteProject.Service.WatchingService;
-import com.example.MovieWebsiteProject.dto.request.SystemFilmRequest;
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
-import com.example.MovieWebsiteProject.dto.response.PageResponse;
-import com.example.MovieWebsiteProject.dto.response.PopularHourResponse;
-import com.example.MovieWebsiteProject.dto.response.UserResponse;
+import com.example.MovieWebsiteProject.Dto.request.FilmRequest;
+import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Dto.response.PageResponse;
+import com.example.MovieWebsiteProject.Dto.response.PopularHourResponse;
+import com.example.MovieWebsiteProject.Dto.response.UserResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -74,30 +74,32 @@ public class AdminController {
                 .build();
     }
 
-    @PostMapping(value = "/upload/system-film", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> uploadSystemFilm(@Valid @ModelAttribute SystemFilmRequest request) {
+    @PostMapping(value = "/upload/film", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> uploadSystemFilm(@Valid @ModelAttribute FilmRequest request) {
+        String filmId = adminService.uploadSystemFilm(request);
         return ApiResponse.<String>builder()
-                .code(SuccessCode.SUCCESS.getCode())
-                .message(SuccessCode.SUCCESS.getMessage())
-                .results(adminService.uploadSystemFilm(request))
+                .code(SuccessCode.UPLOAD_FILM_SUCCESSFULLY.getCode())
+                .message(SuccessCode.UPLOAD_FILM_SUCCESSFULLY.getMessage())
+                .results(filmId)
                 .build();
     }
 
-    @PutMapping(value = "/update/system-film/{filmId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> updateSystemFilm(@PathVariable("filmId") String filmId, @Valid @ModelAttribute SystemFilmRequest request) {
+    @PutMapping(value = "/update/film/{filmId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> updateSystemFilm(@PathVariable("filmId") String filmId, @Valid @ModelAttribute FilmRequest request) {
+        String updatedId = adminService.updateSystemFilm(filmId, request);
         return ApiResponse.<String>builder()
-                .code(SuccessCode.SUCCESS.getCode())
-                .message(SuccessCode.SUCCESS.getMessage())
-                .results(adminService.updateSystemFilm(filmId, request))
+                .code(SuccessCode.UPDATE_FILM_SUCCESSFULLY.getCode())
+                .message(SuccessCode.UPDATE_FILM_SUCCESSFULLY.getMessage())
+                .results(updatedId)
                 .build();
     }
 
-    @DeleteMapping("/delete/system-film/{filmId}")
+    @DeleteMapping("/delete/film/{filmId}")
     public ApiResponse<String> deleteSystemFilm(@PathVariable("filmId") String filmId) {
         adminService.deleteSystemFilm(filmId);
         return ApiResponse.<String>builder()
-                .code(SuccessCode.SUCCESS.getCode())
-                .message(SuccessCode.SUCCESS.getMessage())
+                .code(SuccessCode.DELETE_FILM_SUCCESSFULLY.getCode())
+                .message(SuccessCode.DELETE_FILM_SUCCESSFULLY.getMessage())
                 .results(SuccessCode.DELETE_FILM_SUCCESSFULLY.getMessage())
                 .build();
     }

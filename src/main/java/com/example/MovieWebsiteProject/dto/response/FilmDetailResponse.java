@@ -1,6 +1,5 @@
-package com.example.MovieWebsiteProject.dto.response;
+package com.example.MovieWebsiteProject.Dto.response;
 
-import com.example.MovieWebsiteProject.Entity.Episode;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.sql.Timestamp;
-import java.util.Set;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,15 +17,14 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SystemFilmDetailResponse extends SystemFilmSummaryResponse {
+public class FilmDetailResponse extends FilmSummaryResponse {
     private long numberOfViews;
     private long numberOfLikes;
     private long numberOfDislikes;
     private long numberOfComments;
     private boolean adult;
-    private Set<Episode> episodes;
+    private List<EpisodeSummaryResponse> episodes;
     private String overview;
-    private String belongTo;
     private long watchedDuration;
     private double totalDurations;
     private Boolean isUseSrc;

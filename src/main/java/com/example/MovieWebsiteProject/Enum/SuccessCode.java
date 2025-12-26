@@ -1,4 +1,4 @@
-package com.example.MovieWebsiteProject.Common;
+package com.example.MovieWebsiteProject.Enum;
 
 import lombok.Getter;
 

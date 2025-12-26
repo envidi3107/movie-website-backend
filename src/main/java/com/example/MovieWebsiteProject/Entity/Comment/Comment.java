@@ -1,5 +1,7 @@
-package com.example.MovieWebsiteProject.Entity;
+package com.example.MovieWebsiteProject.Entity.Comment;
 
+import com.example.MovieWebsiteProject.Entity.Film;
+import com.example.MovieWebsiteProject.Entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;

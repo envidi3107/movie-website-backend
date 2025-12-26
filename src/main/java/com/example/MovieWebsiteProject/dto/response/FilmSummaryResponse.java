@@ -1,4 +1,4 @@
-package com.example.MovieWebsiteProject.dto.response;
+package com.example.MovieWebsiteProject.Dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,8 +15,8 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SystemFilmSummaryResponse {
-    private String systemFilmId;
+public class FilmSummaryResponse {
+    private String filmId;
     private String title;
     private boolean adult;
     @JsonFormat(pattern = "yyyy-MM-dd")

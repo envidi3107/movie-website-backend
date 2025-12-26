@@ -1,16 +1,17 @@
 package com.example.MovieWebsiteProject.Controller;
 
-import com.example.MovieWebsiteProject.Common.SuccessCode;
-import com.example.MovieWebsiteProject.Entity.Comment;
+import com.example.MovieWebsiteProject.Enum.SuccessCode;
+import com.example.MovieWebsiteProject.Entity.Comment.Comment;
 import com.example.MovieWebsiteProject.Repository.CommentRepository;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
 import com.example.MovieWebsiteProject.Service.AuthenticationService;
 import com.example.MovieWebsiteProject.Service.CommentService;
-import com.example.MovieWebsiteProject.dto.request.CommentRequest;
-import com.example.MovieWebsiteProject.dto.request.CommentUpdateRequest;
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
-import com.example.MovieWebsiteProject.dto.response.CommentResponse;
+import com.example.MovieWebsiteProject.Service.EpisodeCommentService;
+import com.example.MovieWebsiteProject.Dto.request.CommentRequest;
+import com.example.MovieWebsiteProject.Dto.request.CommentUpdateRequest;
+import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Dto.response.CommentResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ public class CommentController {
     CommentService commentService;
     FilmRepository filmRepository;
     UserRepository userRepository;
+    EpisodeCommentService episodeCommentService;
 
     private String getAuthUserId() {
         return authenticationService.getAuthenticatedUser().getId();
@@ -73,5 +75,21 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
+    // Episode comments
+    @PostMapping("/episode/save-comment")
+    public ApiResponse<CommentResponse> saveEpisodeComment(@RequestParam("episodeId") String episodeId, @RequestParam(value = "parentCommentId", required = false) String parentCommentId, @RequestParam("content") String content) {
+        CommentResponse res = episodeCommentService.saveComment(episodeId, parentCommentId, content);
+        return ApiResponse.<CommentResponse>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .results(res)
+                .build();
+    }
+
+    @GetMapping("/episode/{episodeId}/comment-list")
+    public ResponseEntity<List<CommentResponse>> getCommentsByEpisodeId(@PathVariable("episodeId") String episodeId) {
+        var comments = episodeCommentService.getCommentsByEpisodeId(episodeId);
+        return ResponseEntity.ok(comments);
+    }
 
 }

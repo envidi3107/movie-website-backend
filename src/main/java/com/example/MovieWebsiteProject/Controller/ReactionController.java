@@ -1,10 +1,12 @@
 package com.example.MovieWebsiteProject.Controller;
 
-import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Enum.SuccessCode;
 import com.example.MovieWebsiteProject.Service.AuthenticationService;
 import com.example.MovieWebsiteProject.Service.ReactionService;
-import com.example.MovieWebsiteProject.dto.request.ReactionRequest;
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Service.EpisodeReactionService;
+import com.example.MovieWebsiteProject.Dto.request.ReactionRequest;
+import com.example.MovieWebsiteProject.Dto.request.EpisodeReactionRequest;
+import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +22,7 @@ import java.util.Map;
 public class ReactionController {
     AuthenticationService authenticationService;
     ReactionService reactionService;
+    EpisodeReactionService episodeReactionService;
 
     private String getAuthUserId() {
         return authenticationService.getAuthenticatedUser().getId();
@@ -29,6 +32,15 @@ public class ReactionController {
     public ApiResponse<Void> saveReaction(@RequestBody ReactionRequest request) {
         reactionService.saveReaction(getAuthUserId(), request.getFilmId(), request.getReactionType());
 
+        return ApiResponse.<Void>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .build();
+    }
+
+    @PostMapping("/save-episode-reaction")
+    public ApiResponse<Void> saveEpisodeReaction(@RequestBody EpisodeReactionRequest request) {
+        episodeReactionService.saveEpisodeReaction(getAuthUserId(), request.getEpisodeId(), request.getReactionType());
         return ApiResponse.<Void>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())

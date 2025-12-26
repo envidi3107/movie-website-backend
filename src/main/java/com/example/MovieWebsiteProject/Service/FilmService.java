@@ -1,10 +1,16 @@
 package com.example.MovieWebsiteProject.Service;
 
+import com.example.MovieWebsiteProject.Dto.response.EpisodeDetailResponse;
+import com.example.MovieWebsiteProject.Entity.Episode;
 import com.example.MovieWebsiteProject.Entity.Film;
+import com.example.MovieWebsiteProject.Entity.Genre;
 import com.example.MovieWebsiteProject.Exception.AppException;
-import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Enum.ErrorCode;
+import com.example.MovieWebsiteProject.Repository.EpisodeRepository;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
-import com.example.MovieWebsiteProject.dto.response.TopFilmResponse;
+import com.example.MovieWebsiteProject.Dto.response.EpisodeSummaryResponse;
+import com.example.MovieWebsiteProject.Dto.response.FilmDetailResponse;
+import com.example.MovieWebsiteProject.Dto.response.FilmSummaryResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,16 +18,15 @@ import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FilmService {
     FilmRepository filmRepository;
+    EpisodeRepository episodeRepository;
 
     @Value("${app.limit_size}")
     @NonFinal
@@ -31,92 +36,129 @@ public class FilmService {
         return filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
     }
 
-    public List<TopFilmResponse> getTopViewFilm(int size) {
-        if (size < 1 || size > limit_size) {
-            throw new AppException(ErrorCode.FAILED);
-        }
-
-        List<Map<String, Object>> results = filmRepository.getTopViewFilms(size);
-        List<TopFilmResponse> response = new ArrayList<>();
-
-        for (Map<String, Object> row : results) {
-
-            TopFilmResponse.TopFilmResponseBuilder builder = TopFilmResponse.builder()
-                    .filmId((String) row.get("film_id"))
-                    .belongTo((String) row.get("belong_to"))
-                    .numberOfViews((Long) row.get("number_of_views"));
-
-            if ("SYSTEM_FILM".equals(row.get("belong_to"))) {
-                builder.title((String) row.get("title"))
-                        .backdropPath((String) row.get("backdrop_path"))
-                        .posterPath((String) row.get("poster_path"));
-                if (row.get("release_date") != null) {
-                    builder.releaseDate(((Date) row.get("release_date")).toLocalDate());
-                }
-            } else {
-                System.out.println("tmdb film");
-                builder.tmdbId((String) row.get("tmdb_id"));
-            }
-
-            response.add(builder.build());
-        }
-        return response;
+    // 1) API: get all films including episodes (only show image, title, like, view, releaseDate, adult)
+    public List<FilmSummaryResponse> getAllFilmsSummary() {
+        List<Film> films = filmRepository.findAll();
+        return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
     }
 
-    public List<TopFilmResponse> getTopLikeFilm(int size) {
-        if (size < 1 || size > limit_size) {
-            throw new AppException(ErrorCode.FAILED);
-        }
+    private FilmSummaryResponse toFilmSummary(Film film) {
+        Set<String> genres = film.getGenres() == null ? null : film.getGenres().stream().map(Genre::getGenreName).collect(Collectors.toSet());
 
-        List<Map<String, Object>> results = filmRepository.getTopLikeFilms(size);
-        List<TopFilmResponse> response = new ArrayList<>();
-
-        for (Map<String, Object> row : results) {
-            if (row == null || row.get("belong_to") == null) continue;
-
-            TopFilmResponse.TopFilmResponseBuilder builder = TopFilmResponse.builder()
-                    .filmId((String) row.get("film_id"))
-                    .belongTo((String) row.get("belong_to"))
-                    .numberOfLikes((Long) row.get("number_of_likes"));
-
-            if ("SYSTEM_FILM".equals(row.get("belong_to"))) {
-                builder.title((String) row.get("title"))
-                        .backdropPath((String) row.get("backdrop_path"))
-                        .posterPath((String) row.get("poster_path"));
-                if (row.get("release_date") != null) {
-                    builder.releaseDate(((Date) row.get("release_date")).toLocalDate());
-                }
-            } else {
-                builder.tmdbId((String) row.get("tmdb_id"));
-            }
-
-            response.add(builder.build());
-        }
-        System.out.println(response.size());
-        return response;
+        return FilmSummaryResponse.builder()
+                .filmId(film.getFilmId())
+                .title(film.getTitle())
+                .adult(film.isAdult())
+                .releaseDate(film.getReleaseDate())
+                .backdropPath(film.getBackdropPath())
+                .posterPath(film.getPosterPath())
+                .watchedDuration(0) // default
+                .genres(genres)
+                .build();
     }
 
-    public List<TopFilmResponse> getTopViewLikeSystemFilm(int size) {
-        if (size < 1 || size > limit_size) {
-            throw new AppException(ErrorCode.FAILED);
+    // 2) API: film detail
+    public FilmDetailResponse getFilmDetail(String filmId) {
+        Film film = getFilmById(filmId);
+
+        FilmDetailResponse.FilmDetailResponseBuilder builder = FilmDetailResponse.builder()
+                .filmId(film.getFilmId())
+                .title(film.getTitle())
+                .adult(film.isAdult())
+                .releaseDate(film.getReleaseDate())
+                .backdropPath(film.getBackdropPath())
+                .posterPath(film.getPosterPath())
+                .numberOfViews(film.getNumberOfViews())
+                .numberOfLikes(film.getNumberOfLikes())
+                .numberOfDislikes(film.getNumberOfDislikes())
+                .numberOfComments(film.getNumberOfComments())
+                .overview(film.getOverview())
+                .totalDurations(film.getTotalDurations())
+                .createdAt(film.getCreatedAt() == null ? null : java.sql.Timestamp.valueOf(film.getCreatedAt()))
+                .updatedAt(film.getUpdatedAt() == null ? null : java.sql.Timestamp.valueOf(film.getUpdatedAt()));
+
+        // episodes: map to EpisodeSummaryResponse
+        Set<Episode> eps = film.getEpisodes();
+        if (eps != null && !eps.isEmpty()) {
+            List<com.example.MovieWebsiteProject.Dto.response.EpisodeSummaryResponse> mapped = eps.stream()
+                    .sorted(Comparator.comparingInt(Episode::getEpisodeNumber))
+                    .map(e -> com.example.MovieWebsiteProject.Dto.response.EpisodeSummaryResponse.builder()
+                            .id(e.getId())
+                            .episodeNumber(e.getEpisodeNumber())
+                            .title(e.getTitle())
+                            .posterPath(e.getPosterPath())
+                            .backdropPath(e.getBackdropPath())
+                            .likeCount(e.getLikeCount())
+                            .viewCount(e.getViewCount())
+                            .build())
+                    .collect(Collectors.toList());
+            builder.episodes(mapped);
         }
 
-        List<Map<String, Object>> results = filmRepository.getTopViewLikeSystemFilm(size);
-        List<TopFilmResponse> response = new ArrayList<>();
-        for (Map<String, Object> result : results) {
-            TopFilmResponse topFilmResponse = TopFilmResponse.builder()
-                    .filmId((String) result.get("film_id"))
-                    .title((String) result.get("title"))
-                    .numberOfLikes((Long) result.get("number_of_likes"))
-                    .numberOfViews((Long) result.get("number_of_views"))
-                    .backdropPath((String) result.get("backdrop_path"))
-                    .posterPath((String) result.get("poster_path"))
-                    .releaseDate(((Date) result.get("release_date")).toLocalDate())
-                    .build();
-
-            response.add(topFilmResponse);
+        // genres
+        if (film.getGenres() != null) {
+            Set<String> gnames = film.getGenres().stream().map(Genre::getGenreName).collect(Collectors.toSet());
+            builder.genres(gnames);
         }
 
-        return response;
+        return builder.build();
+    }
+
+    // 3) API: episode detail
+    public EpisodeDetailResponse getEpisodeDetail(String episodeId) {
+        Episode episode = episodeRepository.findById(episodeId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+        return EpisodeDetailResponse.builder()
+                .id(episode.getId())
+                .episodeNumber(episode.getEpisodeNumber())
+                .title(episode.getTitle())
+                .description(episode.getDescription())
+                .posterPath(episode.getPosterPath())
+                .backdropPath(episode.getBackdropPath())
+                .videoPath(episode.getVideoPath())
+                .likeCount(episode.getLikeCount())
+                .viewCount(episode.getViewCount())
+                .dislikeCount(episode.getDislikeCount())
+                .commentCount(episode.getCommentCount())
+                .build();
+    }
+
+    // 4) API: search + filter films (DB queries + paging)
+    public org.springframework.data.domain.Page<Film> searchAndFilterFilmsRaw(String query, Set<String> genres, Boolean adult, int page, int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(Math.max(0, page - 1), size);
+        String title = (query == null || query.isEmpty()) ? "" : query.toLowerCase();
+
+        if (genres != null && !genres.isEmpty()) {
+            List<String> lowerGenres = genres.stream().map(String::toLowerCase).collect(Collectors.toList());
+            long genreCount = lowerGenres.size();
+            return filmRepository.findByTitleAndGenres(title.isEmpty() ? null : title, lowerGenres, genreCount, adult, pageable);
+        } else {
+            if (adult == null) {
+                return filmRepository.findByTitleContainingIgnoreCase(title, pageable);
+            } else {
+                return filmRepository.findByTitleContainingIgnoreCaseAndAdult(title, adult, pageable);
+            }
+        }
+    }
+
+    // 5) API: top 10 episodes by (views + likes)
+    public List<EpisodeSummaryResponse> getTop10EpisodesByViewsLikes() {
+        List<Episode> all = episodeRepository.findAll();
+        return all.stream()
+                .sorted(Comparator.comparingLong((Episode e) -> (e.getViewCount() + e.getLikeCount())).reversed())
+                .limit(10)
+                .map(e -> EpisodeSummaryResponse.builder()
+                        .id(e.getId())
+                        .episodeNumber(e.getEpisodeNumber())
+                        .title(e.getTitle())
+                        .posterPath(e.getPosterPath())
+                        .backdropPath(e.getBackdropPath())
+                        .likeCount(e.getLikeCount())
+                        .viewCount(e.getViewCount())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public FilmSummaryResponse mapToSummary(Film film) {
+        return toFilmSummary(film);
     }
 }

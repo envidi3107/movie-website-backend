@@ -1,10 +1,10 @@
 package com.example.MovieWebsiteProject.Service;
 
 import com.example.MovieWebsiteProject.Exception.AppException;
-import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Enum.ErrorCode;
 import com.example.MovieWebsiteProject.Repository.InvalidatedTokenRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
-import com.example.MovieWebsiteProject.dto.projection.UserAuthInfo;
+import com.example.MovieWebsiteProject.Dto.projection.UserAuthInfo;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -26,7 +26,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-
     private final UserRepository userRepository;
     private final InvalidatedTokenRepository invalidatedTokenRepository;
 
@@ -59,7 +58,6 @@ public class JwtService {
         }
     }
 
-    // Trích xuất username
     public String extractUsername(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);

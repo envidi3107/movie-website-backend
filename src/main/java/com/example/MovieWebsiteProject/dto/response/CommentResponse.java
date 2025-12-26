@@ -1,4 +1,4 @@
-package com.example.MovieWebsiteProject.dto.response;
+package com.example.MovieWebsiteProject.Dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -18,6 +18,6 @@ public class CommentResponse {
     private String avatarPath;
     private String content;
     private LocalDateTime commentTime;
-    private List<CommentResponse> childComments = new ArrayList<>();
+    private List<CommentResponse> childComments;
 }
 

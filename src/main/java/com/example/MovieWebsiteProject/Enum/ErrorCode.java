@@ -1,5 +1,8 @@
-package com.example.MovieWebsiteProject.Exception;
+package com.example.MovieWebsiteProject.Enum;
 
+import lombok.Getter;
+
+@Getter
 public enum ErrorCode {
     FAILED(400, "Failed!"),
     UNCATEGORIZED_EXCEPTION(9000, "Uncategorized exception!"),
@@ -24,15 +27,7 @@ public enum ErrorCode {
         this.message = message;
     }
 
-
     private int code;
     private String message;
 
-    public int getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 }

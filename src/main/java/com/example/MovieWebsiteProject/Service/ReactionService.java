@@ -1,6 +1,6 @@
 package com.example.MovieWebsiteProject.Service;
 
-import com.example.MovieWebsiteProject.Common.ReactionType;
+import com.example.MovieWebsiteProject.Enum.ReactionType;
 import com.example.MovieWebsiteProject.Entity.Film;
 import com.example.MovieWebsiteProject.Entity.Reaction.Reaction;
 import com.example.MovieWebsiteProject.Entity.User;

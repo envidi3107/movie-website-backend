@@ -2,7 +2,7 @@ package com.example.MovieWebsiteProject.Configuration;
 
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Exception.AppException;
-import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Enum.ErrorCode;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
 import com.example.MovieWebsiteProject.Service.JwtService;
 import com.nimbusds.jwt.SignedJWT;

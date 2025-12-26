@@ -1,6 +1,6 @@
 package com.example.MovieWebsiteProject.Configuration;
 
-import com.example.MovieWebsiteProject.Common.Roles;
+import com.example.MovieWebsiteProject.Enum.Roles;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Repository.PlaylistRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
