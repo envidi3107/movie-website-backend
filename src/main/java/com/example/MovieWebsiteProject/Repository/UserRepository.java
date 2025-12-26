@@ -1,7 +1,7 @@
 package com.example.MovieWebsiteProject.Repository;
 
 import com.example.MovieWebsiteProject.Entity.User;
-import com.example.MovieWebsiteProject.dto.projection.UserAuthInfo;
+import com.example.MovieWebsiteProject.Dto.projection.UserAuthInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {

@@ -5,7 +5,7 @@ import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Entity.UserNotification.UserNotification;
 import com.example.MovieWebsiteProject.Repository.UserNotificationRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
-import com.example.MovieWebsiteProject.dto.response.NotificationResponse;
+import com.example.MovieWebsiteProject.Dto.response.NotificationResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor

@@ -1,15 +1,15 @@
 package com.example.MovieWebsiteProject.Service;
 
-import com.example.MovieWebsiteProject.Common.Roles;
+import com.example.MovieWebsiteProject.Enum.Roles;
 import com.example.MovieWebsiteProject.Entity.Playlist;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Exception.AppException;
-import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Enum.ErrorCode;
 import com.example.MovieWebsiteProject.Repository.PlaylistRepository;
 import com.example.MovieWebsiteProject.Repository.UserRepository;
-import com.example.MovieWebsiteProject.dto.request.UserCreationRequest;
-import com.example.MovieWebsiteProject.dto.request.UserUpdateRequest;
-import com.example.MovieWebsiteProject.dto.response.UserResponse;
+import com.example.MovieWebsiteProject.Dto.request.UserCreationRequest;
+import com.example.MovieWebsiteProject.Dto.request.UserUpdateRequest;
+import com.example.MovieWebsiteProject.Dto.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

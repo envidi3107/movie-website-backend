@@ -1,12 +1,10 @@
-package com.example.MovieWebsiteProject.dto.request;
+package com.example.MovieWebsiteProject.Dto.request;
 
 import com.example.MovieWebsiteProject.Validation.ValidFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Set;
 
 @Data
 @NoArgsConstructor

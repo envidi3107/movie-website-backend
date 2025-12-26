@@ -1,19 +1,20 @@
 package com.example.MovieWebsiteProject.Controller;
 
-import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Enum.SuccessCode;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import com.example.MovieWebsiteProject.Repository.WatchingRepository;
 import com.example.MovieWebsiteProject.Service.AuthenticationService;
 import com.example.MovieWebsiteProject.Service.WatchingService;
-import com.example.MovieWebsiteProject.dto.request.WatchingRequest;
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
-import com.example.MovieWebsiteProject.dto.response.FilmWatchingHistoryResponse;
+import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/watching")
@@ -23,7 +24,7 @@ public class WatchingController {
     WatchingRepository watchingRepository;
     AuthenticationService authenticationService;
     WatchingService watchingService;
-    private final FilmRepository filmRepository;
+    FilmRepository filmRepository;
 
     @PostMapping("/save-watching-history")
     public ApiResponse<Void> saveFilmWatchingHistory(@RequestParam("filmId") String filmId) {
@@ -31,24 +32,6 @@ public class WatchingController {
         return ApiResponse.<Void>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .build();
-    }
-
-    @GetMapping("/get-watching-history/system-film")
-    public ApiResponse<List<FilmWatchingHistoryResponse>> getSystemFilmWatchingHistory() {
-        return ApiResponse.<List<FilmWatchingHistoryResponse>>builder()
-                .code(SuccessCode.SUCCESS.getCode())
-                .message(SuccessCode.SUCCESS.getMessage())
-                .results(watchingService.getSystemFilmWatchingHistory())
-                .build();
-    }
-
-    @GetMapping("/get-watching-history/tmdb-film")
-    public ApiResponse<List<FilmWatchingHistoryResponse>> getTmdbFilmWatchingHistory() {
-        return ApiResponse.<List<FilmWatchingHistoryResponse>>builder()
-                .code(SuccessCode.SUCCESS.getCode())
-                .message(SuccessCode.SUCCESS.getMessage())
-                .results(watchingService.getTmdbFilmWatchingHistory())
                 .build();
     }
 

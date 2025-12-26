@@ -1,7 +1,7 @@
 package com.example.MovieWebsiteProject.Repository;
 
-import com.example.MovieWebsiteProject.Entity.Comment;
-import com.example.MovieWebsiteProject.dto.projection.FilmComments;
+import com.example.MovieWebsiteProject.Entity.Comment.Comment;
+import com.example.MovieWebsiteProject.Dto.projection.FilmComments;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

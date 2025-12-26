@@ -2,7 +2,6 @@ package com.example.MovieWebsiteProject.Repository;
 
 import com.example.MovieWebsiteProject.Entity.Reaction.Reaction;
 import com.example.MovieWebsiteProject.Entity.Reaction.ReactionID;
-import com.example.MovieWebsiteProject.dto.response.UserResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

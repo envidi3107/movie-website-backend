@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Not Found</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #1e1e2f, #2d2d44);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 120px;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(45deg, #ff4b2b, #ff416c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 65, 108, 0.3); }
+            to   { text-shadow: 0 0 25px rgba(255, 65, 108, 0.7); }
+        }
+
+        p {
+            font-size: 20px;
+            margin-top: 10px;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 28px;
+            font-size: 16px;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 30px;
+            background: #ff416c;
+            transition: 0.3s;
+        }
+
+        a:hover {
+            background: #ff4b2b;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>404</h1>
+    <p>Trang bạn đang tìm không tồn tại hoặc đã bị di chuyển.</p>
+    <a href="/">Quay về trang chủ</a>
+</div>
+</body>
+</html>

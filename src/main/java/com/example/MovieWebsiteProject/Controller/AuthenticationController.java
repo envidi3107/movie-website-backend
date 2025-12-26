@@ -1,12 +1,12 @@
 package com.example.MovieWebsiteProject.Controller;
 
-import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Enum.SuccessCode;
 import com.example.MovieWebsiteProject.Service.AuthenticationService;
 import com.example.MovieWebsiteProject.Service.JwtService;
-import com.example.MovieWebsiteProject.dto.request.AuthenticationRequest;
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
-import com.example.MovieWebsiteProject.dto.response.AuthenticationResponse;
-import com.example.MovieWebsiteProject.dto.response.IntrospectResponse;
+import com.example.MovieWebsiteProject.Dto.request.AuthenticationRequest;
+import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Dto.response.AuthenticationResponse;
+import com.example.MovieWebsiteProject.Dto.response.IntrospectResponse;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

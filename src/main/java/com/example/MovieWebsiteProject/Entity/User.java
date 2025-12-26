@@ -1,6 +1,7 @@
 package com.example.MovieWebsiteProject.Entity;
 
 import com.example.MovieWebsiteProject.Entity.Belonging.UserFilmPlaylist;
+import com.example.MovieWebsiteProject.Entity.Comment.Comment;
 import com.example.MovieWebsiteProject.Entity.Reaction.Reaction;
 import com.example.MovieWebsiteProject.Entity.UserNotification.UserNotification;
 import jakarta.persistence.*;

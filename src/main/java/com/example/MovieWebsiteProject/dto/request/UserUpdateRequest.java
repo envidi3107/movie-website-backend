@@ -1,4 +1,4 @@
-package com.example.MovieWebsiteProject.dto.request;
+package com.example.MovieWebsiteProject.Dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

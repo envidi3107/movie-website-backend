@@ -1,13 +1,13 @@
 package com.example.MovieWebsiteProject.Controller;
 
-import com.example.MovieWebsiteProject.Common.SuccessCode;
+import com.example.MovieWebsiteProject.Enum.SuccessCode;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Service.UserService;
-import com.example.MovieWebsiteProject.dto.request.PasswordUpdateRequest;
-import com.example.MovieWebsiteProject.dto.request.UserCreationRequest;
-import com.example.MovieWebsiteProject.dto.request.UserUpdateRequest;
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
-import com.example.MovieWebsiteProject.dto.response.UserResponse;
+import com.example.MovieWebsiteProject.Dto.request.PasswordUpdateRequest;
+import com.example.MovieWebsiteProject.Dto.request.UserCreationRequest;
+import com.example.MovieWebsiteProject.Dto.request.UserUpdateRequest;
+import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Dto.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;

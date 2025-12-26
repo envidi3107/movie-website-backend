@@ -1,8 +1,6 @@
-package com.example.MovieWebsiteProject.Common;
+package com.example.MovieWebsiteProject.Enum;
 
 import com.example.MovieWebsiteProject.Exception.AppException;
-import com.example.MovieWebsiteProject.Exception.ErrorCode;
-import lombok.Getter;
 
 public enum ReactionType {
     LIKE,

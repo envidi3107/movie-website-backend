@@ -1,6 +1,8 @@
 package com.example.MovieWebsiteProject.Repository;
 
 import com.example.MovieWebsiteProject.Entity.Film;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -41,32 +43,12 @@ public interface FilmRepository extends JpaRepository<Film, String> {
             """, nativeQuery = true)
     void decreaseComment(@Param("filmId") String filmId);
 
-    @Query(value = """
-            SELECT film_id, belong_to, number_of_views, sf.title, sf.backdrop_path, sf.poster_path, sf.release_date, tf.tmdb_id
-            FROM film
-            LEFT JOIN system_film AS sf ON film.film_id = sf.system_film_id
-            LEFT JOIN tmdb_film AS tf ON film.film_id = tf.id
-            ORDER BY number_of_views DESC
-            LIMIT :size
-            """, nativeQuery = true)
-    List<Map<String, Object>> getTopViewFilms(@Param("size") int size);
+    // Simple pageable search by title
+    Page<Film> findByTitleContainingIgnoreCase(@Param("title") String title, Pageable pageable);
 
-    @Query(value = """
-            SELECT film_id, belong_to, number_of_likes, sf.title, sf.backdrop_path, sf.poster_path, sf.release_date, tf.tmdb_id
-            FROM film
-            LEFT JOIN system_film AS sf ON film.film_id = sf.system_film_id
-            LEFT JOIN tmdb_film AS tf ON film.film_id = tf.id
-            ORDER BY number_of_likes DESC
-            LIMIT :size
-            """, nativeQuery = true)
-    List<Map<String, Object>> getTopLikeFilms(@Param("size") int size);
+    Page<Film> findByTitleContainingIgnoreCaseAndAdult(@Param("title") String title, @Param("adult") Boolean adult, Pageable pageable);
 
-    @Query(value = """
-            SELECT film_id, belong_to, number_of_likes, number_of_views, sf.title, sf.backdrop_path, sf.poster_path, sf.release_date
-            FROM film
-            LEFT JOIN system_film AS sf ON film.film_id = sf.system_film_id
-            ORDER BY number_of_views DESC
-            LIMIT :size
-            """, nativeQuery = true)
-    List<Map<String, Object>> getTopViewLikeSystemFilm(@Param("size") int size);
+    // Search by title + genres (must include all genres in the list) + optional adult flag
+    @Query("SELECT f FROM Film f JOIN f.genres g WHERE (:title IS NULL OR LOWER(f.title) LIKE CONCAT('%',:title,'%')) AND LOWER(g.genreName) IN :genres AND (:adult IS NULL OR f.adult = :adult) GROUP BY f HAVING COUNT(DISTINCT g) >= :genreCount")
+    Page<Film> findByTitleAndGenres(@Param("title") String title, @Param("genres") List<String> genres, @Param("genreCount") long genreCount, @Param("adult") Boolean adult, Pageable pageable);
 }

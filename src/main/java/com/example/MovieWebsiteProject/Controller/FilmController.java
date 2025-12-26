@@ -1,19 +1,22 @@
 package com.example.MovieWebsiteProject.Controller;
 
-import com.example.MovieWebsiteProject.Common.SuccessCode;
-import com.example.MovieWebsiteProject.Entity.Film;
-import com.example.MovieWebsiteProject.Exception.AppException;
-import com.example.MovieWebsiteProject.Exception.ErrorCode;
+import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
+import com.example.MovieWebsiteProject.Dto.response.EpisodeSummaryResponse;
+import com.example.MovieWebsiteProject.Dto.response.FilmDetailResponse;
+import com.example.MovieWebsiteProject.Dto.response.FilmSummaryResponse;
+import com.example.MovieWebsiteProject.Dto.response.PageResponse;
+import com.example.MovieWebsiteProject.Enum.SuccessCode;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import com.example.MovieWebsiteProject.Service.FilmService;
-import com.example.MovieWebsiteProject.dto.response.ApiResponse;
-import com.example.MovieWebsiteProject.dto.response.TopFilmResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/films")
@@ -23,59 +26,58 @@ public class FilmController {
     FilmRepository filmRepository;
     FilmService filmService;
 
-    @PostMapping("/{filmId}/increase-view")
-    public ApiResponse<Void> increaseView(@PathVariable("filmId") String filmId, @RequestParam("watchedDuration") double duration, @RequestParam("belongTo") String belongTo) {
-        if (belongTo.equals("TMDB_FILM")) {
-            Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
-            filmRepository.increaseView(film.getFilmId());
-            return ApiResponse.<Void>builder()
-                    .code(SuccessCode.SUCCESS.getCode())
-                    .message(SuccessCode.SUCCESS.getMessage())
-                    .build();
-        } else {
-            Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
-            if (duration >= (0.5 * film.getSystemFilm().getTotalDurations())) {
-                filmRepository.increaseView(filmId);
-                return ApiResponse.<Void>builder()
-                        .code(SuccessCode.SUCCESS.getCode())
-                        .message(SuccessCode.SUCCESS.getMessage())
-                        .build();
-            } else {
-                return ApiResponse.<Void>builder()
-                        .code(ErrorCode.FAILED.getCode())
-                        .message(ErrorCode.FAILED.getMessage())
-                        .build();
-            }
+    @GetMapping("/all")
+    public ApiResponse<List<FilmSummaryResponse>> getAllFilms() {
+        List<FilmSummaryResponse> results = filmService.getAllFilmsSummary();
+        return ApiResponse.<List<FilmSummaryResponse>>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .results(results)
+                .build();
+    }
+
+    @GetMapping("/{filmId}")
+    public ApiResponse<FilmDetailResponse> getFilmDetail(@PathVariable("filmId") String filmId) {
+        FilmDetailResponse res = filmService.getFilmDetail(filmId);
+        return ApiResponse.<FilmDetailResponse>builder()
+                .code(SuccessCode.SUCCESS.getCode())
+                .message(SuccessCode.SUCCESS.getMessage())
+                .results(res)
+                .build();
+    }
+
+    @GetMapping("/search")
+    public PageResponse<FilmSummaryResponse> searchFilms(@RequestParam(value = "q", required = false) String q,
+                                                               @RequestParam(value = "genres", required = false) String genres,
+                                                               @RequestParam(value = "adult", required = false) Boolean adult,
+                                                               @RequestParam(value = "page", defaultValue = "1") int page,
+                                                               @RequestParam(value = "size", defaultValue = "10") int size) {
+        Set<String> genreSet = null;
+        if (genres != null && !genres.isEmpty()) {
+            genreSet = Arrays.stream(genres.split(",")).map(String::trim).collect(Collectors.toSet());
         }
+        var pageRes = filmService.searchAndFilterFilmsRaw(q, genreSet, adult, page, size);
+        List<FilmSummaryResponse> content = pageRes.getContent().stream().map(filmService::mapToSummary).collect(Collectors.toList());
+        return new PageResponse<>(pageRes.getNumber() + 1, pageRes.getSize(), pageRes.getTotalElements(), pageRes.getTotalPages(), pageRes.isLast(), content);
     }
 
-    @GetMapping("/top-view-film")
-    public ApiResponse<List<TopFilmResponse>> getTopViewFilm(@RequestParam(value = "size", defaultValue = "1") int size) {
-
-        return ApiResponse.<List<TopFilmResponse>>builder()
+    @GetMapping("/episodes/top")
+    public ApiResponse<List<EpisodeSummaryResponse>> getTopEpisodes() {
+        List<EpisodeSummaryResponse> res = filmService.getTop10EpisodesByViewsLikes();
+        return ApiResponse.<List<EpisodeSummaryResponse>>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .results(filmService.getTopViewFilm(size))
+                .results(res)
                 .build();
     }
 
-    @GetMapping("/top-like-film")
-    public ApiResponse<List<TopFilmResponse>> getTopLikeFilm(@RequestParam(value = "size", defaultValue = "1") int size) {
-
-        return ApiResponse.<List<TopFilmResponse>>builder()
+    @GetMapping("/episode/{episodeId}")
+    public ApiResponse<EpisodeSummaryResponse> getEpisodeDetail(@PathVariable("episodeId") String episodeId) {
+        EpisodeSummaryResponse res = filmService.getEpisodeDetail(episodeId);
+        return ApiResponse.<EpisodeSummaryResponse>builder()
                 .code(SuccessCode.SUCCESS.getCode())
                 .message(SuccessCode.SUCCESS.getMessage())
-                .results(filmService.getTopLikeFilm(size))
-                .build();
-    }
-
-    @GetMapping("/system-film/top-view-like")
-    public ApiResponse<List<TopFilmResponse>> getTopViewLikeSystemFilm (@RequestParam(value = "size", defaultValue = "1") int size) {
-
-        return ApiResponse.<List<TopFilmResponse>>builder()
-                .code(SuccessCode.SUCCESS.getCode())
-                .message(SuccessCode.SUCCESS.getMessage())
-                .results(filmService.getTopViewLikeSystemFilm(size))
+                .results(res)
                 .build();
     }
 }

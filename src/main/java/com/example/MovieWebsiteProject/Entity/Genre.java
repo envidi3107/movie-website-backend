@@ -22,10 +22,5 @@ public class Genre {
     private String genreName;
 
     @ManyToMany(mappedBy = "genres")
-    private Set<SystemFilm> systemFilms = new HashSet<>();
-
-    public Genre(String name, SystemFilm systemFilm) {
-        this.genreName = name.substring(0, 1).toUpperCase() + name.substring(1);
-        this.systemFilms.add(systemFilm);
-    }
+    private Set<Film> systemFilms = new HashSet<>();
 }

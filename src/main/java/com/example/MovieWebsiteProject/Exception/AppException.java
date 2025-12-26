@@ -1,5 +1,7 @@
 package com.example.MovieWebsiteProject.Exception;
 
+import com.example.MovieWebsiteProject.Enum.ErrorCode;
+
 public class AppException extends RuntimeException {
     private ErrorCode errorCode;
 

@@ -1,10 +1,14 @@
 package com.example.MovieWebsiteProject.Entity;
 
 import com.example.MovieWebsiteProject.Entity.Belonging.UserFilmPlaylist;
+import com.example.MovieWebsiteProject.Entity.Comment.Comment;
 import com.example.MovieWebsiteProject.Entity.Reaction.Reaction;
+import com.example.MovieWebsiteProject.Enum.FilmType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,16 +36,42 @@ public class Film {
     @Column(name = "number_of_comments")
     private long numberOfComments;
 
-    @Column(name = "belong_to")
-    private String belongTo;
+    private double rating;
 
-    @OneToOne(mappedBy = "film", cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-    private TmdbFilm tmdbFilm;
+    private boolean adult;
 
-    @OneToOne(mappedBy = "film", cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-    private SystemFilm systemFilm;
+    private String title;
+
+    @Lob
+    @Column(name = "overview", columnDefinition = "TEXT")
+    private String overview;
+
+    @Column(name = "release_date")
+    private LocalDate releaseDate;
+
+    @Column(name = "backdrop_path")
+    private String backdropPath;
+
+    @Column(name = "poster_path")
+    private String posterPath;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "total_durations")
+    private double totalDurations;
+
+    @Enumerated(EnumType.STRING)
+    private FilmType type;
+
+    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
+    private Set<Episode> episodes = new HashSet<>();
+
+    @ManyToMany
+    private Set<Genre> genres = new HashSet<>();
 
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
     private Set<UserFilmPlaylist> userFilmPlaylists = new HashSet<>();
@@ -54,9 +84,4 @@ public class Film {
 
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL)
     private Set<Comment> comments = new HashSet<>();
-
-    public void setSystemFilm(SystemFilm systemFilm) {
-        this.systemFilm = systemFilm;
-        systemFilm.setFilm(this);
-    }
 }
