@@ -20,7 +20,7 @@ public class EpisodeReactionID implements Serializable {
     private String userId;
 
     @Column(name = "episode_id")
-    private String episodeId;
+    private int episodeId;
 
     @Override
     public boolean equals(Object o) {

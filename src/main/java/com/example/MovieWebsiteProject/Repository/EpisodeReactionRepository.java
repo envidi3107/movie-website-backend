@@ -12,6 +12,6 @@ import java.util.Optional;
 @Repository
 public interface EpisodeReactionRepository extends JpaRepository<EpisodeReaction, EpisodeReactionID> {
     @Query(value = "SELECT * FROM episode_reaction WHERE user_id = :userId AND episode_id = :episodeId", nativeQuery = true)
-    Optional<EpisodeReaction> getByUserAndEpisode(@Param("userId") String userId, @Param("episodeId") String episodeId);
+    Optional<EpisodeReaction> getByUserAndEpisode(@Param("userId") String userId, @Param("episodeId") int episodeId);
 }
 

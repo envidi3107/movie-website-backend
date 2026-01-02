@@ -10,9 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EpisodeRequest {
-    private String name;
+    private String title;
 
     @ValidFile
     private MultipartFile videoFiles;
     private String videoUrls;
+    private String duration;
 }

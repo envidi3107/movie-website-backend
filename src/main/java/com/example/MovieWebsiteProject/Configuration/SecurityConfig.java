@@ -33,6 +33,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     };
 
     private final CustomJwtDecoder customJwtDecoder;
+    private final CustomJwtAuthenticationConverter customJwtAuthenticationConverter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -41,28 +42,17 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer ->
                 jwtConfigurer.decoder(customJwtDecoder)
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        .jwtAuthenticationConverter(customJwtAuthenticationConverter)
         ));
         httpSecurity.cors(withDefaults());
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
-    }
-
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
-
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
-
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
-
-        return jwtAuthenticationConverter;
     }
 
     @Bean

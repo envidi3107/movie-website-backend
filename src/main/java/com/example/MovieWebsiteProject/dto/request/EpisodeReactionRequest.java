@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EpisodeReactionRequest {
-    private String episodeId;
+    private int episodeId;
     private String reactionType;
 }
 

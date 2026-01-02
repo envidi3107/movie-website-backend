@@ -1,54 +1,39 @@
 package com.example.MovieWebsiteProject.Dto.request;
 
 import com.example.MovieWebsiteProject.Validation.ValidFile;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class FilmRequest {
-    @NotNull
-    private boolean adult;
-
-    @NotNull
-    @NotEmpty(message = "Title cannot be empty!")
     private String title;
-
-    @NotNull
-    @NotEmpty(message = "Overview cannot be empty!")
+    private boolean adult;
     private String overview;
+    private String releaseDate; // ISO date string
+    private String genres; // comma separated
+    private String type; // MOVIE or SERIES
 
-    @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate releaseDate;
-
-    private boolean isUseSrc = false;
+    // images (either provide file or url)
+    @ValidFile
+    private MultipartFile posterFile;
+    private String posterUrl;
 
     @ValidFile
-    private MultipartFile backdrop;
+    private MultipartFile backdropFile;
+    private String backdropUrl;
 
+    // for movie: single video
     @ValidFile
-    private MultipartFile poster;
+    private MultipartFile videoFile;
+    private String videoUrl;
 
-    private String backdropSrc;
-    private String posterSrc;
-
-    private Set<EpisodeRequest> episodeRequest = new HashSet<>();
-
-    @NotNull
-    private double totalDurations;
-
-    @NotNull
-    @NotEmpty(message = "Genres cannot be empty!")
-    private Set<String> genres;
+    // for series: multiple episodes can be provided as files or urls (comma separated)
+    private List<EpisodeRequest> episodes;
 }
+

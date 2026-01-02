@@ -73,7 +73,6 @@ public class FilmService {
                 .numberOfDislikes(film.getNumberOfDislikes())
                 .numberOfComments(film.getNumberOfComments())
                 .overview(film.getOverview())
-                .totalDurations(film.getTotalDurations())
                 .createdAt(film.getCreatedAt() == null ? null : java.sql.Timestamp.valueOf(film.getCreatedAt()))
                 .updatedAt(film.getUpdatedAt() == null ? null : java.sql.Timestamp.valueOf(film.getUpdatedAt()));
 
@@ -105,7 +104,7 @@ public class FilmService {
     }
 
     // 3) API: episode detail
-    public EpisodeDetailResponse getEpisodeDetail(String episodeId) {
+    public EpisodeDetailResponse getEpisodeDetail(int episodeId) {
         Episode episode = episodeRepository.findById(episodeId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
         return EpisodeDetailResponse.builder()
                 .id(episode.getId())

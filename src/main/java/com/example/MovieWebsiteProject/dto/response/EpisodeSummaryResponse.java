@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EpisodeSummaryResponse {
-    private String id;
+    private int id;
     private int episodeNumber;
     private String title;
     private String posterPath;

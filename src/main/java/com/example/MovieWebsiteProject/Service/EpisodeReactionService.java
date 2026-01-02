@@ -21,7 +21,7 @@ public class EpisodeReactionService {
     EpisodeRepository episodeRepository;
     UserService userService;
 
-    public void saveEpisodeReaction(String userId, String episodeId, String reactionType) {
+    public void saveEpisodeReaction(String userId, int episodeId, String reactionType) {
         String type = reactionType.toUpperCase();
         ReactionType.checkInvalidReaction(type);
 

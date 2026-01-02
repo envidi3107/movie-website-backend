@@ -2,6 +2,7 @@ package com.example.MovieWebsiteProject.Configuration;
 
 import com.example.MovieWebsiteProject.Service.AuthenticationService;
 import com.example.MovieWebsiteProject.Service.JwtService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -10,10 +11,13 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 import java.util.Objects;
 
 @Component
+@Slf4j
 public class CustomJwtDecoder implements JwtDecoder {
     @Autowired
     private AuthenticationService authenticationService;

@@ -61,9 +61,6 @@ public class Film {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "total_durations")
-    private double totalDurations;
-
     @Enumerated(EnumType.STRING)
     private FilmType type;
 

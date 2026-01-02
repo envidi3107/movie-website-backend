@@ -36,15 +36,6 @@ public class AuthenticationController {
     ResponseEntity<ApiResponse<AuthenticationResponse>> authenticate(@RequestBody AuthenticationRequest request, HttpServletResponse response) {
         var results = authenticationService.authenticate(request);
 
-        ResponseCookie cookie = ResponseCookie.from("accessToken", results.getToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(60 * 60 * 24)
-                .sameSite("None")
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        results.setToken(null);
         return ResponseEntity.ok(
                 ApiResponse.<AuthenticationResponse>builder()
                         .code(SuccessCode.LOG_IN_SUCCESSFULLY.getCode())

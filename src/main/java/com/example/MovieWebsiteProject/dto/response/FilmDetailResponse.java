@@ -26,7 +26,6 @@ public class FilmDetailResponse extends FilmSummaryResponse {
     private List<EpisodeSummaryResponse> episodes;
     private String overview;
     private long watchedDuration;
-    private double totalDurations;
     private Boolean isUseSrc;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

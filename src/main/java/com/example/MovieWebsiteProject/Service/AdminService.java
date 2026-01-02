@@ -1,15 +1,16 @@
 package com.example.MovieWebsiteProject.Service;
 
-import com.example.MovieWebsiteProject.Exception.AppException;
-import com.example.MovieWebsiteProject.Enum.ErrorCode;
-import com.example.MovieWebsiteProject.Repository.*;
-import com.example.MovieWebsiteProject.Dto.response.PopularHourResponse;
-import com.example.MovieWebsiteProject.Dto.response.UserResponse;
 import com.example.MovieWebsiteProject.Dto.request.EpisodeRequest;
 import com.example.MovieWebsiteProject.Dto.request.FilmRequest;
 import com.example.MovieWebsiteProject.Entity.Episode;
 import com.example.MovieWebsiteProject.Entity.Film;
 import com.example.MovieWebsiteProject.Entity.Genre;
+import com.example.MovieWebsiteProject.Exception.AppException;
+import com.example.MovieWebsiteProject.Enum.ErrorCode;
+import com.example.MovieWebsiteProject.Enum.FilmType;
+import com.example.MovieWebsiteProject.Repository.*;
+import com.example.MovieWebsiteProject.Dto.response.PopularHourResponse;
+import com.example.MovieWebsiteProject.Dto.response.UserResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,8 +44,7 @@ public class AdminService {
     CloudinaryService cloudinaryService;
     GenreRepository genreRepository;
     FilmRepository filmRepository;
-    UserNotificationService userNotificationService;
-    NotificationRepository notificationRepository;
+    TimeSolverService timeSolverService;
     ReactionRepository reactionRepository;
 
     @Value("${app.base_url}")
@@ -148,196 +149,397 @@ public class AdminService {
         return type + "/" + fileName.substring(0, fileName.lastIndexOf("."));
     }
 
-    // New methods: upload, update, delete system film
-    public String uploadSystemFilm(FilmRequest request) {
-        try {
-            Film film = Film.builder()
-                    .adult(request.isAdult())
-                    .title(request.getTitle())
-                    .overview(request.getOverview())
-                    .releaseDate(request.getReleaseDate())
-                    .totalDurations(request.getTotalDurations())
-                    .isUseSrc(request.isUseSrc())
-                    .createdAt(LocalDateTime.now())
-                    .build();
+    public String uploadFilm(FilmRequest request) {
+        // create Film entity
+        Film film = new Film();
+        film.setTitle(request.getTitle());
+        film.setAdult(request.isAdult());
+        film.setOverview(request.getOverview());
+        film.setCreatedAt(LocalDateTime.now());
 
-            // Handle poster/backdrop
-            if (request.isUseSrc()) {
-                film.setBackdropPath(request.getBackdropSrc());
-                film.setPosterPath(request.getPosterSrc());
-            } else {
-                if (request.getBackdrop() != null && !request.getBackdrop().isEmpty()) {
-                    film.setBackdropPath(cloudinaryService.uploadImage(request.getBackdrop()));
-                }
-                if (request.getPoster() != null && !request.getPoster().isEmpty()) {
-                    film.setPosterPath(cloudinaryService.uploadImage(request.getPoster()));
-                }
-            }
+        if (request.getReleaseDate() != null && !request.getReleaseDate().isEmpty()) {
+            film.setReleaseDate(LocalDate.parse(request.getReleaseDate()));
+        }
 
-            // Handle genres
-            Set<Genre> genres = new HashSet<>();
-            if (request.getGenres() != null) {
-                for (String g : request.getGenres()) {
-                    Genre genre = genreRepository.findByGenreName(g).orElseGet(() -> {
-                        Genre newG = Genre.builder().genreName(g).build();
-                        return genreRepository.save(newG);
-                    });
-                    genres.add(genre);
-                }
-            }
+        // type
+        FilmType type = FilmType.MOVIE;
+        if (request.getType() != null && request.getType().equalsIgnoreCase("SERIES")) {
+            type = FilmType.SERIES;
+        }
+        film.setType(type);
+
+        // genres
+        if (request.getGenres() != null && !request.getGenres().isEmpty()) {
+            Set<Genre> genres = Arrays.stream(request.getGenres().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(s -> genreRepository.findByGenreName(s).orElseGet(() -> {
+                        Genre g = new Genre();
+                        g.setGenreName(s);
+                        return genreRepository.save(g);
+                    }))
+                    .collect(Collectors.toSet());
             film.setGenres(genres);
+        }
 
-            // Persist film first to get id for episode foreign key
-            Film savedFilm = filmRepository.save(film);
+        // poster/backdrop
+        try {
+            if (request.getPosterFile() != null && !request.getPosterFile().isEmpty()) {
+                String url = cloudinaryService.uploadImage(request.getPosterFile());
+                film.setPosterPath(url);
+            } else if (request.getPosterUrl() != null && !request.getPosterUrl().isEmpty()) {
+                film.setPosterPath(request.getPosterUrl());
+            }
 
-            // Handle episodes
-            if (request.getEpisodeRequest() != null && !request.getEpisodeRequest().isEmpty()) {
-                Set<Episode> episodes = new HashSet<>();
-                int idx = 1;
-                for (EpisodeRequest er : request.getEpisodeRequest()) {
-                    Episode episode = Episode.builder()
-                            .episodeNumber(idx++)
-                            .title(er.getName())
-                            .film(savedFilm)
-                            .build();
-
-                    // video
-                    if (request.isUseSrc()) {
-                        episode.setVideoPath(er.getVideoUrls());
+            if (request.getBackdropFile() != null && !request.getBackdropFile().isEmpty()) {
+                String url = cloudinaryService.uploadImage(request.getBackdropFile());
+                film.setBackdropPath(url);
+            } else if (request.getBackdropUrl() != null && !request.getBackdropUrl().isEmpty()) {
+                film.setBackdropPath(request.getBackdropUrl());
+            }
+            // process videos/episodes
+             // videos
+             if (type == FilmType.MOVIE) {
+                // single video. Duration can be provided via request.getEpisodes() with single entry
+                double duration = 0;
+                if (request.getEpisodes() != null && !request.getEpisodes().isEmpty()) {
+                    EpisodeRequest er = request.getEpisodes().get(0);
+                    if (er.getDuration() != null && !er.getDuration().isEmpty()) {
+                        duration = timeSolverService.convertTimeStringToSeconds(er.getDuration());
+                    }
+                    // prefer episode's video if provided there
+                    if (er.getVideoFiles() != null && !er.getVideoFiles().isEmpty()) {
+                        String vurl = cloudinaryService.uploadVideo(er.getVideoFiles());
+                        Episode ep = new Episode();
+                        ep.setEpisodeNumber(1);
+                        ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle());
+                        ep.setVideoPath(vurl);
+                        ep.setBackdropPath(film.getBackdropPath());
+                        ep.setPosterPath(film.getPosterPath());
+                        ep.setDuration(duration);
+                        ep.setFilm(film);
+                        film.getEpisodes().add(ep);
+                    } else if (er.getVideoUrls() != null && !er.getVideoUrls().isEmpty()) {
+                        Episode ep = new Episode();
+                        ep.setEpisodeNumber(1);
+                        ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle());
+                        ep.setVideoPath(er.getVideoUrls());
+                        ep.setBackdropPath(film.getBackdropPath());
+                        ep.setPosterPath(film.getPosterPath());
+                        ep.setDuration(duration);
+                        ep.setFilm(film);
+                        film.getEpisodes().add(ep);
                     } else {
-                        if (er.getVideoFiles() != null && !er.getVideoFiles().isEmpty()) {
-                            episode.setVideoPath(cloudinaryService.uploadVideo(er.getVideoFiles()));
+                        // fallback to top-level videoFile/videoUrl
+                        if (request.getVideoFile() != null && !request.getVideoFile().isEmpty()) {
+                            String vurl = cloudinaryService.uploadVideo(request.getVideoFile());
+                            Episode ep = new Episode();
+                            ep.setEpisodeNumber(1);
+                            ep.setTitle(film.getTitle());
+                            ep.setVideoPath(vurl);
+                            ep.setBackdropPath(film.getBackdropPath());
+                            ep.setPosterPath(film.getPosterPath());
+                            ep.setDuration(duration);
+                            ep.setFilm(film);
+                            film.getEpisodes().add(ep);
+                        } else if (request.getVideoUrl() != null && !request.getVideoUrl().isEmpty()) {
+                            Episode ep = new Episode();
+                            ep.setEpisodeNumber(1);
+                            ep.setTitle(film.getTitle());
+                            ep.setVideoPath(request.getVideoUrl());
+                            ep.setBackdropPath(film.getBackdropPath());
+                            ep.setPosterPath(film.getPosterPath());
+                            ep.setDuration(duration);
+                            ep.setFilm(film);
+                            film.getEpisodes().add(ep);
                         }
                     }
-
-                    episodes.add(episode);
+                } else {
+                    // no episode wrapper provided — use top-level videoFile/videoUrl with zero duration
+                    double durationFallback = 0;
+                    if (request.getVideoFile() != null && !request.getVideoFile().isEmpty()) {
+                        String vurl = cloudinaryService.uploadVideo(request.getVideoFile());
+                        Episode ep = new Episode();
+                        ep.setEpisodeNumber(1);
+                        ep.setTitle(film.getTitle());
+                        ep.setVideoPath(vurl);
+                        ep.setBackdropPath(film.getBackdropPath());
+                        ep.setPosterPath(film.getPosterPath());
+                        ep.setDuration(durationFallback);
+                        ep.setFilm(film);
+                        film.getEpisodes().add(ep);
+                    } else if (request.getVideoUrl() != null && !request.getVideoUrl().isEmpty()) {
+                        Episode ep = new Episode();
+                        ep.setEpisodeNumber(1);
+                        ep.setTitle(film.getTitle());
+                        ep.setVideoPath(request.getVideoUrl());
+                        ep.setBackdropPath(film.getBackdropPath());
+                        ep.setPosterPath(film.getPosterPath());
+                        ep.setDuration(durationFallback);
+                        ep.setFilm(film);
+                        film.getEpisodes().add(ep);
+                    }
                 }
-                savedFilm.setEpisodes(episodes);
-                savedFilm = filmRepository.save(savedFilm);
+             } else {
+                 // series: multiple episodes via files or urls
+                if (request.getEpisodes() != null && !request.getEpisodes().isEmpty()) {
+                    int idx = 1;
+                    for (EpisodeRequest er : request.getEpisodes()) {
+                        // per-episode duration
+                        double epDuration = 0;
+                        if (er.getDuration() != null && !er.getDuration().isEmpty()) {
+                            epDuration = timeSolverService.convertTimeStringToSeconds(er.getDuration());
+                        }
+
+                        if (er.getVideoFiles() != null && !er.getVideoFiles().isEmpty()) {
+                            String vurl = cloudinaryService.uploadVideo(er.getVideoFiles());
+                            Episode ep = new Episode();
+                            ep.setEpisodeNumber(idx);
+                            ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle() + " - Ep " + idx);
+                            ep.setVideoPath(vurl);
+                            ep.setBackdropPath(film.getBackdropPath());
+                            ep.setPosterPath(film.getPosterPath());
+                            ep.setDuration(epDuration);
+                            ep.setFilm(film);
+                            film.getEpisodes().add(ep);
+                            idx++;
+                        } else if (er.getVideoUrls() != null && !er.getVideoUrls().isEmpty()) {
+                            Episode ep = new Episode();
+                            ep.setEpisodeNumber(idx);
+                            ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle() + " - Ep " + idx);
+                            ep.setVideoPath(er.getVideoUrls());
+                            ep.setBackdropPath(film.getBackdropPath());
+                            ep.setPosterPath(film.getPosterPath());
+                            ep.setDuration(epDuration);
+                            ep.setFilm(film);
+                            film.getEpisodes().add(ep);
+                            idx++;
+                        }
+                    }
+                }
+             }
+
+             Film saved = filmRepository.save(film);
+             return saved.getFilmId();
+
+         } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("uploadFilm error: " + e.getMessage());
+            throw new AppException(ErrorCode.INVALID_FILE);
+         }
+     }
+
+    public String updateFilm(String filmId, FilmRequest request) {
+        Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+
+        if (request.getTitle() != null) film.setTitle(request.getTitle());
+        film.setAdult(request.isAdult());
+        if (request.getOverview() != null) film.setOverview(request.getOverview());
+        film.setUpdatedAt(LocalDateTime.now());
+        if (request.getReleaseDate() != null && !request.getReleaseDate().isEmpty()) {
+            film.setReleaseDate(LocalDate.parse(request.getReleaseDate()));
+        }
+
+        if (request.getGenres() != null) {
+            Set<Genre> genres = Arrays.stream(request.getGenres().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(s -> genreRepository.findByGenreName(s).orElseGet(() -> {
+                        Genre g = new Genre();
+                        g.setGenreName(s);
+                        return genreRepository.save(g);
+                    }))
+                    .collect(Collectors.toSet());
+            film.setGenres(genres);
+        }
+
+        try {
+            if (request.getPosterFile() != null && !request.getPosterFile().isEmpty()) {
+                String url = cloudinaryService.uploadImage(request.getPosterFile());
+                film.setPosterPath(url);
+            } else if (request.getPosterUrl() != null && !request.getPosterUrl().isEmpty()) {
+                film.setPosterPath(request.getPosterUrl());
             }
 
-            return savedFilm.getFilmId();
-        } catch (IOException e) {
-            throw new AppException(ErrorCode.INVALID_FILE);
+            if (request.getBackdropFile() != null && !request.getBackdropFile().isEmpty()) {
+                String url = cloudinaryService.uploadImage(request.getBackdropFile());
+                film.setBackdropPath(url);
+            } else if (request.getBackdropUrl() != null && !request.getBackdropUrl().isEmpty()) {
+                film.setBackdropPath(request.getBackdropUrl());
+            }
+
+            // For updates: handle episodes via request.getEpisodes() (EpisodeRequest) and use timeSolverService
+            if (film.getType() == FilmType.MOVIE) {
+                Optional<Episode> first = film.getEpisodes().stream().findFirst();
+                if (request.getEpisodes() != null && !request.getEpisodes().isEmpty()) {
+                    EpisodeRequest er = request.getEpisodes().get(0);
+                    double duration = 0;
+                    if (er.getDuration() != null && !er.getDuration().isEmpty()) {
+                        duration = timeSolverService.convertTimeStringToSeconds(er.getDuration());
+                    }
+
+                    if (er.getVideoFiles() != null && !er.getVideoFiles().isEmpty()) {
+                        String vurl = cloudinaryService.uploadVideo(er.getVideoFiles());
+                        if (first.isPresent()) {
+                            Episode ep = first.get();
+                            ep.setVideoPath(vurl);
+                            ep.setDuration(duration);
+                            if (er.getTitle() != null && !er.getTitle().isEmpty()) ep.setTitle(er.getTitle());
+                        } else {
+                            Episode ep = new Episode();
+                            ep.setEpisodeNumber(1);
+                            ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle());
+                            ep.setVideoPath(vurl);
+                            ep.setBackdropPath(film.getBackdropPath());
+                            ep.setPosterPath(film.getPosterPath());
+                            ep.setDuration(duration);
+                            ep.setFilm(film);
+                            film.getEpisodes().add(ep);
+                        }
+                    } else if (er.getVideoUrls() != null && !er.getVideoUrls().isEmpty()) {
+                        if (first.isPresent()) {
+                            Episode ep = first.get();
+                            ep.setVideoPath(er.getVideoUrls());
+                            ep.setDuration(duration);
+                            if (er.getTitle() != null && !er.getTitle().isEmpty()) ep.setTitle(er.getTitle());
+                        } else {
+                            Episode ep = new Episode();
+                            ep.setEpisodeNumber(1);
+                            ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle());
+                            ep.setVideoPath(er.getVideoUrls());
+                            ep.setBackdropPath(film.getBackdropPath());
+                            ep.setPosterPath(film.getPosterPath());
+                            ep.setDuration(duration);
+                            ep.setFilm(film);
+                            film.getEpisodes().add(ep);
+                        }
+                    }
+                    // if neither video provided, do nothing
+                }
+             } else {
+                // append episodes from request.getEpisodes()
+                if (request.getEpisodes() != null && !request.getEpisodes().isEmpty()) {
+                    int idx = film.getEpisodes() == null ? 1 : film.getEpisodes().size() + 1;
+                    for (EpisodeRequest er : request.getEpisodes()) {
+                        double epDuration = 0;
+                        if (er.getDuration() != null && !er.getDuration().isEmpty()) {
+                            epDuration = timeSolverService.convertTimeStringToSeconds(er.getDuration());
+                        }
+
+                        if (er.getVideoFiles() != null && !er.getVideoFiles().isEmpty()) {
+                            String vurl = cloudinaryService.uploadVideo(er.getVideoFiles());
+                            Episode ep = new Episode();
+                            ep.setEpisodeNumber(idx);
+                            ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle() + " - Ep " + idx);
+                            ep.setVideoPath(vurl);
+                            ep.setBackdropPath(film.getBackdropPath());
+                            ep.setPosterPath(film.getPosterPath());
+                            ep.setDuration(epDuration);
+                            ep.setFilm(film);
+                            film.getEpisodes().add(ep);
+                            idx++;
+                        } else if (er.getVideoUrls() != null && !er.getVideoUrls().isEmpty()) {
+                            Episode ep = new Episode();
+                            ep.setEpisodeNumber(idx);
+                            ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle() + " - Ep " + idx);
+                            ep.setVideoPath(er.getVideoUrls());
+                            ep.setBackdropPath(film.getBackdropPath());
+                            ep.setPosterPath(film.getPosterPath());
+                            ep.setDuration(epDuration);
+                            ep.setFilm(film);
+                            film.getEpisodes().add(ep);
+                            idx++;
+                        }
+                    }
+                }
+
+             }
+
+             Film saved = filmRepository.save(film);
+             return saved.getFilmId();
+
         } catch (Exception e) {
-            throw new AppException(ErrorCode.FAILED);
+            e.printStackTrace();
+            System.out.println("updateFilm error: " + e.getMessage());
+            throw new AppException(ErrorCode.INVALID_FILE);
         }
     }
 
-    public String updateSystemFilm(String filmId, FilmRequest request) {
+    public String addEpisodesToFilm(String filmId, List<EpisodeRequest> episodes) {
+        if (episodes == null || episodes.isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_FILE);
+        }
+
+        Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+        int start = (film.getEpisodes() == null) ? 1 : film.getEpisodes().size() + 1;
         try {
-            Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
-
-            film.setAdult(request.isAdult());
-            film.setTitle(request.getTitle());
-            film.setOverview(request.getOverview());
-            film.setReleaseDate(request.getReleaseDate());
-            film.setTotalDurations(request.getTotalDurations());
-            film.setIsUseSrc(request.isUseSrc());
-            film.setUpdatedAt(LocalDateTime.now());
-
-            // Update poster/backdrop
-            if (request.isUseSrc()) {
-                film.setBackdropPath(request.getBackdropSrc());
-                film.setPosterPath(request.getPosterSrc());
-            } else {
-                if (request.getBackdrop() != null && !request.getBackdrop().isEmpty()) {
-                    if (film.getBackdropPath() != null && film.getBackdropPath().contains("http")) {
-                        String publicId = getPublicId(film.getBackdropPath());
-                        film.setBackdropPath(cloudinaryService.updateImage(publicId, request.getBackdrop()));
-                    } else {
-                        film.setBackdropPath(cloudinaryService.uploadImage(request.getBackdrop()));
-                    }
+            int idx = start;
+            for (EpisodeRequest er : episodes) {
+                double epDuration = 0;
+                if (er.getDuration() != null && !er.getDuration().isEmpty()) {
+                    epDuration = timeSolverService.convertTimeStringToSeconds(er.getDuration());
                 }
-                if (request.getPoster() != null && !request.getPoster().isEmpty()) {
-                    if (film.getPosterPath() != null && film.getPosterPath().contains("http")) {
-                        String publicId = getPublicId(film.getPosterPath());
-                        film.setPosterPath(cloudinaryService.updateImage(publicId, request.getPoster()));
-                    } else {
-                        film.setPosterPath(cloudinaryService.uploadImage(request.getPoster()));
-                    }
+
+                if (er.getVideoFiles() != null && !er.getVideoFiles().isEmpty()) {
+                    String vurl = cloudinaryService.uploadVideo(er.getVideoFiles());
+                    Episode ep = new Episode();
+                    ep.setEpisodeNumber(idx);
+                    ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle() + " - Ep " + idx);
+                    ep.setVideoPath(vurl);
+                    ep.setBackdropPath(film.getBackdropPath());
+                    ep.setPosterPath(film.getPosterPath());
+                    ep.setDuration(epDuration);
+                    ep.setFilm(film);
+                    film.getEpisodes().add(ep);
+                    idx++;
+                } else if (er.getVideoUrls() != null && !er.getVideoUrls().isEmpty()) {
+                    Episode ep = new Episode();
+                    ep.setEpisodeNumber(idx);
+                    ep.setTitle(er.getTitle() != null && !er.getTitle().isEmpty() ? er.getTitle() : film.getTitle() + " - Ep " + idx);
+                    ep.setVideoPath(er.getVideoUrls());
+                    ep.setBackdropPath(film.getBackdropPath());
+                    ep.setPosterPath(film.getPosterPath());
+                    ep.setDuration(epDuration);
+                    ep.setFilm(film);
+                    film.getEpisodes().add(ep);
+                    idx++;
+                } else {
+                    // skip if no video
                 }
-            }
-
-            // Update genres
-            Set<Genre> genres = new HashSet<>();
-            if (request.getGenres() != null) {
-                for (String g : request.getGenres()) {
-                    Genre genre = genreRepository.findByGenreName(g).orElseGet(() -> {
-                        Genre newG = Genre.builder().genreName(g).build();
-                        return genreRepository.save(newG);
-                    });
-                    genres.add(genre);
-                }
-            }
-            film.setGenres(genres);
-
-            // Replace episodes: remove existing and add new ones
-            // Clear existing episodes
-            film.getEpisodes().clear();
-
-            if (request.getEpisodeRequest() != null && !request.getEpisodeRequest().isEmpty()) {
-                Set<Episode> episodes = new HashSet<>();
-                int idx = 1;
-                for (EpisodeRequest er : request.getEpisodeRequest()) {
-                    Episode episode = Episode.builder()
-                            .episodeNumber(idx++)
-                            .title(er.getName())
-                            .film(film)
-                            .build();
-
-                    if (request.isUseSrc()) {
-                        episode.setVideoPath(er.getVideoUrls());
-                    } else {
-                        if (er.getVideoFiles() != null && !er.getVideoFiles().isEmpty()) {
-                            // upload or update: if there's an existing video at same index, try update by public id
-                            episode.setVideoPath(cloudinaryService.uploadVideo(er.getVideoFiles()));
-                        }
-                    }
-
-                    episodes.add(episode);
-                }
-                film.setEpisodes(episodes);
             }
 
             Film saved = filmRepository.save(film);
             return saved.getFilmId();
-        } catch (IOException e) {
-            throw new AppException(ErrorCode.INVALID_FILE);
         } catch (Exception e) {
-            throw new AppException(ErrorCode.FAILED);
+            e.printStackTrace();
+            throw new AppException(ErrorCode.INVALID_FILE);
         }
     }
 
-    public void deleteSystemFilm(String filmId) {
+    public void deleteFilm(String filmId) {
         Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
 
-        // collect media public ids
-        List<String> imagePublicIds = new ArrayList<>();
-        if (film.getBackdropPath() != null && film.getBackdropPath().contains("http")) {
-            imagePublicIds.add(getPublicId(film.getBackdropPath()));
-        }
-        if (film.getPosterPath() != null && film.getPosterPath().contains("http")) {
-            imagePublicIds.add(getPublicId(film.getPosterPath()));
-        }
-
-        // collect video public ids
-        List<String> videoPublicIds = new ArrayList<>();
-        for (Episode ep : film.getEpisodes()) {
-            if (ep.getVideoPath() != null && ep.getVideoPath().contains("http")) {
-                videoPublicIds.add(getPublicId(ep.getVideoPath()));
+        // delete cloudinary assets when possible
+        try {
+            List<String> imagePublicIds = new ArrayList<>();
+            if (film.getPosterPath() != null && film.getPosterPath().contains("res.cloudinary.com")) {
+                imagePublicIds.add(getPublicId(film.getPosterPath()));
             }
+            if (film.getBackdropPath() != null && film.getBackdropPath().contains("res.cloudinary.com")) {
+                imagePublicIds.add(getPublicId(film.getBackdropPath()));
+            }
+            if (!imagePublicIds.isEmpty()) cloudinaryService.deleteImages(imagePublicIds);
+
+            for (Episode e : film.getEpisodes()) {
+                if (e.getVideoPath() != null && e.getVideoPath().contains("res.cloudinary.com")) {
+                    cloudinaryService.deleteVideo(getPublicId(e.getVideoPath()));
+                }
+            }
+        } catch (Exception ignored) {
         }
 
-        // delete cloudinary media
-        if (!imagePublicIds.isEmpty()) {
-            cloudinaryService.deleteImages(imagePublicIds);
-        }
-        for (String vidPid : videoPublicIds) {
-            cloudinaryService.deleteVideo(vidPid);
-        }
-
-        // delete film (cascade should remove episodes, reactions, comments, watchings etc.)
-        filmRepository.deleteById(filmId);
+        filmRepository.delete(film);
     }
+
+
 }
