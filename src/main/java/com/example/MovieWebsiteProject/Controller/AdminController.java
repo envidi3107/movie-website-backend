@@ -1,12 +1,12 @@
 package com.example.MovieWebsiteProject.Controller;
 
+import com.example.MovieWebsiteProject.Dto.request.FilmRequest;
 import com.example.MovieWebsiteProject.Enum.SuccessCode;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import com.example.MovieWebsiteProject.Service.AdminService;
 import com.example.MovieWebsiteProject.Service.UserService;
 import com.example.MovieWebsiteProject.Service.WatchingService;
-import com.example.MovieWebsiteProject.Dto.request.FilmRequest;
 import com.example.MovieWebsiteProject.Dto.response.ApiResponse;
 import com.example.MovieWebsiteProject.Dto.response.PageResponse;
 import com.example.MovieWebsiteProject.Dto.response.PopularHourResponse;
@@ -75,8 +75,8 @@ public class AdminController {
     }
 
     @PostMapping(value = "/upload/film", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> uploadSystemFilm(@Valid @ModelAttribute FilmRequest request) {
-        String filmId = adminService.uploadSystemFilm(request);
+    public ApiResponse<String> uploadFilm(@Valid @ModelAttribute FilmRequest request) {
+        String filmId = adminService.uploadFilm(request);
         return ApiResponse.<String>builder()
                 .code(SuccessCode.UPLOAD_FILM_SUCCESSFULLY.getCode())
                 .message(SuccessCode.UPLOAD_FILM_SUCCESSFULLY.getMessage())
@@ -85,8 +85,8 @@ public class AdminController {
     }
 
     @PutMapping(value = "/update/film/{filmId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> updateSystemFilm(@PathVariable("filmId") String filmId, @Valid @ModelAttribute FilmRequest request) {
-        String updatedId = adminService.updateSystemFilm(filmId, request);
+    public ApiResponse<String> updateFilm(@PathVariable("filmId") String filmId, @Valid @ModelAttribute FilmRequest request) {
+        String updatedId = adminService.updateFilm(filmId, request);
         return ApiResponse.<String>builder()
                 .code(SuccessCode.UPDATE_FILM_SUCCESSFULLY.getCode())
                 .message(SuccessCode.UPDATE_FILM_SUCCESSFULLY.getMessage())
@@ -95,8 +95,8 @@ public class AdminController {
     }
 
     @DeleteMapping("/delete/film/{filmId}")
-    public ApiResponse<String> deleteSystemFilm(@PathVariable("filmId") String filmId) {
-        adminService.deleteSystemFilm(filmId);
+    public ApiResponse<String> deleteFilm(@PathVariable("filmId") String filmId) {
+        adminService.deleteFilm(filmId);
         return ApiResponse.<String>builder()
                 .code(SuccessCode.DELETE_FILM_SUCCESSFULLY.getCode())
                 .message(SuccessCode.DELETE_FILM_SUCCESSFULLY.getMessage())

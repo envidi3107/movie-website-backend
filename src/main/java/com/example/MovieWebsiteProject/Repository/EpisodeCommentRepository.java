@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface EpisodeCommentRepository extends JpaRepository<EpisodeComment, String> {
-    List<EpisodeComment> findByEpisode_IdAndParentCommentIsNullOrderByCommentTimeDesc(String episodeId);
+    List<EpisodeComment> findByEpisode_IdAndParentCommentIsNullOrderByCommentTimeDesc(int episodeId);
 
-    int countByUser_IdAndEpisode_Id(String userId, String episodeId);
+    int countByUser_IdAndEpisode_Id(String userId, int episodeId);
 }

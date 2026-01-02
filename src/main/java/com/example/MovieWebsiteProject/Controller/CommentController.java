@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/comment")
+@RequestMapping("/comment")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CommentController {
@@ -77,7 +77,7 @@ public class CommentController {
 
     // Episode comments
     @PostMapping("/episode/save-comment")
-    public ApiResponse<CommentResponse> saveEpisodeComment(@RequestParam("episodeId") String episodeId, @RequestParam(value = "parentCommentId", required = false) String parentCommentId, @RequestParam("content") String content) {
+    public ApiResponse<CommentResponse> saveEpisodeComment(@RequestParam("episodeId") int episodeId, @RequestParam(value = "parentCommentId", required = false) String parentCommentId, @RequestParam("content") String content) {
         CommentResponse res = episodeCommentService.saveComment(episodeId, parentCommentId, content);
         return ApiResponse.<CommentResponse>builder()
                 .code(SuccessCode.SUCCESS.getCode())
@@ -87,7 +87,7 @@ public class CommentController {
     }
 
     @GetMapping("/episode/{episodeId}/comment-list")
-    public ResponseEntity<List<CommentResponse>> getCommentsByEpisodeId(@PathVariable("episodeId") String episodeId) {
+    public ResponseEntity<List<CommentResponse>> getCommentsByEpisodeId(@PathVariable("episodeId") int episodeId) {
         var comments = episodeCommentService.getCommentsByEpisodeId(episodeId);
         return ResponseEntity.ok(comments);
     }

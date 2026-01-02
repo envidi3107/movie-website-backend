@@ -33,7 +33,7 @@ public class EpisodeCommentService {
 
     private static final int MAX_COMMENTS_PER_EPISODE = 3;
 
-    public CommentResponse saveComment(String episodeId, String parentCommentId, String content) {
+    public CommentResponse saveComment(int episodeId, String parentCommentId, String content) {
         User user = authentication_service_get();
 
         int count = episodeCommentRepository.countByUser_IdAndEpisode_Id(user.getId(), episodeId);
@@ -65,7 +65,7 @@ public class EpisodeCommentService {
         return authenticationService.getAuthenticatedUser();
     }
 
-    public List<CommentResponse> getCommentsByEpisodeId(String episodeId) {
+    public List<CommentResponse> getCommentsByEpisodeId(int episodeId) {
         List<EpisodeComment> comments = episodeCommentRepository.findByEpisode_IdAndParentCommentIsNullOrderByCommentTimeDesc(episodeId);
         return comments.stream().map(this::toDto).collect(Collectors.toList());
     }

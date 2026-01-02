@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface EpisodeRepository extends JpaRepository<Episode, String> {
+public interface EpisodeRepository extends JpaRepository<Episode, Integer> {
 
     @Query(value = "SELECT * FROM episode ORDER BY view_count DESC LIMIT :size", nativeQuery = true)
     List<Episode> findTopByViews(@Param("size") int size);

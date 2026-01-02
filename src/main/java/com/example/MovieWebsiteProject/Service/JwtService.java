@@ -16,13 +16,16 @@ import com.nimbusds.jwt.SignedJWT;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtService {
@@ -34,7 +37,6 @@ public class JwtService {
     @Value("${jwt.signerKey}")
     private String SIGNER_KEY;
 
-    // Tạo JWT
     public String generateToken(UserAuthInfo user) {
         try {
             JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
@@ -43,16 +45,18 @@ public class JwtService {
                     .subject(user.getUsername())
                     .issuer("phimhayyy.envidi.com")
                     .issueTime(new Date())
-                    .expirationTime(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 1 day
+                    .expirationTime(
+                            new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)
+                    )
                     .claim("role", user.getRole())
                     .claim("userId", user.getId())
                     .jwtID(UUID.randomUUID().toString())
                     .build();
+
             SignedJWT signedJWT = new SignedJWT(header, claims);
             signedJWT.sign(new MACSigner(SIGNER_KEY.getBytes()));
 
             return signedJWT.serialize();
-
         } catch (JOSEException e) {
             throw new RuntimeException("Unable to generate token", e);
         }

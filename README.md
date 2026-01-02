@@ -1,72 +1,103 @@
-# MovieWebsiteProject
+# Movie Website Project
 
-Mô tả: Một ứng dụng web quản lý phim (catalogue, phản hồi người dùng, playlist, xem phim) được xây dựng bằng Java \- Spring Boot \- Maven.
+## Project Overview
+The Movie Website Project is a web application built using Java Spring Boot. It provides a platform for users to explore, manage, and interact with movies and related content. The application includes features such as user authentication, film management, playlist creation, and user interactions like comments and reactions.
 
-## Tính năng chính
-- Quản lý phim: hệ thống phim và dữ liệu TMDB (một\-một với `Film`)
-- Thống kê: lượt xem, lượt like/dislike, số bình luận
-- Playlist người dùng: lưu phim vào playlist cá nhân
-- Phản hồi: like/dislike, comment
-- Lịch sử xem (watching) và thống kê liên quan
+## Features
+- **User Authentication**: Secure login and registration using JWT.
+- **Film Management**: CRUD operations for films and episodes.
+- **Playlists**: Users can create and manage their own playlists.
+- **Comments and Reactions**: Users can comment on and react to films and episodes.
+- **Notifications**: Real-time notifications for user interactions.
+- **WebSocket Integration**: Real-time updates using WebSocket.
+- **Cloudinary Integration**: Media storage and management.
+- **Validation and Error Handling**: Robust mechanisms for input validation and error management.
 
-## Kiến trúc & Entities chính
-- `Film` — thực thể trung tâm (tham chiếu tới `TmdbFilm`, `SystemFilm`)
-- `TmdbFilm` — dữ liệu từ TMDB
-- `SystemFilm` — dữ liệu do hệ thống quản lý
-- `UserFilmPlaylist` — quan hệ phim ↔ playlist người dùng
-- `Reaction` — like/dislike của người dùng
-- `Comment` — bình luận
-- `Watching` — lịch sử lượt xem
+## Technical Details
+- **Backend**: Java Spring Boot
+  - Controllers: Handle REST API endpoints for authentication, film management, playlists, etc.
+  - Services: Business logic implementation.
+  - Repositories: Database interactions using Spring Data JPA.
+  - Entities: Data models representing the database schema.
+  - Configuration: Application setup including security, WebSocket, and OpenAPI.
+- **Database**: MySQL
+- **Dependencies**:
+  - Spring Boot Starter Data JPA
+  - Spring Boot Starter Web
+  - Spring Boot Starter WebSocket
+  - Spring Security
+  - MapStruct
+  - Lombok
+  - Cloudinary
+  - SpringDoc OpenAPI
 
-Ứng dụng theo mô hình REST API, sử dụng JPA/Hibernate để ánh xạ CRUD với cơ sở dữ liệu.
+## Setup and Running
+1. Clone the repository.
+2. Configure the database connection in `application.yml`.
+3. Build the project using Maven:
+   ```
+   ./mvnw clean install
+   ```
+4. Run the application:
+   ```
+   ./mvnw spring-boot:run
+   ```
+5. Access the application at `http://localhost:8080`.
 
-## Công nghệ
-- Java 17+ (hoặc tương thích)
-- Spring Boot
-- Spring Data JPA
-- Spring Security
-- Maven
-- Cloudinary: quản lý media (hình ảnh, video, avatar người dùng)
-- Cơ sở dữ liệu: MySQL / PostgreSQL (cấu hình trong `application.properties` hoặc `application.yml`)
-- Lombok (để giảm boilerplate)
+## Folder Structure
+- `src/main/java/com/example/MovieWebsiteProject`
+  - `Controller`: REST API endpoints.
+  - `Service`: Business logic.
+  - `Repository`: Database interactions.
+  - `Entity`: Data models.
+  - `Configuration`: Application setup.
+- `src/main/resources`
+  - `application.yml`: Configuration file.
+  - `templates`: HTML templates.
+  - `static`: Static assets.
 
-## Yêu cầu trước khi chạy
-- JDK 17 hoặc mới hơn
-- Maven 3.6+
-- Một database server (MySQL)
-- Thiết lập cấu hình kết nối DB trong `src/main/resources/application.properties`:
-    - `spring.datasource.url`
-    - `spring.datasource.username`
-    - `spring.datasource.password`
-    - `spring.jpa.hibernate.ddl-auto` (hoặc dùng migration tool như Flyway)
+## API Endpoints
 
-## Cài đặt & chạy
-1. Cập nhật `application.properties` với thông tin DB.
-2. Build project:
-    - `mvn clean package`
-3. Chạy:
-    - `mvn spring-boot:run`
-    - hoặc chạy jar: `java -jar target/MovieWebsiteProject-0.0.1-SNAPSHOT.jar`
+### WatchingController
+- **POST /api/watching/save-watching-history**: Save film watching history.
+- **GET /api/watching/save-watched-duration/{filmId}**: Save watched duration for a film.
 
-## API (mô tả nhanh)
-- `GET /api/films` — lấy danh sách phim
-- `GET /api/films/{id}` — lấy chi tiết phim
-- `POST /api/films` — tạo phim (tuỳ quyền)
-- `PUT /api/films/{id}` — cập nhật phim
-- `DELETE /api/films/{id}` — xoá phim
-- `POST /api/films/{id}/reactions` — tạo reaction
-- `POST /api/films/{id}/comments` — thêm bình luận
-- `POST /api/users/{userId}/playlists` — quản lý playlist
-- `GET /api/watching` — quản lý lịch sử xem phim
+### UserNotificationController
+- **GET /api/user-notification/get-all**: Retrieve all user notifications.
+- **DELETE /api/user-notification/delete**: Delete a specific user notification.
+- **DELETE /api/user-notification/clear-all**: Clear all user notifications.
 
-## Kiểm thử
-- Chạy unit/integration tests:
-    - `mvn test`
+### UserFilmPlaylistController
+- **POST /api/users/add-film-to-user-playlist**: Add a film to a user's playlist.
+- **GET /api/users/playlists**: Retrieve user playlists.
+- **DELETE /api/users/playlists/{playlistId}**: Delete a specific playlist.
 
-## Góp phần & phát triển
-- Fork repository, tạo branch tính năng, mở pull request
-- Viết test cho tính năng mới
-- Tuân thủ coding style hiện có và kiểm tra bằng linter nếu có
+### UserController
+- **POST /users/signup**: Create a new user.
+- **POST /users/update-password**: Update user password.
+- **GET /users/my-info**: Retrieve user information.
 
-## License
-- Chọn license phù hợp (ví dụ MIT/Apache 2.0). Thêm file `LICENSE` nếu cần.
+### ReactionController
+- **POST /api/reaction/save-reaction**: Save a reaction for a film.
+- **POST /api/reaction/save-episode-reaction**: Save a reaction for an episode.
+- **GET /api/reaction/get-user-reaction**: Retrieve user reactions.
+
+### FilmController
+- **GET /films/all**: Retrieve all films.
+
+### PlaylistController
+- **GET /api/playlist/get-user-playlist**: Retrieve user playlists.
+- **POST /api/playlist/create-playlist**: Create a new playlist.
+- **DELETE /api/playlist/delete-user-playlist**: Delete a user playlist.
+
+### CommentController
+- **POST /comment/save-comment**: Save a comment.
+- **POST /comment/update-comment**: Update a user comment.
+
+### AuthenticationController
+- **POST /auth/login**: Authenticate a user.
+- **POST /auth/logout**: Logout a user.
+
+### AdminController
+- **GET /admin/get-users**: Retrieve paginated list of users.
+- **GET /admin/users/registrations/monthly**: Retrieve monthly user registration statistics.
