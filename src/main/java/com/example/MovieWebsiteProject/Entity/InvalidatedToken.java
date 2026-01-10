@@ -1,10 +1,11 @@
 package com.example.MovieWebsiteProject.Entity;
 
+import java.util.Date;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import lombok.*;
 
-import java.util.Date;
+import lombok.*;
 
 @Entity
 @Getter
@@ -13,7 +14,6 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InvalidatedToken {
-    @Id
-    private String id;
-    private Date expiryTime;
+  @Id private String id;
+  private Date expiryTime;
 }

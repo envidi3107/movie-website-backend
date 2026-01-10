@@ -1,9 +1,8 @@
 package com.example.MovieWebsiteProject.Entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 
-import java.util.List;
+import lombok.*;
 
 @Entity
 @Getter
@@ -13,30 +12,32 @@ import java.util.List;
 @Builder
 @Table(name = "episode")
 public class Episode {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private int episodeNumber;
-    private String title;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private int id;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+  private int episodeNumber;
+  private String title;
 
-    @Column(name = "backdrop_path")
-    private String backdropPath;
+  @Column(columnDefinition = "TEXT")
+  private String description;
 
-    @Column(name = "poster_path")
-    private String posterPath;
+  @Column(name = "backdrop_path")
+  private String backdropPath;
 
-    @Column(name = "video_path")
-    private String videoPath;
-    private double duration;
-    private long viewCount;
-    private long likeCount;
-    private long dislikeCount;
-    private long commentCount;
+  @Column(name = "poster_path")
+  private String posterPath;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "film_id", nullable = false)
-    private Film film;
+  @Column(name = "video_path")
+  private String videoPath;
+
+  private double duration;
+  private long viewCount;
+  private long likeCount;
+  private long dislikeCount;
+  private long commentCount;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "film_id", nullable = false)
+  private Film film;
 }

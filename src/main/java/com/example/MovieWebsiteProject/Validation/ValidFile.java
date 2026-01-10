@@ -1,9 +1,9 @@
 package com.example.MovieWebsiteProject.Validation;
 
+import java.lang.annotation.*;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-
-import java.lang.annotation.*;
 
 @Documented
 @Constraint(validatedBy = FileValidator.class)
@@ -11,13 +11,13 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidFile {
 
-    String message() default "File is invalid!";
+  String message() default "File is invalid!";
 
-    Class<?>[] groups() default {};
+  Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+  Class<? extends Payload>[] payload() default {};
 
-    long maxSize() default 104857600; // 100MB default
+  long maxSize() default 104857600; // 100MB default
 
-    String[] allowedTypes() default {};
+  String[] allowedTypes() default {};
 }

@@ -1,19 +1,22 @@
 package com.example.MovieWebsiteProject.Repository;
 
-import com.example.MovieWebsiteProject.Entity.Watching;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.example.MovieWebsiteProject.Entity.Watching;
 
 @Repository
 public interface WatchingRepository extends JpaRepository<Watching, String> {
 
-    @Query(value = """
+  @Query(
+      value =
+          """
             WITH recent_days AS (
                 SELECT DISTINCT DATE(watching_time) AS day
                 FROM watching
@@ -43,10 +46,13 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
             FROM ranked_watch
             WHERE rnk = 1
             ORDER BY day DESC, start_hour;
-            """, nativeQuery = true)
-    List<Object[]> findMostPopularHoursPerDay();
+            """,
+      nativeQuery = true)
+  List<Object[]> findMostPopularHoursPerDay();
 
-    @Query(value = """
+  @Query(
+      value =
+          """
             SELECT
                 w.film_id,
                 sf.title,
@@ -67,10 +73,14 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
             WHERE w.user_id = :userId
             ORDER BY w.watching_time DESC
             LIMIT :limit;
-            """, nativeQuery = true)
-    List<Map<String, Object>> getSystemFilmWatchingHistory(@Param("userId") String userId, @Param("limit") int limit);
+            """,
+      nativeQuery = true)
+  List<Map<String, Object>> getSystemFilmWatchingHistory(
+      @Param("userId") String userId, @Param("limit") int limit);
 
-    @Query(value = """
+  @Query(
+      value =
+          """
             SELECT
                 w.film_id,
                 tf.tmdb_id,
@@ -86,9 +96,15 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
             WHERE w.user_id = :userId
             ORDER BY w.watching_time DESC
             LIMIT :limit;
-            """, nativeQuery = true)
-    List<Map<String, Object>> getTmdbFilmWatchingHistory(@Param("userId") String userId, @Param("limit") int limit);
+            """,
+      nativeQuery = true)
+  List<Map<String, Object>> getTmdbFilmWatchingHistory(
+      @Param("userId") String userId, @Param("limit") int limit);
 
-    @Query(value = "SELECT * FROM watching WHERE film_id = :filmId AND user_id = :userId ORDER BY watching_time DESC LIMIT 1", nativeQuery = true)
-    Optional<Watching> findNewWatchingByUserIdAndFilmId(@Param("userId") String userId, @Param("filmId") String filmId);
+  @Query(
+      value =
+          "SELECT * FROM watching WHERE film_id = :filmId AND user_id = :userId ORDER BY watching_time DESC LIMIT 1",
+      nativeQuery = true)
+  Optional<Watching> findNewWatchingByUserIdAndFilmId(
+      @Param("userId") String userId, @Param("filmId") String filmId);
 }

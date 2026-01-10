@@ -1,15 +1,16 @@
 package com.example.MovieWebsiteProject.Dto.response;
 
+import java.time.LocalDate;
+import java.util.Set;
+
 import com.example.MovieWebsiteProject.Enum.FilmType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDate;
-import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
@@ -17,13 +18,15 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FilmSummaryResponse {
-    private String filmId;
-    private String title;
-    private boolean adult;
-    private FilmType type;
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate releaseDate;
-    private String backdropPath;
-    private String posterPath;
-    private Set<String> genres;
+  private String filmId;
+  private String title;
+  private boolean adult;
+  private FilmType type;
+
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  private LocalDate releaseDate;
+
+  private String backdropPath;
+  private String posterPath;
+  private Set<String> genres;
 }
