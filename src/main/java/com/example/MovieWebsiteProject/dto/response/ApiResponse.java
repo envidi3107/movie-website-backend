@@ -1,6 +1,7 @@
 package com.example.MovieWebsiteProject.Dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.*;
 
 @Setter
@@ -10,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiResponse<T> {
-    private int code;
-    private String message;
-    private T results;
+  private int code;
+  private String message;
+  private T results;
 }

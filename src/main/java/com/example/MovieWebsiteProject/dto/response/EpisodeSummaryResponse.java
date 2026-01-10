@@ -1,6 +1,7 @@
 package com.example.MovieWebsiteProject.Dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,12 +13,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EpisodeSummaryResponse {
-    private int id;
-    private int episodeNumber;
-    private String title;
-    private String posterPath;
-    private String backdropPath;
-    private long likeCount;
-    private long viewCount;
+  private int id;
+  private int episodeNumber;
+  private String title;
+  private String posterPath;
+  private String backdropPath;
+  private long likeCount;
+  private long viewCount;
 }
-

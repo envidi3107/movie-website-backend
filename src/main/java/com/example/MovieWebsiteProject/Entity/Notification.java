@@ -1,10 +1,12 @@
 package com.example.MovieWebsiteProject.Entity;
 
-import com.example.MovieWebsiteProject.Entity.UserNotification.UserNotification;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import com.example.MovieWebsiteProject.Entity.UserNotification.UserNotification;
+
+import lombok.*;
 
 @Entity
 @Builder
@@ -13,18 +15,19 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Notification {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String title;
-    private String description;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "poster_url")
-    private String posterUrl;
+  private String title;
+  private String description;
 
-    @Column(name = "action_url")
-    private String actionUrl;
+  @Column(name = "poster_url")
+  private String posterUrl;
 
-    @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL)
-    private List<UserNotification> userNotification;
+  @Column(name = "action_url")
+  private String actionUrl;
+
+  @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL)
+  private List<UserNotification> userNotification;
 }

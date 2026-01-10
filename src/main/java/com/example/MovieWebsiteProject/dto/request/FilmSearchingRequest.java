@@ -1,9 +1,9 @@
 package com.example.MovieWebsiteProject.Dto.request;
 
+import java.time.LocalDate;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -11,8 +11,8 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FilmSearchingRequest {
-    String title;
-    Boolean adult;
-    LocalDate releaseDate;
-    String genre;
+  String title;
+  Boolean adult;
+  LocalDate releaseDate;
+  String genre;
 }

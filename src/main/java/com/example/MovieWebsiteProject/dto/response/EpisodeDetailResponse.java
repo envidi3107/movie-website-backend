@@ -9,8 +9,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EpisodeDetailResponse extends EpisodeSummaryResponse {
-    private String description;
-    private String videoPath;
-    private long dislikeCount;
-    private long commentCount;
+  private String description;
+  private String videoPath;
+  private long dislikeCount;
+  private long commentCount;
 }
