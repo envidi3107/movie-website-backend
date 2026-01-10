@@ -60,11 +60,13 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public PageResponse<FilmSummaryResponse> searchFilms(@RequestParam(value = "q", required = false) String q,
-                                                               @RequestParam(value = "genres", required = false) String genres,
-                                                               @RequestParam(value = "adult", required = false) Boolean adult,
-                                                               @RequestParam(value = "page", defaultValue = "1") int page,
-                                                               @RequestParam(value = "size", defaultValue = "10") int size) {
+    public PageResponse<FilmSummaryResponse> searchFilms(
+            @RequestParam(value = "q", required = false) String q,
+            @RequestParam(value = "genres", required = false) String genres,
+            @RequestParam(value = "adult", required = false) Boolean adult,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
         Set<String> genreSet = null;
         if (genres != null && !genres.isEmpty()) {
             genreSet = Arrays.stream(genres.split(",")).map(String::trim).collect(Collectors.toSet());

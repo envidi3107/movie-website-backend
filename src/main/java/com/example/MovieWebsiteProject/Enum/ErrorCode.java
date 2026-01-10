@@ -20,7 +20,7 @@ public enum ErrorCode {
     PLAYLIST_ALREADY_EXISTED(1011, "Playlist already existed! Please create a another one!"),
     INVALID_PAGE_NUMBER(1012, "Invalid page number!"),
     FILE_IS_INVALID(1013, "File is invalid!"),
-    TMDB_FILM_HAS_BEEN_ADDED(1014, "This tmdb film has been added before.");
+    FILM_NOT_SERIES(1014, "This film is not a series!"),;
 
     ErrorCode(int code, String message) {
         this.code = code;

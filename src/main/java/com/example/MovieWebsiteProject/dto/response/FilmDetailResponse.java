@@ -22,11 +22,9 @@ public class FilmDetailResponse extends FilmSummaryResponse {
     private long numberOfLikes;
     private long numberOfDislikes;
     private long numberOfComments;
-    private boolean adult;
-    private List<EpisodeSummaryResponse> episodes;
+    private List<EpisodeDetailResponse> episodes;
     private String overview;
     private long watchedDuration;
-    private Boolean isUseSrc;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Timestamp createdAt;

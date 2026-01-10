@@ -416,7 +416,7 @@ public class AdminService {
                     }
                     // if neither video provided, do nothing
                 }
-             } else {
+            } else {
                 // append episodes from request.getEpisodes()
                 if (request.getEpisodes() != null && !request.getEpisodes().isEmpty()) {
                     int idx = film.getEpisodes() == null ? 1 : film.getEpisodes().size() + 1;
@@ -452,8 +452,7 @@ public class AdminService {
                         }
                     }
                 }
-
-             }
+            }
 
              Film saved = filmRepository.save(film);
              return saved.getFilmId();
@@ -471,6 +470,11 @@ public class AdminService {
         }
 
         Film film = filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+
+        if (film.getType() != FilmType.SERIES) {
+            throw new AppException(ErrorCode.FILM_NOT_SERIES);
+        }
+
         int start = (film.getEpisodes() == null) ? 1 : film.getEpisodes().size() + 1;
         try {
             int idx = start;
