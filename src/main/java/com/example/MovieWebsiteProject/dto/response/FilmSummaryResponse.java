@@ -1,5 +1,6 @@
 package com.example.MovieWebsiteProject.Dto.response;
 
+import com.example.MovieWebsiteProject.Enum.FilmType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -19,10 +20,10 @@ public class FilmSummaryResponse {
     private String filmId;
     private String title;
     private boolean adult;
+    private FilmType type;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
     private String backdropPath;
     private String posterPath;
-    private long watchedDuration;
     private Set<String> genres;
 }

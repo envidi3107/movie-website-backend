@@ -4,6 +4,8 @@ import com.example.MovieWebsiteProject.Dto.response.EpisodeDetailResponse;
 import com.example.MovieWebsiteProject.Entity.Episode;
 import com.example.MovieWebsiteProject.Entity.Film;
 import com.example.MovieWebsiteProject.Entity.Genre;
+import com.example.MovieWebsiteProject.Entity.User;
+import com.example.MovieWebsiteProject.Enum.Roles;
 import com.example.MovieWebsiteProject.Exception.AppException;
 import com.example.MovieWebsiteProject.Enum.ErrorCode;
 import com.example.MovieWebsiteProject.Repository.EpisodeRepository;
@@ -16,8 +18,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +33,7 @@ import java.util.stream.Collectors;
 public class FilmService {
     FilmRepository filmRepository;
     EpisodeRepository episodeRepository;
+    AuthenticationService authenticationService;
 
     @Value("${app.limit_size}")
     @NonFinal
@@ -52,7 +59,7 @@ public class FilmService {
                 .releaseDate(film.getReleaseDate())
                 .backdropPath(film.getBackdropPath())
                 .posterPath(film.getPosterPath())
-                .watchedDuration(0) // default
+                .type(film.getType())
                 .genres(genres)
                 .build();
     }
@@ -60,11 +67,44 @@ public class FilmService {
     // 2) API: film detail
     public FilmDetailResponse getFilmDetail(String filmId) {
         Film film = getFilmById(filmId);
+        User user = authenticationService.getAuthenticatedUser();
 
-        FilmDetailResponse.FilmDetailResponseBuilder builder = FilmDetailResponse.builder()
+        Timestamp updateTime = user.getRole().equalsIgnoreCase(String.valueOf(Roles.ADMIN)) ? (film.getUpdatedAt() == null ? null : Timestamp.valueOf(film.getUpdatedAt())) : null;
+
+        // episodes: map to EpisodeSummaryResponse
+        Set<Episode> eps = film.getEpisodes();
+        List<EpisodeDetailResponse> mapped = new ArrayList<>();
+        if (eps != null && !eps.isEmpty()) {
+            mapped = eps.stream()
+                    .sorted(Comparator.comparingInt(Episode::getEpisodeNumber))
+                    .map(e -> EpisodeDetailResponse.builder()
+                            .id(e.getId())
+                            .episodeNumber(e.getEpisodeNumber())
+                            .title(e.getTitle())
+                            .description(e.getDescription())
+                            .posterPath(e.getPosterPath())
+                            .backdropPath(e.getBackdropPath())
+                            .videoPath(e.getVideoPath())
+                            .likeCount(e.getLikeCount())
+                            .dislikeCount(e.getDislikeCount())
+                            .commentCount(e.getCommentCount())
+                            .viewCount(e.getViewCount())
+                            .build())
+                    .collect(Collectors.toList());
+        }
+
+        // genres
+        Set<String> gnames = new HashSet<>();
+        if (film.getGenres() != null) {
+            gnames = film.getGenres().stream().map(Genre::getGenreName).collect(Collectors.toSet());
+        }
+
+        return FilmDetailResponse.builder()
                 .filmId(film.getFilmId())
                 .title(film.getTitle())
                 .adult(film.isAdult())
+                .overview(film.getOverview())
+                .type(film.getType())
                 .releaseDate(film.getReleaseDate())
                 .backdropPath(film.getBackdropPath())
                 .posterPath(film.getPosterPath())
@@ -72,35 +112,11 @@ public class FilmService {
                 .numberOfLikes(film.getNumberOfLikes())
                 .numberOfDislikes(film.getNumberOfDislikes())
                 .numberOfComments(film.getNumberOfComments())
-                .overview(film.getOverview())
-                .createdAt(film.getCreatedAt() == null ? null : java.sql.Timestamp.valueOf(film.getCreatedAt()))
-                .updatedAt(film.getUpdatedAt() == null ? null : java.sql.Timestamp.valueOf(film.getUpdatedAt()));
-
-        // episodes: map to EpisodeSummaryResponse
-        Set<Episode> eps = film.getEpisodes();
-        if (eps != null && !eps.isEmpty()) {
-            List<com.example.MovieWebsiteProject.Dto.response.EpisodeSummaryResponse> mapped = eps.stream()
-                    .sorted(Comparator.comparingInt(Episode::getEpisodeNumber))
-                    .map(e -> com.example.MovieWebsiteProject.Dto.response.EpisodeSummaryResponse.builder()
-                            .id(e.getId())
-                            .episodeNumber(e.getEpisodeNumber())
-                            .title(e.getTitle())
-                            .posterPath(e.getPosterPath())
-                            .backdropPath(e.getBackdropPath())
-                            .likeCount(e.getLikeCount())
-                            .viewCount(e.getViewCount())
-                            .build())
-                    .collect(Collectors.toList());
-            builder.episodes(mapped);
-        }
-
-        // genres
-        if (film.getGenres() != null) {
-            Set<String> gnames = film.getGenres().stream().map(Genre::getGenreName).collect(Collectors.toSet());
-            builder.genres(gnames);
-        }
-
-        return builder.build();
+                .createdAt(film.getCreatedAt() == null ? null : Timestamp.valueOf(film.getCreatedAt()))
+                .updatedAt(updateTime)
+                .episodes(mapped)
+                .genres(gnames)
+                .build();
     }
 
     // 3) API: episode detail
@@ -122,8 +138,8 @@ public class FilmService {
     }
 
     // 4) API: search + filter films (DB queries + paging)
-    public org.springframework.data.domain.Page<Film> searchAndFilterFilmsRaw(String query, Set<String> genres, Boolean adult, int page, int size) {
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(Math.max(0, page - 1), size);
+    public Page<Film> searchAndFilterFilmsRaw(String query, Set<String> genres, Boolean adult, int page, int size) {
+        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size);
         String title = (query == null || query.isEmpty()) ? "" : query.toLowerCase();
 
         if (genres != null && !genres.isEmpty()) {
