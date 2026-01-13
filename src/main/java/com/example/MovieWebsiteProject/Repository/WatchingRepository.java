@@ -1,15 +1,15 @@
 package com.example.MovieWebsiteProject.Repository;
 
+import com.example.MovieWebsiteProject.Entity.User;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import com.example.MovieWebsiteProject.Entity.Watching;
+import com.example.MovieWebsiteProject.Enum.FilmType;
 
 @Repository
 public interface WatchingRepository extends JpaRepository<Watching, String> {
@@ -107,4 +107,8 @@ public interface WatchingRepository extends JpaRepository<Watching, String> {
       nativeQuery = true)
   Optional<Watching> findNewWatchingByUserIdAndFilmId(
       @Param("userId") String userId, @Param("filmId") String filmId);
+
+  @Query(
+      "SELECT w FROM Watching w JOIN w.film f WHERE w.user = :user AND f.type = :type ORDER BY w.watchTime DESC")
+  List<Watching> findByUserAndFilmType(@Param("user") User user, @Param("type") FilmType type);
 }

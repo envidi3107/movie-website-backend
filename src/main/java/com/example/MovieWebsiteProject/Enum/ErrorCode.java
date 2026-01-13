@@ -21,6 +21,7 @@ public enum ErrorCode {
   INVALID_PAGE_NUMBER(1012, "Invalid page number!"),
   FILE_IS_INVALID(1013, "File is invalid!"),
   FILM_NOT_SERIES(1014, "This film is not a series!"),
+  INVALID_TYPE(1015, "Invalid type provided!"),
   ;
 
   ErrorCode(int code, String message) {

@@ -19,7 +19,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FilmDetailResponse extends FilmSummaryResponse {
-  private long numberOfViews;
   private long numberOfLikes;
   private long numberOfDislikes;
   private long numberOfComments;

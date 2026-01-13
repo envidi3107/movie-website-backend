@@ -69,6 +69,8 @@ public class FilmService {
         .posterPath(film.getPosterPath())
         .type(film.getType())
         .genres(genres)
+        .numberOfViews(film.getNumberOfViews())
+        .rating(film.getRating())
         .build();
   }
 
@@ -197,7 +199,18 @@ public class FilmService {
         .collect(Collectors.toList());
   }
 
+  // 6) API: top 10 films by views
+  public List<FilmSummaryResponse> getTop10ViewedFilms(int q) {
+    Page<Film> films = filmRepository.findTopByOrderByNumberOfViewsDesc(q, PageRequest.of(q, 10));
+    return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
+  }
+
   public FilmSummaryResponse mapToSummary(Film film) {
     return toFilmSummary(film);
+  }
+
+  public List<FilmSummaryResponse> getNewlyReleasedFilms(int q) {
+    List<Film> films = filmRepository.findTopByOrderByReleaseDateDesc(PageRequest.of(0, q));
+    return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
   }
 }

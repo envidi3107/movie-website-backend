@@ -67,4 +67,14 @@ public interface FilmRepository extends JpaRepository<Film, String> {
       @Param("genreCount") long genreCount,
       @Param("adult") Boolean adult,
       Pageable pageable);
+
+  @Query(
+      value =
+        """
+            SELECT f FROM Film f
+            ORDER BY f.numberOfViews DESC
+        """)
+  Page<Film> findTopByOrderByNumberOfViewsDesc(int q, Pageable pageable);
+
+  List<Film> findTopByOrderByReleaseDateDesc(Pageable pageable);
 }
