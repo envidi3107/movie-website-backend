@@ -1,6 +1,7 @@
 package com.example.MovieWebsiteProject.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -10,9 +11,11 @@ import com.example.MovieWebsiteProject.Entity.Film;
 import com.example.MovieWebsiteProject.Entity.User;
 import com.example.MovieWebsiteProject.Entity.Watching;
 import com.example.MovieWebsiteProject.Enum.ErrorCode;
+import com.example.MovieWebsiteProject.Enum.FilmType;
 import com.example.MovieWebsiteProject.Exception.AppException;
 import com.example.MovieWebsiteProject.Repository.FilmRepository;
 import com.example.MovieWebsiteProject.Repository.WatchingRepository;
+import com.example.MovieWebsiteProject.Dto.response.WatchingHistoryResponse;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -64,6 +67,19 @@ public class WatchingService {
       watchingRepository.save(watching);
     } else {
       throw new AppException(ErrorCode.FAILED);
+    }
+  }
+
+  public List<WatchingHistoryResponse> getWatchingHistoryByType(String type) {
+    User user = authenticationService.getAuthenticatedUser();
+
+    if (type.equalsIgnoreCase("movie")) {
+      return watchingRepository.findByUserAndFilmType(user, FilmType.MOVIE)
+          .stream()
+          .map(WatchingHistoryResponse::new)
+          .toList();
+    } else {
+      throw new AppException(ErrorCode.INVALID_TYPE);
     }
   }
 }

@@ -75,6 +75,18 @@ public class FilmController {
         content);
   }
 
+  @GetMapping("/top-viewed")
+  public ApiResponse<List<FilmSummaryResponse>> getTopViewedFilms(
+          @RequestParam(value = "q", required = false) int q
+  ) {
+    List<FilmSummaryResponse> results = filmService.getTop10ViewedFilms(q);
+    return ApiResponse.<List<FilmSummaryResponse>>builder()
+        .code(SuccessCode.SUCCESS.getCode())
+        .message(SuccessCode.SUCCESS.getMessage())
+        .results(results)
+        .build();
+  }
+
   @GetMapping("/episodes/top")
   public ApiResponse<List<EpisodeSummaryResponse>> getTopEpisodes() {
     List<EpisodeSummaryResponse> res = filmService.getTop10EpisodesByViewsLikes();
@@ -126,6 +138,16 @@ public class FilmController {
         .code(SuccessCode.UPLOAD_FILM_SUCCESSFULLY.getCode())
         .message(SuccessCode.UPLOAD_FILM_SUCCESSFULLY.getMessage())
         .results(updatedId)
+        .build();
+  }
+
+  @GetMapping("/new-releases")
+  public ApiResponse<List<FilmSummaryResponse>> getNewlyReleasedFilms(@RequestParam("q") int q) {
+    List<FilmSummaryResponse> results = filmService.getNewlyReleasedFilms(q);
+    return ApiResponse.<List<FilmSummaryResponse>>builder()
+        .code(SuccessCode.SUCCESS.getCode())
+        .message(SuccessCode.SUCCESS.getMessage())
+        .results(results)
         .build();
   }
 }

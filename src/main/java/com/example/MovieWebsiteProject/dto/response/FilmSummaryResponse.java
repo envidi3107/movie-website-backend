@@ -18,15 +18,18 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FilmSummaryResponse {
-  private String filmId;
-  private String title;
-  private boolean adult;
-  private FilmType type;
+    private String filmId;
+    private String title;
+    private boolean adult;
+    private FilmType type;
 
-  @JsonFormat(pattern = "yyyy-MM-dd")
-  private LocalDate releaseDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate releaseDate;
 
-  private String backdropPath;
-  private String posterPath;
-  private Set<String> genres;
+    private double rating;
+    private long numberOfViews;
+
+    private String backdropPath;
+    private String posterPath;
+    private Set<String> genres;
 }
