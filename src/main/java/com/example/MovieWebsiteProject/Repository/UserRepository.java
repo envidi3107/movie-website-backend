@@ -14,27 +14,23 @@ import com.example.MovieWebsiteProject.Entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
 
-  boolean existsByUsername(String username);
+    boolean existsByUsername(String username);
 
-  boolean existsByEmail(String email);
+    boolean existsByEmail(String email);
 
-  Optional<User> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
-  Optional<User> findById(String userId);
+    Optional<User> findById(String userId);
 
-  @Query(
-      value =
-          """
-            SELECT DATE_FORMAT(u.created_at, '%Y-%m') AS month, COUNT(id) AS totalUsers
-            FROM user u
-            GROUP BY month ORDER BY month
-            """,
-      nativeQuery = true)
-  List<Object[]> countNewUsersPerMonth();
+    @Query(
+            value = """
+                    SELECT DATE_FORMAT(u.created_at, '%Y-%m') AS month, COUNT(id) AS totalUsers
+                    FROM user u
+                    GROUP BY month ORDER BY month
+                    """, nativeQuery = true)
+    List<Object[]> countNewUsersPerMonth();
 
-  @Query(
-      value =
-          "SELECT u.id, u.username, u.password, u.email, u.role FROM user u WHERE u.email = :email",
-      nativeQuery = true)
-  Optional<UserAuthInfo> findUsernameAndPasswordByEmail(@Param("email") String email);
+    @Query(
+            value = "SELECT u.id, u.username, u.password, u.email, u.role FROM user u WHERE u.email = :email", nativeQuery = true)
+    Optional<UserAuthInfo> findUsernameAndPasswordByEmail(@Param("email") String email);
 }

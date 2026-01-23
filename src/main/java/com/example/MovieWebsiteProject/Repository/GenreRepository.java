@@ -9,5 +9,5 @@ import com.example.MovieWebsiteProject.Entity.Genre;
 
 @Repository
 public interface GenreRepository extends JpaRepository<Genre, Integer> {
-  Optional<Genre> findByGenreName(String name);
+    Optional<Genre> findByGenreName(String name);
 }

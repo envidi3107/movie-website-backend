@@ -17,15 +17,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponse {
-  private String id;
-  private String username, email, role;
+    private String id;
+    private String username, email, role;
 
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-  private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
-  private String avatarPath;
-  private String ipAddress, country;
+    private String avatarPath;
+    private String ipAddress, country;
 
-  @JsonFormat(pattern = "yyyy-MM-dd")
-  private LocalDate dateOfBirth;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dateOfBirth;
 }

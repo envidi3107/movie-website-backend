@@ -32,61 +32,40 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationController {
-  AuthenticationService authenticationService;
-  JwtService jwtService;
+    AuthenticationService authenticationService;
+    JwtService jwtService;
 
-  @PostMapping("/login")
-  ResponseEntity<ApiResponse<AuthenticationResponse>> authenticate(
-      @RequestBody AuthenticationRequest request, HttpServletResponse response) {
-    var results = authenticationService.authenticate(request);
+    @PostMapping("/login")
+    ResponseEntity<ApiResponse<AuthenticationResponse>> authenticate(
+                                                                     @RequestBody AuthenticationRequest request, HttpServletResponse response) {
+        var results = authenticationService.authenticate(request);
 
-    return ResponseEntity.ok(
-        ApiResponse.<AuthenticationResponse>builder()
-            .code(SuccessCode.LOG_IN_SUCCESSFULLY.getCode())
-            .message(SuccessCode.LOG_IN_SUCCESSFULLY.getMessage())
-            .results(results)
-            .build());
-  }
+        return ResponseEntity.ok(
+                ApiResponse.<AuthenticationResponse>builder().code(SuccessCode.LOG_IN_SUCCESSFULLY.getCode()).message(SuccessCode.LOG_IN_SUCCESSFULLY.getMessage()).results(results).build());
+    }
 
-  @PostMapping("/logout")
-  ResponseEntity<ApiResponse<Void>> logout(
-      HttpServletRequest request, HttpServletResponse response, HttpSession session)
-      throws ParseException {
+    @PostMapping("/logout")
+    ResponseEntity<ApiResponse<Void>> logout(
+                                             HttpServletRequest request, HttpServletResponse response, HttpSession session) throws ParseException {
 
-    authenticationService.logout(request);
-    // Xóa session
-    session.invalidate();
+        authenticationService.logout(request);
+        // Xóa session
+        session.invalidate();
 
-    // Xóa cookie accessToken và JSESSIONID
-    ResponseCookie clearAccessTokenCookie =
-        ResponseCookie.from("accessToken", "")
-            .httpOnly(true)
-            .secure(false)
-            .path("/")
-            .maxAge(0)
-            .sameSite("Strict")
-            .build();
-    response.addHeader(HttpHeaders.SET_COOKIE, clearAccessTokenCookie.toString());
+        // Xóa cookie accessToken và JSESSIONID
+        ResponseCookie clearAccessTokenCookie = ResponseCookie.from("accessToken", "").httpOnly(true).secure(false).path("/").maxAge(0).sameSite("Strict").build();
+        response.addHeader(HttpHeaders.SET_COOKIE, clearAccessTokenCookie.toString());
 
-    ResponseCookie clearSessionCookie =
-        ResponseCookie.from("JSESSIONID", "").path("/").maxAge(0).build();
-    response.addHeader(HttpHeaders.SET_COOKIE, clearSessionCookie.toString());
+        ResponseCookie clearSessionCookie = ResponseCookie.from("JSESSIONID", "").path("/").maxAge(0).build();
+        response.addHeader(HttpHeaders.SET_COOKIE, clearSessionCookie.toString());
 
-    return ResponseEntity.ok(
-        ApiResponse.<Void>builder()
-            .code(SuccessCode.LOG_OUT_SUCCESSFULLY.getCode())
-            .message(SuccessCode.LOG_OUT_SUCCESSFULLY.getMessage())
-            .build());
-  }
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder().code(SuccessCode.LOG_OUT_SUCCESSFULLY.getCode()).message(SuccessCode.LOG_OUT_SUCCESSFULLY.getMessage()).build());
+    }
 
-  @PostMapping("/authenticate-password")
-  ApiResponse<IntrospectResponse> authenticatePassword(@RequestBody AuthenticationRequest request)
-      throws ParseException, JOSEException {
-    authenticationService.authenticateUserAccount(request);
-    return ApiResponse.<IntrospectResponse>builder()
-        .code(SuccessCode.SUCCESS.getCode())
-        .message(SuccessCode.SUCCESS.getMessage())
-        .results(IntrospectResponse.builder().valid(true).build())
-        .build();
-  }
+    @PostMapping("/authenticate-password")
+    ApiResponse<IntrospectResponse> authenticatePassword(@RequestBody AuthenticationRequest request) throws ParseException, JOSEException {
+        authenticationService.authenticateUserAccount(request);
+        return ApiResponse.<IntrospectResponse>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).results(IntrospectResponse.builder().valid(true).build()).build();
+    }
 }

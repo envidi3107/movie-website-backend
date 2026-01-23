@@ -12,9 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EpisodeRequest {
-  private String title;
+    private String title;
+    private String description;
 
-  @ValidFile private MultipartFile videoFiles;
-  private String videoUrls;
-  private String duration;
+    @ValidFile
+    private MultipartFile videoFiles;
+    private String videoUrls;
+    private String duration;
 }

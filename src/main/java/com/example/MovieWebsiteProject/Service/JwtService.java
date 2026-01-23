@@ -30,62 +30,53 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-  private final UserRepository userRepository;
-  private final InvalidatedTokenRepository invalidatedTokenRepository;
+    private final UserRepository userRepository;
+    private final InvalidatedTokenRepository invalidatedTokenRepository;
 
-  @Getter
-  @NonFinal
-  @Value("${jwt.signerKey}")
-  private String SIGNER_KEY;
+    @Getter
+    @NonFinal
+    @Value("${jwt.signerKey}")
+    private String SIGNER_KEY;
 
-  public String generateToken(UserAuthInfo user) {
-    try {
-      JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+    public String generateToken(UserAuthInfo user) {
+        try {
+            JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
-      JWTClaimsSet claims =
-          new JWTClaimsSet.Builder()
-              .subject(user.getUsername())
-              .issuer("phimhayyy.envidi.com")
-              .issueTime(new Date())
-              .expirationTime(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
-              .claim("role", user.getRole())
-              .claim("userId", user.getId())
-              .jwtID(UUID.randomUUID().toString())
-              .build();
+            JWTClaimsSet claims = new JWTClaimsSet.Builder().subject(user.getUsername()).issuer("phimhayyy.envidi.com").issueTime(new Date()).expirationTime(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)).claim("role", user.getRole()).claim("userId", user.getId()).jwtID(UUID.randomUUID().toString()).build();
 
-      SignedJWT signedJWT = new SignedJWT(header, claims);
-      signedJWT.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            SignedJWT signedJWT = new SignedJWT(header, claims);
+            signedJWT.sign(new MACSigner(SIGNER_KEY.getBytes()));
 
-      return signedJWT.serialize();
-    } catch (JOSEException e) {
-      throw new RuntimeException("Unable to generate token", e);
-    }
-  }
-
-  public String extractUsername(String token) {
-    try {
-      SignedJWT signedJWT = SignedJWT.parse(token);
-      return signedJWT.getJWTClaimsSet().getSubject();
-    } catch (ParseException e) {
-      throw new RuntimeException("Invalid JWT token", e);
-    }
-  }
-
-  public SignedJWT verifyToken(String token) throws ParseException, JOSEException {
-    SignedJWT signedJWT = SignedJWT.parse(token);
-
-    JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
-    boolean isValid = signedJWT.verify(verifier);
-    boolean notExpired = signedJWT.getJWTClaimsSet().getExpirationTime().after(new Date());
-
-    if (!(isValid && notExpired)) {
-      throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
+            return signedJWT.serialize();
+        } catch (JOSEException e) {
+            throw new RuntimeException("Unable to generate token", e);
+        }
     }
 
-    if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
-      throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+    public String extractUsername(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return signedJWT.getJWTClaimsSet().getSubject();
+        } catch (ParseException e) {
+            throw new RuntimeException("Invalid JWT token", e);
+        }
     }
 
-    return signedJWT;
-  }
+    public SignedJWT verifyToken(String token) throws ParseException, JOSEException {
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+        boolean isValid = signedJWT.verify(verifier);
+        boolean notExpired = signedJWT.getJWTClaimsSet().getExpirationTime().after(new Date());
+
+        if (!(isValid && notExpired)) {
+            throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
+        }
+
+        if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+
+        return signedJWT;
+    }
 }

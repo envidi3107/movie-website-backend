@@ -1,13 +1,13 @@
 package com.example.MovieWebsiteProject.Dto.projection;
 
 public interface UserAuthInfo {
-  String getId();
+    String getId();
 
-  String getUsername();
+    String getUsername();
 
-  String getPassword();
+    String getPassword();
 
-  String getEmail();
+    String getEmail();
 
-  String getRole();
+    String getRole();
 }

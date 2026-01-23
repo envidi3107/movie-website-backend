@@ -19,26 +19,22 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class CustomJwtAuthenticationConverter
-    implements Converter<Jwt, AbstractAuthenticationToken> {
+public class CustomJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  @Override
-  public AbstractAuthenticationToken convert(Jwt jwt) {
+    @Override
+    public AbstractAuthenticationToken convert(Jwt jwt) {
 
-    String userId = jwt.getClaim("userId");
-    if (userId == null) {
-      throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
+        String userId = jwt.getClaim("userId");
+        if (userId == null) {
+            throw new AppException(ErrorCode.EXPIRED_LOGIN_SESSION);
+        }
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTES));
+
+        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole());
+
+        return new UsernamePasswordAuthenticationToken(user, jwt, List.of(authority));
     }
-
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTES));
-
-    GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole());
-
-    return new UsernamePasswordAuthenticationToken(user, jwt, List.of(authority));
-  }
 }

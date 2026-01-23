@@ -11,13 +11,13 @@ import jakarta.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidFile {
 
-  String message() default "File is invalid!";
+    String message() default "File is invalid!";
 
-  Class<?>[] groups() default {};
+    Class<?>[] groups() default {};
 
-  Class<? extends Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default {};
 
-  long maxSize() default 104857600; // 100MB default
+    long maxSize() default 104857600; // 100MB default
 
-  String[] allowedTypes() default {};
+    String[] allowedTypes() default {};
 }

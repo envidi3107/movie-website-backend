@@ -9,7 +9,7 @@ import com.example.MovieWebsiteProject.Entity.Comment.EpisodeComment;
 
 @Repository
 public interface EpisodeCommentRepository extends JpaRepository<EpisodeComment, String> {
-  List<EpisodeComment> findByEpisode_IdAndParentCommentIsNullOrderByCommentTimeDesc(int episodeId);
+    List<EpisodeComment> findByEpisode_IdAndParentCommentIsNullOrderByCommentTimeDesc(int episodeId);
 
-  int countByUser_IdAndEpisode_Id(String userId, int episodeId);
+    int countByUser_IdAndEpisode_Id(String userId, int episodeId);
 }

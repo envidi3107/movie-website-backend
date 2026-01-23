@@ -21,46 +21,38 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserNotificationService {
-  UserRepository userRepository;
-  UserNotificationRepository userNotificationRepository;
+    UserRepository userRepository;
+    UserNotificationRepository userNotificationRepository;
 
-  public void saveAllUserNotification(Notification notification) {
-    List<User> users = userRepository.findAll();
-    List<UserNotification> userNotifications = new ArrayList<>();
-    for (User user : users) {
-      if (!user.getRole().equals("ADMIN")) {
-        UserNotification userNotification =
-            new UserNotification(user, notification, LocalDateTime.now());
-        userNotifications.add(userNotification);
-      }
-    }
-    userNotificationRepository.saveAll(userNotifications);
-  }
-
-  public List<NotificationResponse> getAllUserNotification(String userId) {
-    List<UserNotification> userNotifications = userNotificationRepository.findAllByUser_Id(userId);
-    List<NotificationResponse> responses = new ArrayList<>();
-    for (UserNotification userNotification : userNotifications) {
-      NotificationResponse notificationResponse =
-          NotificationResponse.builder()
-              .id(userNotification.getNotification().getId())
-              .title(userNotification.getNotification().getTitle())
-              .description(userNotification.getNotification().getDescription())
-              .posterUrl(userNotification.getNotification().getPosterUrl())
-              .actionUrl(userNotification.getNotification().getActionUrl())
-              .build();
-
-      responses.add(notificationResponse);
+    public void saveAllUserNotification(Notification notification) {
+        List<User> users = userRepository.findAll();
+        List<UserNotification> userNotifications = new ArrayList<>();
+        for (User user : users) {
+            if (!user.getRole().equals("ADMIN")) {
+                UserNotification userNotification = new UserNotification(user, notification, LocalDateTime.now());
+                userNotifications.add(userNotification);
+            }
+        }
+        userNotificationRepository.saveAll(userNotifications);
     }
 
-    return responses;
-  }
+    public List<NotificationResponse> getAllUserNotification(String userId) {
+        List<UserNotification> userNotifications = userNotificationRepository.findAllByUser_Id(userId);
+        List<NotificationResponse> responses = new ArrayList<>();
+        for (UserNotification userNotification : userNotifications) {
+            NotificationResponse notificationResponse = NotificationResponse.builder().id(userNotification.getNotification().getId()).title(userNotification.getNotification().getTitle()).description(userNotification.getNotification().getDescription()).posterUrl(userNotification.getNotification().getPosterUrl()).actionUrl(userNotification.getNotification().getActionUrl()).build();
 
-  public void deleteUserNotification(String userId, Long notificationId) {
-    userNotificationRepository.deleteByUser_IdAndNotification_Id(userId, notificationId);
-  }
+            responses.add(notificationResponse);
+        }
 
-  public void clearAllUserNotification(String userId) {
-    userNotificationRepository.deleteAllByUser_Id(userId);
-  }
+        return responses;
+    }
+
+    public void deleteUserNotification(String userId, Long notificationId) {
+        userNotificationRepository.deleteByUser_IdAndNotification_Id(userId, notificationId);
+    }
+
+    public void clearAllUserNotification(String userId) {
+        userNotificationRepository.deleteAllByUser_Id(userId);
+    }
 }

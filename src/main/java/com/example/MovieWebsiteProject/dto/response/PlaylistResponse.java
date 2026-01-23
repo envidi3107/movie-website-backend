@@ -17,11 +17,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlaylistResponse {
-  private String playlistId;
-  private String playlistName;
+    private String playlistId;
+    private String playlistName;
 
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-  private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
-  private List<FilmSummaryResponse> films;
+    private List<FilmSummaryResponse> films;
 }

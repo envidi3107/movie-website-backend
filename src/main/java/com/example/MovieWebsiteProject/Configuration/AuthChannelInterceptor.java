@@ -23,38 +23,33 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthChannelInterceptor implements ChannelInterceptor {
 
-  private final JwtService jwtService;
-  private final UserRepository userRepository;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
 
-  @Override
-  public Message<?> preSend(Message<?> message, MessageChannel channel) {
-    StompHeaderAccessor accessor =
-        MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+    @Override
+    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-    if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-      String authHeader = accessor.getFirstNativeHeader("Authorization");
+        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+            String authHeader = accessor.getFirstNativeHeader("Authorization");
 
-      if (authHeader != null && authHeader.startsWith("Bearer ")) {
-        try {
-          String token = authHeader.substring(7);
-          SignedJWT signedJWT = jwtService.verifyToken(token);
-          String userId = signedJWT.getJWTClaimsSet().getStringClaim("userId");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                try {
+                    String token = authHeader.substring(7);
+                    SignedJWT signedJWT = jwtService.verifyToken(token);
+                    String userId = signedJWT.getJWTClaimsSet().getStringClaim("userId");
 
-          User user =
-              userRepository
-                  .findById(userId)
-                  .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTES));
-          UsernamePasswordAuthenticationToken authentication =
-              new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-          accessor.setUser(authentication);
-        } catch (Exception e) {
-          throw new AccessDeniedException("Invalid token");
+                    User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTES));
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    accessor.setUser(authentication);
+                } catch (Exception e) {
+                    throw new AccessDeniedException("Invalid token");
+                }
+            } else {
+                throw new AccessDeniedException("No Authorization header for WebSocket");
+            }
         }
-      } else {
-        throw new AccessDeniedException("No Authorization header for WebSocket");
-      }
-    }
 
-    return message;
-  }
+        return message;
+    }
 }

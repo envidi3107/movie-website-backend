@@ -12,11 +12,11 @@ import lombok.Data;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentResponse {
-  private String commentId;
-  private String userId;
-  private String username;
-  private String avatarPath;
-  private String content;
-  private LocalDateTime commentTime;
-  private List<CommentResponse> childComments;
+    private String commentId;
+    private String userId;
+    private String username;
+    private String avatarPath;
+    private String content;
+    private LocalDateTime commentTime;
+    private List<CommentResponse> childComments;
 }

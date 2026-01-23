@@ -9,7 +9,6 @@ import com.example.MovieWebsiteProject.Entity.Belonging.UserFilmPlaylist;
 import com.example.MovieWebsiteProject.Entity.Belonging.UserFilmPlaylistId;
 
 @Repository
-public interface UserFilmPlaylistRepository
-    extends JpaRepository<UserFilmPlaylist, UserFilmPlaylistId> {
-  List<UserFilmPlaylist> findByUser_Id(String userId);
+public interface UserFilmPlaylistRepository extends JpaRepository<UserFilmPlaylist, UserFilmPlaylistId> {
+    List<UserFilmPlaylist> findByUser_Id(String userId);
 }

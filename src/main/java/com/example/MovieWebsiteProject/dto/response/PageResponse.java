@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageResponse<T> {
-  private int pageNumber;
-  private int pageSize;
-  private long totalElements;
-  private long totalPages;
-  private boolean last;
-  private List<T> results;
+    private int pageNumber;
+    private int pageSize;
+    private long totalElements;
+    private long totalPages;
+    private boolean last;
+    private List<T> results;
 }

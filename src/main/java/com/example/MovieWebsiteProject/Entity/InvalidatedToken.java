@@ -14,6 +14,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InvalidatedToken {
-  @Id private String id;
-  private Date expiryTime;
+    @Id
+    private String id;
+    private Date expiryTime;
 }

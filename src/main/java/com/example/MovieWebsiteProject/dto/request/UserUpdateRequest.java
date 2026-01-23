@@ -9,10 +9,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserUpdateRequest {
-  @NotNull private MultipartFile avatarFile;
+    private LocalDate dateOfBirth;
+    @NotNull
+    private MultipartFile avatarFile;
 }

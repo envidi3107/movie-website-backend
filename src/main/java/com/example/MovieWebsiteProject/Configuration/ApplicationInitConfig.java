@@ -22,27 +22,19 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ApplicationInitConfig {
-  PasswordEncoder passwordEncoder;
+    PasswordEncoder passwordEncoder;
 
-  @Bean
-  ApplicationRunner applicationRunner(
-      UserRepository userRepository, PlaylistRepository playlistRepository) {
+    @Bean
+    ApplicationRunner applicationRunner(
+                                        UserRepository userRepository, PlaylistRepository playlistRepository) {
 
-    return args -> {
-      if (userRepository.findByUsername("admin").isEmpty()) {
-        LocalDateTime accessTime = LocalDateTime.now();
-        DateTimeFormatter formatter =
-            DateTimeFormatter.ofPattern("EEEE dd/MM/yyyy HH:mm:ss", Locale.UK);
-        User user =
-            User.builder()
-                .username("admin")
-                .email("admin@gmail.com")
-                .password(passwordEncoder.encode("123456"))
-                .createdAt(accessTime)
-                .role(Roles.ADMIN.name())
-                .build();
-        userRepository.save(user);
-      }
-    };
-  }
+        return args -> {
+            if (userRepository.findByUsername("admin").isEmpty()) {
+                LocalDateTime accessTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE dd/MM/yyyy HH:mm:ss", Locale.UK);
+                User user = User.builder().username("admin").email("admin@gmail.com").password(passwordEncoder.encode("123456")).createdAt(accessTime).role(Roles.ADMIN.name()).build();
+                userRepository.save(user);
+            }
+        };
+    }
 }

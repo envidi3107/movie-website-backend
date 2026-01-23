@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiResponse<T> {
-  private int code;
-  private String message;
-  private T results;
+    private int code;
+    private String message;
+    private T results;
 }

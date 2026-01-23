@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentRequest {
-  private String filmId;
-  private String parentCommentId;
-  private String content;
+    private String filmId;
+    private String parentCommentId;
+    private String content;
 }

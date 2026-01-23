@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class NotificationResponse {
-  private Long id;
-  private String title;
-  private String description;
-  private String posterUrl;
-  private String actionUrl;
+    private Long id;
+    private String title;
+    private String description;
+    private String posterUrl;
+    private String actionUrl;
 }

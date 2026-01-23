@@ -24,40 +24,29 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PlaylistController {
-  PlaylistService playlistService;
-  PlaylistRepository playlistRepository;
-  AuthenticationService authenticationService;
+    PlaylistService playlistService;
+    PlaylistRepository playlistRepository;
+    AuthenticationService authenticationService;
 
-  @GetMapping("/get-user-playlist")
-  public ApiResponse<List<PlaylistResponse>> getUserPlaylist() {
+    @GetMapping("/get-user-playlist")
+    public ApiResponse<List<PlaylistResponse>> getUserPlaylist() {
 
-    return ApiResponse.<List<PlaylistResponse>>builder()
-        .code(SuccessCode.SUCCESS.getCode())
-        .message(SuccessCode.SUCCESS.getMessage())
-        .results(playlistService.getUserPlaylist())
-        .build();
-  }
+        return ApiResponse.<List<PlaylistResponse>>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).results(playlistService.getUserPlaylist()).build();
+    }
 
-  @PostMapping("/create-playlist")
-  public ApiResponse<PlaylistResponse> createPlaylist(
-      @NotNull @NotEmpty @RequestParam("playlistName") String playlistName) {
-    ;
-    return ApiResponse.<PlaylistResponse>builder()
-        .code(SuccessCode.SUCCESS.getCode())
-        .message(SuccessCode.SUCCESS.getMessage())
-        .results(playlistService.createUserPlaylist(playlistName))
-        .build();
-  }
+    @PostMapping("/create-playlist")
+    public ApiResponse<PlaylistResponse> createPlaylist(
+                                                        @NotNull @NotEmpty @RequestParam("playlistName") String playlistName) {
+        ;
+        return ApiResponse.<PlaylistResponse>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).results(playlistService.createUserPlaylist(playlistName)).build();
+    }
 
-  @Transactional
-  @DeleteMapping("/delete-user-playlist")
-  public ApiResponse<Void> deletePlaylist(
-      @NotNull @NotEmpty @RequestParam("playlistId") String playlistId) {
-    playlistRepository.deleteByPlaylistIdAndCreatedBy_Id(
-        playlistId, authenticationService.getAuthenticatedUser().getId());
-    return ApiResponse.<Void>builder()
-        .code(SuccessCode.DELETE_PLAYLIST_SUCCESSFULLY.getCode())
-        .message(SuccessCode.DELETE_PLAYLIST_SUCCESSFULLY.getMessage())
-        .build();
-  }
+    @Transactional
+    @DeleteMapping("/delete-user-playlist")
+    public ApiResponse<Void> deletePlaylist(
+                                            @NotNull @NotEmpty @RequestParam("playlistId") String playlistId) {
+        playlistRepository.deleteByPlaylistIdAndCreatedBy_Id(
+                playlistId, authenticationService.getAuthenticatedUser().getId());
+        return ApiResponse.<Void>builder().code(SuccessCode.DELETE_PLAYLIST_SUCCESSFULLY.getCode()).message(SuccessCode.DELETE_PLAYLIST_SUCCESSFULLY.getMessage()).build();
+    }
 }

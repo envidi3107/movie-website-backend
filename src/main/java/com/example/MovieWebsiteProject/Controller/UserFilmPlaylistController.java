@@ -21,35 +21,25 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserFilmPlaylistController {
-  UserFilmPlaylistService userFilmPlaylistService;
+    UserFilmPlaylistService userFilmPlaylistService;
 
-  @PostMapping("/add-film-to-user-playlist")
-  public ApiResponse<Void> addFilmToUserPlaylist(
-      @Valid @RequestBody PlaylistAdditionRequest request) {
-    userFilmPlaylistService.addFilmToUserPlaylist(
-        request.getPlaylistId(), request.getFilmId(), request.getOwnerFilm());
-    return ApiResponse.<Void>builder()
-        .code(SuccessCode.SUCCESS.getCode())
-        .message(SuccessCode.SUCCESS.getMessage())
-        .build();
-  }
+    @PostMapping("/add-film-to-user-playlist")
+    public ApiResponse<Void> addFilmToUserPlaylist(
+                                                   @Valid @RequestBody PlaylistAdditionRequest request) {
+        userFilmPlaylistService.addFilmToUserPlaylist(
+                request.getPlaylistId(), request.getFilmId(), request.getOwnerFilm());
+        return ApiResponse.<Void>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).build();
+    }
 
-  @GetMapping("/playlists")
-  public ApiResponse<List<PlaylistResponse>> getUserPlaylists() {
-    List<PlaylistResponse> res = userFilmPlaylistService.getUserPlaylists();
-    return ApiResponse.<List<PlaylistResponse>>builder()
-        .code(SuccessCode.SUCCESS.getCode())
-        .message(SuccessCode.SUCCESS.getMessage())
-        .results(res)
-        .build();
-  }
+    @GetMapping("/playlists")
+    public ApiResponse<List<PlaylistResponse>> getUserPlaylists() {
+        List<PlaylistResponse> res = userFilmPlaylistService.getUserPlaylists();
+        return ApiResponse.<List<PlaylistResponse>>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).results(res).build();
+    }
 
-  @DeleteMapping("/playlists/{playlistId}")
-  public ApiResponse<Void> deletePlaylist(@PathVariable("playlistId") String playlistId) {
-    userFilmPlaylistService.deletePlaylist(playlistId);
-    return ApiResponse.<Void>builder()
-        .code(SuccessCode.SUCCESS.getCode())
-        .message(SuccessCode.SUCCESS.getMessage())
-        .build();
-  }
+    @DeleteMapping("/playlists/{playlistId}")
+    public ApiResponse<Void> deletePlaylist(@PathVariable("playlistId") String playlistId) {
+        userFilmPlaylistService.deletePlaylist(playlistId);
+        return ApiResponse.<Void>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).build();
+    }
 }

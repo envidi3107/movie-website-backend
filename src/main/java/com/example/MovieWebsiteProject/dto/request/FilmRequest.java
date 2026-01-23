@@ -2,6 +2,8 @@ package com.example.MovieWebsiteProject.Dto.request;
 
 import java.util.List;
 
+import com.example.MovieWebsiteProject.Enum.FilmType;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.MovieWebsiteProject.Validation.ValidFile;
@@ -14,24 +16,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FilmRequest {
-  private String title;
-  private boolean adult;
-  private String overview;
-  private String releaseDate; // ISO date string
-  private String genres; // comma separated
-  private String type; // MOVIE or SERIES
+    private String title;
+    private boolean adult;
+    private String overview;
+    private String releaseDate; // ISO date string
+    private String genres; // comma separated
 
-  // images (either provide file or url)
-  @ValidFile private MultipartFile posterFile;
-  private String posterUrl;
+    @NotNull(message = "Type is required")
+    private FilmType type; // MOVIE or SERIES
 
-  @ValidFile private MultipartFile backdropFile;
-  private String backdropUrl;
+    // images (either provide file or url)
+    @ValidFile
+    private MultipartFile posterFile;
+    private String posterUrl;
 
-  // for movie: single video
-  @ValidFile private MultipartFile videoFile;
-  private String videoUrl;
+    @ValidFile
+    private MultipartFile backdropFile;
+    private String backdropUrl;
 
-  // for series: multiple episodes can be provided as files or urls (comma separated)
-  private List<EpisodeRequest> episodes;
+    // for movie: single video
+    @ValidFile
+    private MultipartFile videoFile;
+    private String videoUrl;
+
+    private String duration;
+
+    // for series: multiple episodes can be provided as files or urls (comma separated)
+    private List<EpisodeRequest> episodes;
 }

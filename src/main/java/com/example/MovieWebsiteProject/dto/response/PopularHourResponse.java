@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PopularHourResponse {
-  private LocalDate day;
-  private Integer startHour;
-  private Integer endHour;
-  private Long userCount;
+    private LocalDate day;
+    private Integer startHour;
+    private Integer endHour;
+    private Long userCount;
 }

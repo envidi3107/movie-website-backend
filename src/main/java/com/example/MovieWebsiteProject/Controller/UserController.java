@@ -26,60 +26,37 @@ import lombok.experimental.NonFinal;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
-  UserService userService;
+    UserService userService;
 
-  @Value("${app.base_url}")
-  @NonFinal
-  private String base_url;
+    @Value("${app.base_url}")
+    @NonFinal
+    private String base_url;
 
-  @PostMapping("/signup")
-  ApiResponse<Void> creteUser(
-      @Valid @RequestBody UserCreationRequest request, HttpServletRequest httpServletRequest) {
-    userService.createUser(request, httpServletRequest);
+    @PostMapping("/signup")
+    ApiResponse<Void> creteUser(
+                                @Valid @RequestBody UserCreationRequest request, HttpServletRequest httpServletRequest) {
+        userService.createUser(request, httpServletRequest);
 
-    return ApiResponse.<Void>builder()
-        .code(SuccessCode.SIGN_UP_SUCCESSFULLY.getCode())
-        .message(SuccessCode.SIGN_UP_SUCCESSFULLY.getMessage())
-        .build();
-  }
+        return ApiResponse.<Void>builder().code(SuccessCode.SIGN_UP_SUCCESSFULLY.getCode()).message(SuccessCode.SIGN_UP_SUCCESSFULLY.getMessage()).build();
+    }
 
-  @PostMapping("/update-password")
-  ApiResponse<Void> updatePassword(@Valid @RequestBody PasswordUpdateRequest request) {
-    userService.updateUserPassword(request.getPassword());
-    return ApiResponse.<Void>builder()
-        .code(SuccessCode.UPDATED_PASSWORD_SUCCESSFULLY.getCode())
-        .message(SuccessCode.UPDATED_PASSWORD_SUCCESSFULLY.getMessage())
-        .build();
-  }
+    @PostMapping("/update-password")
+    ApiResponse<Void> updatePassword(@Valid @RequestBody PasswordUpdateRequest request) {
+        userService.updateUserPassword(request.getPassword());
+        return ApiResponse.<Void>builder().code(SuccessCode.UPDATED_PASSWORD_SUCCESSFULLY.getCode()).message(SuccessCode.UPDATED_PASSWORD_SUCCESSFULLY.getMessage()).build();
+    }
 
-  @GetMapping("/my-info")
-  ApiResponse<UserResponse> getUserInfo(HttpServletRequest request) {
+    @GetMapping("/my-info")
+    ApiResponse<UserResponse> getUserInfo(HttpServletRequest request) {
 
-    User user = userService.getUserInfo();
-    UserResponse userResponse =
-        UserResponse.builder()
-            .id(user.getId())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .createdAt(user.getCreatedAt())
-            .avatarPath(base_url + user.getAvatarPath())
-            .role(user.getRole())
-            .dateOfBirth(user.getDateOfBirth())
-            .build();
-    return ApiResponse.<UserResponse>builder()
-        .code(SuccessCode.SUCCESS.getCode())
-        .message(SuccessCode.SUCCESS.getMessage())
-        .results(userResponse)
-        .build();
-  }
+        User user = userService.getUserInfo();
+        UserResponse userResponse = UserResponse.builder().id(user.getId()).username(user.getUsername()).email(user.getEmail()).createdAt(user.getCreatedAt()).avatarPath(base_url + user.getAvatarPath()).role(user.getRole()).dateOfBirth(user.getDateOfBirth()).build();
+        return ApiResponse.<UserResponse>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).results(userResponse).build();
+    }
 
-  @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ApiResponse<UserResponse> updateUser(@Valid @ModelAttribute UserUpdateRequest request) {
+    @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<UserResponse> updateUser(@Valid @ModelAttribute UserUpdateRequest request) {
 
-    return ApiResponse.<UserResponse>builder()
-        .code(SuccessCode.UPDATED_SUCCESSFULLY.getCode())
-        .message(SuccessCode.UPDATED_SUCCESSFULLY.getMessage())
-        .results(userService.updateUser(request))
-        .build();
-  }
+        return ApiResponse.<UserResponse>builder().code(SuccessCode.UPDATED_SUCCESSFULLY.getCode()).message(SuccessCode.UPDATED_SUCCESSFULLY.getMessage()).results(userService.updateUser(request)).build();
+    }
 }

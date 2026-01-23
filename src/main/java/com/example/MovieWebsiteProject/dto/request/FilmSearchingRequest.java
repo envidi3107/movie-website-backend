@@ -11,8 +11,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FilmSearchingRequest {
-  String title;
-  Boolean adult;
-  LocalDate releaseDate;
-  String genre;
+    String title;
+    Boolean adult;
+    LocalDate releaseDate;
+    String genre;
 }

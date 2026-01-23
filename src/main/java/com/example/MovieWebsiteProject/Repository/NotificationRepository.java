@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 import com.example.MovieWebsiteProject.Entity.Notification;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Long> {}
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
+}

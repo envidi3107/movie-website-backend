@@ -33,184 +33,101 @@ import lombok.experimental.NonFinal;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FilmService {
-  FilmRepository filmRepository;
-  EpisodeRepository episodeRepository;
-  AuthenticationService authenticationService;
+    FilmRepository filmRepository;
+    EpisodeRepository episodeRepository;
+    AuthenticationService authenticationService;
 
-  @Value("${app.limit_size}")
-  @NonFinal
-  int limit_size;
+    @Value("${app.limit_size}")
+    @NonFinal
+    int limit_size;
 
-  public Film getFilmById(String filmId) {
-    return filmRepository
-        .findById(filmId)
-        .orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
-  }
-
-  // 1) API: get all films including episodes (only show image, title, like, view, releaseDate,
-  // adult)
-  public List<FilmSummaryResponse> getAllFilmsSummary() {
-    List<Film> films = filmRepository.findAll();
-    return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
-  }
-
-  private FilmSummaryResponse toFilmSummary(Film film) {
-    Set<String> genres =
-        film.getGenres() == null
-            ? null
-            : film.getGenres().stream().map(Genre::getGenreName).collect(Collectors.toSet());
-
-    return FilmSummaryResponse.builder()
-        .filmId(film.getFilmId())
-        .title(film.getTitle())
-        .adult(film.isAdult())
-        .releaseDate(film.getReleaseDate())
-        .backdropPath(film.getBackdropPath())
-        .posterPath(film.getPosterPath())
-        .type(film.getType())
-        .genres(genres)
-        .numberOfViews(film.getNumberOfViews())
-        .rating(film.getRating())
-        .build();
-  }
-
-  // 2) API: film detail
-  public FilmDetailResponse getFilmDetail(String filmId) {
-    Film film = getFilmById(filmId);
-    User user = authenticationService.getAuthenticatedUser();
-
-    Timestamp updateTime =
-        user.getRole().equalsIgnoreCase(String.valueOf(Roles.ADMIN))
-            ? (film.getUpdatedAt() == null ? null : Timestamp.valueOf(film.getUpdatedAt()))
-            : null;
-
-    // episodes: map to EpisodeSummaryResponse
-    Set<Episode> eps = film.getEpisodes();
-    List<EpisodeDetailResponse> mapped = new ArrayList<>();
-    if (eps != null && !eps.isEmpty()) {
-      mapped =
-          eps.stream()
-              .sorted(Comparator.comparingInt(Episode::getEpisodeNumber))
-              .map(
-                  e ->
-                      EpisodeDetailResponse.builder()
-                          .id(e.getId())
-                          .episodeNumber(e.getEpisodeNumber())
-                          .title(e.getTitle())
-                          .description(e.getDescription())
-                          .posterPath(e.getPosterPath())
-                          .backdropPath(e.getBackdropPath())
-                          .videoPath(e.getVideoPath())
-                          .likeCount(e.getLikeCount())
-                          .dislikeCount(e.getDislikeCount())
-                          .commentCount(e.getCommentCount())
-                          .viewCount(e.getViewCount())
-                          .build())
-              .collect(Collectors.toList());
+    public Film getFilmById(String filmId) {
+        return filmRepository.findById(filmId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
     }
 
-    // genres
-    Set<String> gnames = new HashSet<>();
-    if (film.getGenres() != null) {
-      gnames = film.getGenres().stream().map(Genre::getGenreName).collect(Collectors.toSet());
+    // 1) API: get all films including episodes (only show image, title, like, view, releaseDate,
+    // adult)
+    public List<FilmSummaryResponse> getAllFilmsSummary() {
+        List<Film> films = filmRepository.findAll();
+        return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
     }
 
-    return FilmDetailResponse.builder()
-        .filmId(film.getFilmId())
-        .title(film.getTitle())
-        .adult(film.isAdult())
-        .overview(film.getOverview())
-        .type(film.getType())
-        .releaseDate(film.getReleaseDate())
-        .backdropPath(film.getBackdropPath())
-        .posterPath(film.getPosterPath())
-        .numberOfViews(film.getNumberOfViews())
-        .numberOfLikes(film.getNumberOfLikes())
-        .numberOfDislikes(film.getNumberOfDislikes())
-        .numberOfComments(film.getNumberOfComments())
-        .createdAt(film.getCreatedAt() == null ? null : Timestamp.valueOf(film.getCreatedAt()))
-        .updatedAt(updateTime)
-        .episodes(mapped)
-        .genres(gnames)
-        .build();
-  }
+    private FilmSummaryResponse toFilmSummary(Film film) {
+        Set<String> genres = film.getGenres() == null ? null : film.getGenres().stream().map(Genre::getGenreName).collect(Collectors.toSet());
 
-  // 3) API: episode detail
-  public EpisodeDetailResponse getEpisodeDetail(int episodeId) {
-    Episode episode =
-        episodeRepository
-            .findById(episodeId)
-            .orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
-    return EpisodeDetailResponse.builder()
-        .id(episode.getId())
-        .episodeNumber(episode.getEpisodeNumber())
-        .title(episode.getTitle())
-        .description(episode.getDescription())
-        .posterPath(episode.getPosterPath())
-        .backdropPath(episode.getBackdropPath())
-        .videoPath(episode.getVideoPath())
-        .likeCount(episode.getLikeCount())
-        .viewCount(episode.getViewCount())
-        .dislikeCount(episode.getDislikeCount())
-        .commentCount(episode.getCommentCount())
-        .build();
-  }
-
-  // 4) API: search + filter films (DB queries + paging)
-  public Page<Film> searchAndFilterFilmsRaw(
-      String query, Set<String> genres, Boolean adult, int page, int size) {
-    Pageable pageable = PageRequest.of(Math.max(0, page - 1), size);
-    String title = (query == null || query.isEmpty()) ? "" : query.toLowerCase();
-
-    if (genres != null && !genres.isEmpty()) {
-      List<String> lowerGenres =
-          genres.stream().map(String::toLowerCase).collect(Collectors.toList());
-      long genreCount = lowerGenres.size();
-      return filmRepository.findByTitleAndGenres(
-          title.isEmpty() ? null : title, lowerGenres, genreCount, adult, pageable);
-    } else {
-      if (adult == null) {
-        return filmRepository.findByTitleContainingIgnoreCase(title, pageable);
-      } else {
-        return filmRepository.findByTitleContainingIgnoreCaseAndAdult(title, adult, pageable);
-      }
+        return FilmSummaryResponse.builder().filmId(film.getFilmId()).title(film.getTitle()).adult(film.isAdult()).releaseDate(film.getReleaseDate()).backdropPath(film.getBackdropPath()).posterPath(film.getPosterPath()).type(film.getType()).genres(genres).numberOfViews(film.getNumberOfViews()).rating(film.getRating()).build();
     }
-  }
 
-  // 5) API: top 10 episodes by (views + likes)
-  public List<EpisodeSummaryResponse> getTop10EpisodesByViewsLikes() {
-    List<Episode> all = episodeRepository.findAll();
-    return all.stream()
-        .sorted(
-            Comparator.comparingLong((Episode e) -> (e.getViewCount() + e.getLikeCount()))
-                .reversed())
-        .limit(10)
-        .map(
-            e ->
-                EpisodeSummaryResponse.builder()
-                    .id(e.getId())
-                    .episodeNumber(e.getEpisodeNumber())
-                    .title(e.getTitle())
-                    .posterPath(e.getPosterPath())
-                    .backdropPath(e.getBackdropPath())
-                    .likeCount(e.getLikeCount())
-                    .viewCount(e.getViewCount())
-                    .build())
-        .collect(Collectors.toList());
-  }
+    // 2) API: film detail
+    public FilmDetailResponse getFilmDetail(String filmId) {
+        Film film = getFilmById(filmId);
+        User user = authenticationService.getAuthenticatedUser();
 
-  // 6) API: top 10 films by views
-  public List<FilmSummaryResponse> getTop10ViewedFilms(int q) {
-    Page<Film> films = filmRepository.findTopByOrderByNumberOfViewsDesc(q, PageRequest.of(q, 10));
-    return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
-  }
+        Timestamp updateTime = user.getRole().equalsIgnoreCase(String.valueOf(Roles.ADMIN)) ? (film.getUpdatedAt() == null ? null : Timestamp.valueOf(film.getUpdatedAt())) : null;
 
-  public FilmSummaryResponse mapToSummary(Film film) {
-    return toFilmSummary(film);
-  }
+        // episodes: map to EpisodeSummaryResponse
+        Set<Episode> eps = film.getEpisodes();
+        List<EpisodeDetailResponse> mapped = new ArrayList<>();
+        if (eps != null && !eps.isEmpty()) {
+            mapped = eps.stream().sorted(Comparator.comparingInt(Episode::getEpisodeNumber)).map(
+                    e -> EpisodeDetailResponse.builder().id(e.getId()).episodeNumber(e.getEpisodeNumber()).title(e.getTitle()).description(e.getDescription()).videoPath(e.getVideoPath()).likeCount(e.getLikeCount()).dislikeCount(e.getDislikeCount()).commentCount(e.getCommentCount()).viewCount(e.getViewCount()).build()).collect(Collectors.toList());
+        }
 
-  public List<FilmSummaryResponse> getNewlyReleasedFilms(int q) {
-    List<Film> films = filmRepository.findTopByOrderByReleaseDateDesc(PageRequest.of(0, q));
-    return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
-  }
+        // genres
+        Set<String> gnames = new HashSet<>();
+        if (film.getGenres() != null) {
+            gnames = film.getGenres().stream().map(Genre::getGenreName).collect(Collectors.toSet());
+        }
+
+        return FilmDetailResponse.builder().filmId(film.getFilmId()).title(film.getTitle()).adult(film.isAdult()).overview(film.getOverview()).type(film.getType()).releaseDate(film.getReleaseDate()).backdropPath(film.getBackdropPath()).posterPath(film.getPosterPath()).numberOfViews(film.getNumberOfViews()).numberOfLikes(film.getNumberOfLikes()).numberOfDislikes(film.getNumberOfDislikes()).numberOfComments(film.getNumberOfComments()).createdAt(film.getCreatedAt() == null ? null : Timestamp.valueOf(film.getCreatedAt())).updatedAt(updateTime).episodes(mapped).genres(gnames).build();
+    }
+
+    // 3) API: episode detail
+    public EpisodeDetailResponse getEpisodeDetail(int episodeId) {
+        Episode episode = episodeRepository.findById(episodeId).orElseThrow(() -> new AppException(ErrorCode.FILM_NOT_FOUND));
+        return EpisodeDetailResponse.builder().id(episode.getId()).episodeNumber(episode.getEpisodeNumber()).title(episode.getTitle()).description(episode.getDescription()).videoPath(episode.getVideoPath()).likeCount(episode.getLikeCount()).viewCount(episode.getViewCount()).dislikeCount(episode.getDislikeCount()).commentCount(episode.getCommentCount()).build();
+    }
+
+    // 4) API: search + filter films (DB queries + paging)
+    public Page<Film> searchAndFilterFilmsRaw(
+                                              String query, Set<String> genres, Boolean adult, int page, int size) {
+        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size);
+        String title = (query == null || query.isEmpty()) ? "" : query.toLowerCase();
+
+        if (genres != null && !genres.isEmpty()) {
+            List<String> lowerGenres = genres.stream().map(String::toLowerCase).collect(Collectors.toList());
+            long genreCount = lowerGenres.size();
+            return filmRepository.findByTitleAndGenres(
+                    title.isEmpty() ? null : title, lowerGenres, genreCount, adult, pageable);
+        } else {
+            if (adult == null) {
+                return filmRepository.findByTitleContainingIgnoreCase(title, pageable);
+            } else {
+                return filmRepository.findByTitleContainingIgnoreCaseAndAdult(title, adult, pageable);
+            }
+        }
+    }
+
+    // 5) API: top 10 episodes by (views + likes)
+    public List<EpisodeSummaryResponse> getTop10EpisodesByViewsLikes() {
+        List<Episode> all = episodeRepository.findAll();
+        return all.stream().sorted(
+                Comparator.comparingLong((Episode e) -> (e.getViewCount() + e.getLikeCount())).reversed()).limit(10).map(
+                        e -> EpisodeSummaryResponse.builder().id(e.getId()).episodeNumber(e.getEpisodeNumber()).title(e.getTitle()).likeCount(e.getLikeCount()).viewCount(e.getViewCount()).build()).collect(Collectors.toList());
+    }
+
+    // 6) API: top 10 films by views
+    public List<FilmSummaryResponse> getTopViewedFilms(int q) {
+        Page<Film> films = filmRepository.findTopByOrderByNumberOfViewsDesc(q, PageRequest.of(q, 10));
+        return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
+    }
+
+    public FilmSummaryResponse mapToSummary(Film film) {
+        return toFilmSummary(film);
+    }
+
+    public List<FilmSummaryResponse> getNewlyReleasedFilms(int q) {
+        List<Film> films = filmRepository.findTopByOrderByReleaseDateDesc(PageRequest.of(q, 10));
+        return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
+    }
 }

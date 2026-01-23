@@ -14,14 +14,14 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class Genre {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "genre_id")
-  private int genreId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "genre_id")
+    private int genreId;
 
-  @Column(name = "genre_name", unique = true)
-  private String genreName;
+    @Column(name = "genre_name", unique = true)
+    private String genreName;
 
-  @ManyToMany(mappedBy = "genres")
-  private Set<Film> systemFilms = new HashSet<>();
+    @ManyToMany(mappedBy = "genres")
+    private Set<Film> systemFilms = new HashSet<>();
 }

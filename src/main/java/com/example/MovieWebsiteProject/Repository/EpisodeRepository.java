@@ -12,9 +12,9 @@ import com.example.MovieWebsiteProject.Entity.Episode;
 @Repository
 public interface EpisodeRepository extends JpaRepository<Episode, Integer> {
 
-  @Query(value = "SELECT * FROM episode ORDER BY view_count DESC LIMIT :size", nativeQuery = true)
-  List<Episode> findTopByViews(@Param("size") int size);
+    @Query(value = "SELECT * FROM episode ORDER BY view_count DESC LIMIT :size", nativeQuery = true)
+    List<Episode> findTopByViews(@Param("size") int size);
 
-  @Query(value = "SELECT * FROM episode ORDER BY like_count DESC LIMIT :size", nativeQuery = true)
-  List<Episode> findTopByLikes(@Param("size") int size);
+    @Query(value = "SELECT * FROM episode ORDER BY like_count DESC LIMIT :size", nativeQuery = true)
+    List<Episode> findTopByLikes(@Param("size") int size);
 }

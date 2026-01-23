@@ -26,55 +26,55 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
-  @Column(unique = true)
-  private String username;
+    @Column(unique = true)
+    private String username;
 
-  @Column(unique = true)
-  private String email;
+    @Column(unique = true)
+    private String email;
 
-  private String password;
+    private String password;
 
-  @Column(name = "created_at")
-  private LocalDateTime createdAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-  @Column(name = "ip_address")
-  private String ipAddress;
+    @Column(name = "ip_address")
+    private String ipAddress;
 
-  private String country, role;
+    private String country, role;
 
-  @Column(name = "avatar_name")
-  private String avatarName;
+    @Column(name = "avatar_name")
+    private String avatarName;
 
-  @Column(name = "avatar_path")
-  private String avatarPath;
+    @Column(name = "avatar_path")
+    private String avatarPath;
 
-  @Column(name = "date_of_birth")
-  private LocalDate dateOfBirth;
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
-  @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-  private List<Playlist> playlists;
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    private List<Playlist> playlists;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private Set<UserFilmPlaylist> userFilmPlaylist;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<UserFilmPlaylist> userFilmPlaylist;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private Set<Reaction> reaction;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Reaction> reaction;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private Set<Comment> comments = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Comment> comments = new HashSet<>();
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private Set<Watching> watchings = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Watching> watchings = new HashSet<>();
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private List<UserNotification> userNotification;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserNotification> userNotification;
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(() -> role);
-  }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(() -> role);
+    }
 }

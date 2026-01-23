@@ -3,15 +3,15 @@ package com.example.MovieWebsiteProject.Dto.projection;
 import java.time.LocalDateTime;
 
 public interface FilmComments {
-  String getCommentId();
+    String getCommentId();
 
-  String getUserId();
+    String getUserId();
 
-  String getUserName();
+    String getUserName();
 
-  String getAvatarPath();
+    String getAvatarPath();
 
-  String getContent();
+    String getContent();
 
-  LocalDateTime getCommentTime();
+    LocalDateTime getCommentTime();
 }
