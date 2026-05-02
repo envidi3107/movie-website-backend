@@ -21,17 +21,22 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
-    private final String[] PUBLIC_ENDPOINTS = {"/users/signup", "/auth/login", "/auth/logout", "/auth/introspect"
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/users/signup", "/auth/login", "/auth/logout", "/auth/introspect",
+            "/ws/**", "/ws/info/**",
+            "/films/new-releases", "/films/top-viewed"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
     private final CustomJwtAuthenticationConverter customJwtAuthenticationConverter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(
                 request -> request.requestMatchers(PUBLIC_ENDPOINTS).permitAll().requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll().requestMatchers("/error").permitAll().requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated());
-
+        httpSecurity
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint));
         httpSecurity.oauth2ResourceServer(
                 oauth2 -> oauth2.jwt(
                         jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder).jwtAuthenticationConverter(customJwtAuthenticationConverter)));

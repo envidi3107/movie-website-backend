@@ -25,15 +25,13 @@ import lombok.experimental.FieldDefaults;
 public class UserFilmPlaylistService {
     UserFilmPlaylistRepository userFilmPlaylistRepository;
     AuthenticationService authenticationService;
-    FilmRepository filmRepository;
     PlaylistRepository playlistRepository;
     FilmService filmService;
 
     @Transactional
-    public void addFilmToUserPlaylist(String playlistId, String filmId, String ownerFilm) {
+    public void addFilmToUserPlaylist(String playlistId, String filmId) {
         User user = authenticationService.getAuthenticatedUser();
-        Film film;
-        film = filmRepository.findById(filmId).orElseThrow(() -> new RuntimeException("Film not found"));
+        Film film = filmService.getFilmById(filmId);
 
         Playlist playlist = playlistRepository.findById(playlistId).orElseThrow(() -> new RuntimeException("Playlist not found"));
 
@@ -49,8 +47,8 @@ public class UserFilmPlaylistService {
         Map<String, List<UserFilmPlaylist>> grouped = entries.stream().collect(Collectors.groupingBy(e -> e.getPlaylist().getPlaylistId()));
         List<PlaylistResponse> responses = new ArrayList<>();
         for (Map.Entry<String, List<UserFilmPlaylist>> entry : grouped.entrySet()) {
-            Playlist p = entry.getValue().get(0).getPlaylist();
-            List<FilmSummaryResponse> films = entry.getValue().stream().sorted(Comparator.comparing(e -> e.getAddedTime())).map(e -> filmService.mapToSummary(e.getFilm())).collect(Collectors.toList());
+            Playlist p = entry.getValue().getFirst().getPlaylist();
+            List<FilmSummaryResponse> films = entry.getValue().stream().sorted(Comparator.comparing(UserFilmPlaylist::getAddedTime)).map(e -> filmService.mapToSummary(e.getFilm())).collect(Collectors.toList());
             PlaylistResponse pr = PlaylistResponse.builder().playlistId(p.getPlaylistId()).playlistName(p.getPlaylistName()).createdAt(p.getCreatedAt()).films(films).build();
             responses.add(pr);
         }

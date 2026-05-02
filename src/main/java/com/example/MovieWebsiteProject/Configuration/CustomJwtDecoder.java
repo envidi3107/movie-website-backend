@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import com.example.MovieWebsiteProject.Enum.ErrorCode;
+import com.example.MovieWebsiteProject.Exception.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -32,7 +34,7 @@ public class CustomJwtDecoder implements JwtDecoder {
 
         boolean checkValid = authenticationService.introspect(token);
 
-        if (!checkValid) throw new JwtException("Token invalid");
+        if (!checkValid) throw new JwtException(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
 
         if (Objects.isNull(nimbusJwtDecoder)) {
             SecretKeySpec secretKeySpec = new SecretKeySpec(jwtService.getSIGNER_KEY().getBytes(), "HS512");

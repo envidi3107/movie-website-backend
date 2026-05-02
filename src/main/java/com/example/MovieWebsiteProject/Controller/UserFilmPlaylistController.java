@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserFilmPlaylistController {
@@ -25,9 +25,10 @@ public class UserFilmPlaylistController {
 
     @PostMapping("/add-film-to-user-playlist")
     public ApiResponse<Void> addFilmToUserPlaylist(
-                                                   @Valid @RequestBody PlaylistAdditionRequest request) {
+            @Valid @RequestBody PlaylistAdditionRequest request
+    ) {
         userFilmPlaylistService.addFilmToUserPlaylist(
-                request.getPlaylistId(), request.getFilmId(), request.getOwnerFilm());
+                request.getPlaylistId(), request.getFilmId());
         return ApiResponse.<Void>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).build();
     }
 

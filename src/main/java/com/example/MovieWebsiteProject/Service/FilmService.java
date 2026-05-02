@@ -117,8 +117,8 @@ public class FilmService {
     }
 
     // 6) API: top 10 films by views
-    public List<FilmSummaryResponse> getTopViewedFilms(int q) {
-        Page<Film> films = filmRepository.findTopByOrderByNumberOfViewsDesc(q, PageRequest.of(q, 10));
+    public List<FilmSummaryResponse> getTopViewedFilms(int page) {
+        Page<Film> films = filmRepository.findAllByOrderByNumberOfViewsDesc(PageRequest.of(page, 10));
         return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
     }
 
@@ -126,8 +126,8 @@ public class FilmService {
         return toFilmSummary(film);
     }
 
-    public List<FilmSummaryResponse> getNewlyReleasedFilms(int q) {
-        List<Film> films = filmRepository.findTopByOrderByReleaseDateDesc(PageRequest.of(q, 10));
+    public List<FilmSummaryResponse> getNewlyReleasedFilms(int page) {
+        Page<Film> films = filmRepository.findAllByOrderByReleaseDateDesc(PageRequest.of(page, 10));
         return films.stream().map(this::toFilmSummary).collect(Collectors.toList());
     }
 }

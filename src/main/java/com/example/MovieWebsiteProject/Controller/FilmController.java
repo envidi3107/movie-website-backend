@@ -64,13 +64,6 @@ public class FilmController {
                 pageRes.getNumber() + 1, pageRes.getSize(), pageRes.getTotalElements(), pageRes.getTotalPages(), pageRes.isLast(), content);
     }
 
-    @GetMapping("/top-viewed")
-    public ApiResponse<List<FilmSummaryResponse>> getTopViewedFilms(
-                                                                    @RequestParam(value = "q", required = false) int q) {
-        List<FilmSummaryResponse> results = filmService.getTopViewedFilms(q);
-        return ApiResponse.<List<FilmSummaryResponse>>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).results(results).build();
-    }
-
     @GetMapping("/episodes/top")
     public ApiResponse<List<EpisodeSummaryResponse>> getTopEpisodes() {
         List<EpisodeSummaryResponse> res = filmService.getTop10EpisodesByViewsLikes();
@@ -108,9 +101,16 @@ public class FilmController {
                 .build();
     }
 
+    @GetMapping("/top-viewed")
+    public ApiResponse<List<FilmSummaryResponse>> getTopViewedFilms(
+            @RequestParam(value = "page", defaultValue = "0") int page) {
+        List<FilmSummaryResponse> results = filmService.getTopViewedFilms(page);
+        return ApiResponse.<List<FilmSummaryResponse>>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).results(results).build();
+    }
+
     @GetMapping("/new-releases")
-    public ApiResponse<List<FilmSummaryResponse>> getNewlyReleasedFilms(@RequestParam("q") int q) {
-        List<FilmSummaryResponse> results = filmService.getNewlyReleasedFilms(q);
+    public ApiResponse<List<FilmSummaryResponse>> getNewlyReleasedFilms(@RequestParam(value = "page", defaultValue = "0") int page) {
+        List<FilmSummaryResponse> results = filmService.getNewlyReleasedFilms(page);
         return ApiResponse.<List<FilmSummaryResponse>>builder().code(SuccessCode.SUCCESS.getCode()).message(SuccessCode.SUCCESS.getMessage()).results(results).build();
     }
 }

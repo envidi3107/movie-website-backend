@@ -38,7 +38,8 @@ public class AdminController {
 
     @GetMapping("/get-users")
     public PageResponse<UserResponse> getUsers(
-                                               @NotNull @RequestParam(value = "page", defaultValue = "1") int page) {
+            @NotNull @RequestParam(value = "page", defaultValue = "1") int page
+    ) {
         Page<UserResponse> res = adminService.getUsers(page);
         return new PageResponse<>(
                 res.getNumber() + 1, res.getSize(), res.getTotalElements(), res.getTotalPages(), res.isLast(), res.getContent());

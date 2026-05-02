@@ -31,13 +31,6 @@ spring:
       enabled: true
       max-file-size: 100MB
       max-request-size: 150MB
-  application:
-    name: jwt-cookie-auth
-  session:
-    cookie:
-      http-only: true
-      secure: false
-      same-site: none
 logging:
   level:
     org.hibernate.SQL: DEBUG

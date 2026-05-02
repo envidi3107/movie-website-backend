@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.example.MovieWebsiteProject.Controller.EpisodeMetadataRequest;
+import com.example.MovieWebsiteProject.Dto.request.EpisodeMetadataRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

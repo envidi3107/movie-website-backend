@@ -20,8 +20,4 @@ public class PlaylistAdditionRequest {
     @NotNull
     @NotEmpty(message = "Film Id cannot be empty!")
     private String filmId;
-
-    @NotNull
-    @NotEmpty(message = "Owner film cannot be empty!")
-    private String ownerFilm;
 }
